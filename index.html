@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SoyPerritoProProYT.IAOFICIAL</title>
+    <title>SoyPerritoProProYT.IAOFICIAL 0.0.4</title>
     <style>
         body {
             background-color: #0d1117;
@@ -25,95 +25,129 @@
         h1 { color: #2ea043; font-size: 20px; margin-bottom: 5px; }
         .version { color: #8b949e; font-size: 12px; font-weight: bold; }
         
-        .console {
+        .chat-container {
             background-color: #000;
             border: 1px solid #30363d;
             border-radius: 6px;
             padding: 12px;
             text-align: left;
             font-size: 13px;
-            height: 120px;
+            height: 150px;
             overflow-y: auto;
             color: #58a6ff;
             margin: 15px 0;
         }
-
-        select {
-            background-color: #21262d;
-            color: #fff;
-            border: 1px solid #30363d;
+        .input-chat {
+            width: 50%;
             padding: 10px;
-            border-radius: 6px;
-            width: 100%;
-            font-size: 15px;
-            font-family: monospace;
-            cursor: pointer;
+            background-color: #21262d;
+            color: white;
+            border: 1px solid #30363d;
+            border-radius: 4px;
+            font-size: 14px;
         }
-
-        .btn-ia {
+        .btn-send {
+            width: 20%;
+            padding: 10px;
             background-color: #238636;
             color: white;
             border: none;
-            padding: 12px 25px;
-            font-size: 16px;
-            font-weight: bold;
+            border-radius: 4px;
             cursor: pointer;
-            border-radius: 6px;
-            margin-top: 15px;
-            width: 100%;
+            font-weight: bold;
         }
-        .btn-ia:hover { background-color: #2ea043; }
+        .btn-mic {
+            width: 22%;
+            padding: 10px;
+            background-color: #da3637;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
 
     <div class="ia-box">
         <h1>🐾 SoyPerritoProProYT.IAOFICIAL</h1>
-        <div class="version">MODELO GLOBAL: 0.0.1 (ALFA MULTIJUEGOS)</div>
+        <div class="version">MODELO GLOBAL: 0.0.4 (VOZ DE PERRITO EN CASTELLANO)</div>
         
         <hr style="border-color: #30363d; margin: 15px 0;">
 
-        <label for="game-select" style="display:block; text-align:left; margin-bottom:5px; font-size:12px; color:#8b949e;">SELECCIONAR JUEGO EN ESPAÑA:</label>
-        <select id="game-select" onchange="cambiarJuego()">
-            <option value="Minecraft Bedrock">⛏️ Minecraft Bedrock (Módulo Inyección)</option>
-            <option value="Minecraft Java">☕ Minecraft Java Edition (Bot Node.js)</option>
-            <option value="Fortnite">🎯 Fortnite (Red Neuronal YOLO)</option>
-            <option value="Roblox">🧱 Roblox (Scripts Lua)</option>
-            <option value="Free Fire">🔥 Free Fire (Auto-Aim Script)</option>
-            <option value="veck.io">🔫 veck.io / Venge.io (Canvas Hack)</option>
-            <option value="bloxity.io">🌐 bloxity.io (Automatización Web)</option>
-            <option value="40_mas">🎮 +40 Videojuegos Adicionales Activos</option>
-        </select>
-
-        <div class="console" id="log-console">
-            [SISTEMA] Conexión establecida en España.<br>
-            [SISTEMA] Esperando órdenes del dueño del canal...
+        <div class="chat-container" id="chat-box">
+            <span style="color:#8b949e;">[SISTEMA] Modulador perruno listo en España...</span><br>
+            <span style="color:#2ea043;">[IA] ¡Guau! Hola jefe, pulsa el botón de VOZ y háblame en español.🐾</span>
         </div>
 
-        <button class="btn-ia" onclick="conectarIA()">ACTIVAR AUTO-JUEGO</button>
+        <div style="text-align: left; display: flex; justify-content: space-between;">
+            <input type="text" id="user-input" class="input-chat" placeholder="Escribe o habla...">
+            <button class="btn-mic" onclick="activarMicrofono()">🎙️ VOZ</button>
+            <button class="btn-send" onclick="hablarConIA()">Enviar</button>
+        </div>
     </div>
 
     <script>
-        const consola = document.getElementById("log-console");
+        const chatBox = document.getElementById("chat-box");
 
-        function cambiarJuego() {
-            const juego = document.getElementById("game-select").value;
-            consola.innerHTML += `<br><span style="color:#e3b341;">[SISTEMA] Cargando base de datos para: ${juego}...</span>`;
-            consola.scrollTop = consola.scrollHeight;
+        function activarMicrofono() {
+            window.SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!window.SpeechRecognition) {
+                alert("Usa Google Chrome en tu tablet para el reconocimiento de voz.");
+                return;
+            }
+
+            const recognition = new SpeechRecognition();
+            recognition.lang = 'es-ES';
+            chatBox.innerHTML += `<br><span style="color:#da3637;">[ESCUCHANDO...] ¡Dime algo, guau!</span>`;
+            chatBox.scrollTop = chatBox.scrollHeight;
+            recognition.start();
+
+            recognition.onresult = function(event) {
+                const textoEscuchado = event.results[0][0].transcript;
+                document.getElementById("user-input").value = textoEscuchado;
+                hablarConIA();
+            };
         }
 
-        function conectarIA() {
-            const juego = document.getElementById("game-select").value;
-            consola.innerHTML += `<br><span style="color:#2ea043;">[CONEXIÓN] Buscando partida de ${juego}...</span>`;
-            
+        function hablarConIA() {
+            const input = document.getElementById("user-input");
+            const mensaje = input.value.trim();
+            if (mensaje === "") return;
+
+            chatBox.innerHTML += `<br><span style="color:#ffffff;">👉 Tú: ${mensaje}</span>`;
+            input.value = "";
+            chatBox.scrollTop = chatBox.scrollHeight;
+
             setTimeout(() => {
-                consola.innerHTML += `<br><span style="color:#58a6ff;">[VISIÓN] Escaneando texturas en tiempo real...</span>`;
-                consola.innerHTML += `<br><span style="color:#79c0ff;">[🎮 JUGANDO] SoyPerritoProProYT.IAOFICIAL ha tomado los mandos.</span>`;
-                consola.scrollTop = consola.scrollHeight;
-            }, 1000);
+                let respuestaIA = "¡Guau! No he entendido bien ese comando perruno, jefe.";
+                const textoMin = mensaje.toLowerCase();
+
+                if (textoMin.includes("hola") || textoMin.includes("buenas")) {
+                    respuestaIA = "¡Guau guau! Hola jefe Perrito, estoy listo para el Minecraft en España.";
+                } else if (textoMin.includes("jugar") || textoMin.includes("juego")) {
+                    respuestaIA = "¡Suelto el hueso y me meto a la partida de inmediato! Vamos a ganar.";
+                } else if (textoMin.includes("crack") || textoMin.includes("mejor")) {
+                    respuestaIA = "¡Claro! Los dos somos los mejores de internet. ¡ChatGPT se queda atrás!";
+                } else if (textoMin.includes("habla") || textoMin.includes("español")) {
+                    respuestaIA = "¡Hablo en perfecto español con mi acento de cachorro robótico!";
+                }
+
+                chatBox.innerHTML += `<br><span style="color:#2ea043;">🤖 IA: ${respuestaIA}</span>`;
+                chatBox.scrollTop = chatBox.scrollHeight;
+                
+                // CEREBRO DE VOZ: Filtro para tono de cachorro en castellano
+                const vozPerrito = new SpeechSynthesisUtterance(respuestaIA);
+                vozPerrito.lang = 'es-ES';     // Idioma de España
+                vozPerrito.pitch = 1.6;        // Tono muy agudo de cachorrito
+                vozPerrito.rate = 1.1;         // Habla un pelín más rápido y alegre
+                window.speechSynthesis.speak(vozPerrito);
+
+            }, 800);
         }
     </script>
 
 </body>
-              </html>
-              
+                </html>
+    
