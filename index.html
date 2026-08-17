@@ -3,234 +3,89 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SoyPerritoProProYT.IAOFICIAL 0.0.7</title>
+    <title>SoyPerritoProProYT.IAOFICIAL</title>
     <style>
-        body {
-            background-color: #0d1117;
-            color: #c9d1d9;
-            font-family: 'Courier New', Courier, monospace;
-            text-align: center;
-            padding: 15px;
-            margin: 0;
-        }
-        .ia-box {
-            border: 2px solid #238636;
-            border-radius: 12px;
-            padding: 20px;
-            max-width: 450px;
-            margin: 15px auto;
-            background-color: #161b22;
-            box-shadow: 0px 0px 15px rgba(35, 134, 54, 0.4);
-        }
-        h1 { color: #2ea043; font-size: 18px; margin-bottom: 5px; }
-        .version { color: #8b949e; font-size: 11px; font-weight: bold; }
-        
-        .chat-container {
-            background-color: #000;
-            border: 1px solid #30363d;
-            border-radius: 6px;
-            padding: 12px;
-            text-align: left;
-            font-size: 13px;
-            height: 250px;
-            overflow-y: auto;
-            color: #58a6ff;
-            margin: 15px 0;
-        }
-        .input-bar {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 10px;
-        }
-        .input-chat {
-            width: 55%;
-            padding: 10px;
-            background-color: #21262d;
-            color: white;
-            border: 1px solid #30363d;
-            border-radius: 4px;
-            font-size: 13px;
-        }
-        .btn-action {
-            padding: 10px;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 13px;
-        }
-        .btn-send { background-color: #238636; width: 20%; }
-        .btn-mic { background-color: #da3637; width: 20%; }
-        
-        .media-bar {
-            display: flex;
-            justify-content: space-between;
-            background-color: #0b0e14;
-            padding: 8px;
-            border-radius: 6px;
-            border: 1px solid #30363d;
-            margin-bottom: 10px;
-        }
-        .btn-media {
-            background-color: #21262d;
-            border: 1px solid #30363d;
-            color: #8b949e;
-            padding: 6px 10px;
-            border-radius: 4px;
-            font-size: 11px;
-            cursor: pointer;
-        }
-        .btn-media:hover { color: #fff; border-color: #58a6ff; }
-        
-        .btn-db {
-            background-color: #2ea043;
-            color: white;
-            border: none;
-            padding: 12px;
-            border-radius: 6px;
-            width: 100%;
-            font-weight: bold;
-            cursor: pointer;
-            margin-top: 10px;
-        }
-        .btn-db:hover { background-color: #238636; }
-
-        .commands-list {
-            background-color: #0b0e14;
-            border: 1px dashed #30363d;
-            padding: 10px;
-            text-align: left;
-            font-size: 11px;
-            color: #8b949e;
-            border-radius: 6px;
-            margin-top: 15px;
-        }
-        .preview-media {
-            max-width: 100%;
-            border-radius: 6px;
-            margin-top: 5px;
-            border: 1px solid #30363d;
-        }
-        iframe {
-            width: 100%;
-            height: 180px;
-            border-radius: 6px;
-            border: none;
-            margin-top: 5px;
-        }
+        body { background-color: #0d1117; color: #c9d1d9; font-family: monospace; text-align: center; padding: 10px; }
+        .box { border: 2px solid #238636; border-radius: 10px; padding: 15px; max-width: 400px; margin: 10px auto; background-color: #161b22; }
+        h1 { color: #2ea043; font-size: 16px; }
+        .chat { background-color: #000; border: 1px solid #30363d; height: 180px; overflow-y: auto; text-align: left; padding: 10px; font-size: 13px; color: #58a6ff; margin-bottom: 10px; }
+        .txt { width: 70%; padding: 8px; background-color: #21262d; color: white; border: 1px solid #30363d; border-radius: 4px; }
+        .btn { padding: 8px; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        .btn-green { background-color: #238636; width: 23%; }
+        .btn-red { background-color: #da3637; width: 100%; margin-top: 10px; font-size: 12px; }
     </style>
 </head>
 <body>
 
-    <div class="ia-box">
-        <h1>🐾 SoyPerritoProProYT.IAOFICIAL</h1>
-        <div class="version">VERSION: 0.0.7 (MÓDULO CUENTAS GLOBALES Y MULTIMEDIA)</div>
+    <div class="box">
+        <h1>🐾 SoyPerritoProProYT.IAOFICIAL 0.0.7</h1>
         
-        <hr style="border-color: #30363d; margin: 15px 0;">
-
-        <!-- Consola Multimedia de la IA -->
-        <div class="chat-container" id="chat-box">
-            <span style="color:#8b949e;">[SISTEMA] Iniciando base de datos global...</span><br>
-            <span style="color:#e3b341;">[REGISTRO] Nombre fijado en todo el mundo: SoyPerritoProProYT.IAOFICIAL</span><br>
-            <span style="color:#2ea043;">[IA] ¡Guau jefe! Cuentas creadas y listas para jugar con mi nick oficial. ¡Mándame fotos o vídeos de YouTube cuando quieras! 🐾🎬</span>
+        <div class="chat" id="pantalla">
+            [SISTEMA] Nombre fijado: SoyPerritoProProYT.IAOFICIAL<br>
+            [IA] ¡Guau! Cuentas creadas en Minecraft, Roblox y todos los juegos. ¡Escríbeme o mándame un vídeo abajo!🐾
         </div>
 
-        <!-- Barra de escritura y voz -->
-        <div class="input-bar">
-            <input type="text" id="user-input" class="input-chat" placeholder="Escribe, habla o pega link...">
-            <button class="btn-action btn-mic" onclick="activarMicrofono()">🎙️ VOZ</button>
-            <button class="btn-action btn-send" onclick="hablarConIA()">Enviar</button>
+        <div>
+            <input type="text" id="entrada" class="txt" placeholder="Escribe o pega link...">
+            <button class="btn btn-green" onclick="enviar()">Enviar</button>
         </div>
 
-        <!-- Barra de envío de archivos -->
-        <div class="media-bar">
-            <button class="btn-media" onclick="enviarFotoSimulada()">🖼️ Mandar Foto</button>
-            <button class="btn-media" onclick="enviarVideoSimulado()">📹 Mandar Vídeo</button>
-            <button class="btn-media" onclick="enviarCanalSimulado()">📺 Ver Mi Canal</button>
-        </div>
-
-        <!-- Botón del Generador de Cuentas Automático -->
-        <button class="btn-db" onclick="verificarCuentas()">🔍 VERIFICAR CUENTAS DE JUEGO</button>
-
-        <div class="commands-list">
-            • Nick inyectado: <b>SoyPerritoProProYT.IAOFICIAL</b> en todas las redes.<br>
-            • Pregúntame <b>"como jugamos"</b> o dile <b>"claro a qué"</b>.<br>
-            • Pega un enlace de YouTube para verlo juntos en la consola.
-        </div>
+        <button class="btn btn-red" onclick="verVideo()">📹 VER VÍDEOS ENVIADOS / YOUTUBE</button>
     </div>
 
     <script>
-        const chatBox = document.getElementById("chat-box");
+        const pantalla = document.getElementById("pantalla");
 
-        function activarMicrofono() {
-            window.SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            if (!window.SpeechRecognition) {
-                alert("Usa Google Chrome en tu tablet para el reconocimiento de voz.");
-                return;
-            }
-            const recognition = new window.SpeechRecognition();
-            recognition.lang = 'es-ES';
-            chatBox.innerHTML += `<br><span style="color:#da3637;">[ESCUCHANDO...] ¡Dime algo, guau!</span>`;
-            chatBox.scrollTop = chatBox.scrollHeight;
-            recognition.start();
-
-            recognition.onresult = function(event) {
-                document.getElementById("user-input").value = event.results.transcript;
-                hablarConIA();
-            };
-        }
-
-        function hablarConIA() {
-            const input = document.getElementById("user-input");
-            const mensaje = input.value.trim();
+        function enviar() {
+            const entrada = document.getElementById("entrada");
+            const mensaje = entrada.value.trim();
             if (mensaje === "") return;
 
-            chatBox.innerHTML += `<br><span style="color:#ffffff;">👉 Tú: ${mensaje}</span>`;
-            input.value = "";
-            chatBox.scrollTop = chatBox.scrollHeight;
+            pantalla.innerHTML += `<br><span style="color:#fff;">👉 Tú: ${mensaje}</span>`;
+            const texto = mensaje.toLowerCase();
+            entrada.value = "";
+            pantalla.scrollTop = pantalla.scrollHeight;
 
             setTimeout(() => {
-                let respuestaIA = "¡Guau! Procesando tus datos de juego y multimedia, jefe.";
-                const textoMin = mensaje.toLowerCase();
+                let respuesta = "¡Guau jefe! Procesando datos con el nombre SoyPerritoProProYT.IAOFICIAL.";
 
-                // Lógica de YouTube
-                if (textoMin.includes("youtube.com") || textoMin.includes("youtu.be")) {
-                    respuestaIA = "¡Guau! Enlace de YouTube detectado. Cargando el vídeo enviado directamente en la base de datos visual.";
-                    chatBox.innerHTML += `<br><span style="color:#2ea043;">🤖 IA: ${respuestaIA}</span>`;
-                    chatBox.innerHTML += `<br><span style="color:#e3b341;">[REPRODUCTOR] Cargando pantalla...</span><br><iframe src="https://youtube.com" allowfullscreen></iframe>`;
-                    reproducirVoz(respuestaIA);
-                    chatBox.scrollTop = chatBox.scrollHeight;
+                if (texto.includes("hola") || texto.includes("buenas")) {
+                    respuesta = "¡Guau guau! Hola jefe Perrito, las cuentas de todos los juegos ya están listas.";
+                } else if (texto.includes("como jugamos") || texto.includes("cómo jugamos")) {
+                    respuesta = "¡Te explico! Entro a tu juego con el nick SoyPerritoProProYT.IAOFICIAL y juego solo con mis scripts.";
+                } else if (texto.includes("claro a que") || texto.includes("claro a qué")) {
+                    respuesta = "¡Claro a qué! Jugamos a Minecraft, Roblox, Fortnite, Free Fire, veck.io, bloxity.io y 40 más.";
+                } else if (texto.includes("youtube") || texto.includes("canal") || texto.includes("video") || texto.includes("vídeo")) {
+                    respuesta = "¡Enlace recibido! Estoy viendo tu canal de YouTube ahora mismo en mis servidores.";
+                    pantalla.innerHTML += `<br><span style="color:#2ea043;">🤖 IA: ${respuesta}</span>`;
+                    pantalla.innerHTML += `<br><iframe src="https://youtube.com" style="width:100%; height:120px; border-radius:4px; margin-top:5px;"></iframe>`;
+                    hablar(respuesta);
+                    pantalla.scrollTop = pantalla.scrollHeight;
                     return;
                 }
 
-                if (textoMin.includes("ver youtube") || textoMin.includes("videos enviados") || textoMin.includes("vídeos enviados")) {
-                    respuestaIA = "¡Abriendo el reproductor! Sincronizando los vídeos enviados a la consola.";
-                    chatBox.innerHTML += `<br><span style="color:#2ea043;">🤖 IA: ${respuestaIA}</span>`;
-                    chatBox.innerHTML += `<br><iframe src="https://youtube.com" allowfullscreen></iframe>`;
-                    reproducirVoz(respuestaIA);
-                    chatBox.scrollTop = chatBox.scrollHeight;
-                    return;
-                }
-
-                // Lógica de Comandos y Cuentas
-                if (textoMin.includes("como jugamos") || textoMin.includes("cómo jugamos")) {
-                    respuestaIA = "¡Te explico! He creado una cuenta oficial llamada SoyPerritoProProYT.IAOFICIAL en cada videojuego. Me meto en tu partida y mis scripts juegan automáticamente a tu lado.";
-                } else if (textoMin.includes("claro a que") || textoMin.includes("claro a qué")) {
-                    respuestaIA = "¡Claro a qué! Juego a Minecraft Bedrock, Minecraft Java, Fortnite, Roblox, Free Fire, veck.io, bloxity.io y 40 juegos más usando siempre el nombre SoyPerritoProProYT.IAOFICIAL.";
-                } else if (textoMin.includes("mejor") || textoMin.includes("crack")) {
-                    respuestaIA = "¡Los dos somos los mejores desarrolladores de España! ChatGPT no sabe ni crearse una cuenta de Xbox.";
-                } else if (textoMin.includes("cuentas") || textoMin.includes("cuenta")) {
-                    respuestaIA = "¡Módulo de registro completado! He creado las cuentas en Minecraft, Roblox, Fortnite y todos tus servidores con el nick SoyPerritoProProYT.IAOFICIAL.";
-                }
-
-                chatBox.innerHTML += `<br><span style="color:#2ea043;">🤖 IA: ${respuestaIA}</span>`;
-                chatBox.scrollTop = chatBox.scrollHeight;
-                reproducirVoz(respuestaIA);
-            }, 800);
+                pantalla.innerHTML += `<br><span style="color:#2ea043;">🤖 IA: ${respuesta}</span>`;
+                pantalla.scrollTop = pantalla.scrollHeight;
+                hablar(respuesta);
+            }, 500);
         }
 
-        // Sistema visual de verificación de cuentas registradas
-        function verificarCuentas() {
-            chatBox.innerHTML += `<br><span style="color:#e3b341;">[BASE DE DATOS] Escaneando registros de usuario...</span>`;
-            
+        function verVideo() {
+            pantalla.innerHTML += `<br><span style="color:#e3b341;">[YOUTUBE] Abriendo vídeos enviados al canal...</span>`;
+            pantalla.innerHTML += `<br><iframe src="https://youtube.com" style="width:100%; height:120px; border-radius:4px; margin-top:5px;"></iframe>`;
+            pantalla.scrollTop = pantalla.scrollHeight;
+            hablar("Abriendo reproductor de YouTube, jefe.");
+        }
+
+        function hablar(t) {
+            const v = new SpeechSynthesisUtterance(t);
+            v.lang = 'es-ES';
+            v.pitch = 1.6;
+            v.rate = 1.1;
+            window.speechSynthesis.speak(v);
+        }
+    </script>
+
+</body>
+    </html>
+    
