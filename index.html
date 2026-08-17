@@ -72,7 +72,7 @@
 
     <div class="ia-box">
         <h1>🐾 SoyPerritoProProYT.IAOFICIAL</h1>
-        <div class="version">MODELO GLOBAL: 0.0.4 (VOZ DE PERRITO EN CASTELLANO)</div>
+        <div class="version">VERSION: 0.0.4 (MÓDULO DE VOZ Y RESPUESTAS)</div>
         
         <hr style="border-color: #30363d; margin: 15px 0;">
 
@@ -98,7 +98,7 @@
                 return;
             }
 
-            const recognition = new SpeechRecognition();
+            const recognition = new window.SpeechRecognition();
             recognition.lang = 'es-ES';
             chatBox.innerHTML += `<br><span style="color:#da3637;">[ESCUCHANDO...] ¡Dime algo, guau!</span>`;
             chatBox.scrollTop = chatBox.scrollHeight;
@@ -137,11 +137,10 @@
                 chatBox.innerHTML += `<br><span style="color:#2ea043;">🤖 IA: ${respuestaIA}</span>`;
                 chatBox.scrollTop = chatBox.scrollHeight;
                 
-                // CEREBRO DE VOZ: Filtro para tono de cachorro en castellano
                 const vozPerrito = new SpeechSynthesisUtterance(respuestaIA);
-                vozPerrito.lang = 'es-ES';     // Idioma de España
-                vozPerrito.pitch = 1.6;        // Tono muy agudo de cachorrito
-                vozPerrito.rate = 1.1;         // Habla un pelín más rápido y alegre
+                vozPerrito.lang = 'es-ES';
+                vozPerrito.pitch = 1.6;
+                vozPerrito.rate = 1.1;
                 window.speechSynthesis.speak(vozPerrito);
 
             }, 800);
@@ -149,5 +148,4 @@
     </script>
 
 </body>
-                </html>
-    
+</html>
