@@ -83,6 +83,10 @@ h1 {
     font-size: 12px;
 }
 
+.btn:hover {
+    opacity: 0.85;
+}
+
 .btn-green {
     background-color: #238636;
     width: 23%;
@@ -119,6 +123,26 @@ iframe {
     margin-top: 8px;
     background-color: white;
 }
+
+.web-box {
+    margin-top: 10px;
+}
+
+.web-input {
+    width: 90%;
+    box-sizing: border-box;
+    padding: 8px;
+    background-color: #21262d;
+    color: white;
+    border: 1px solid #30363d;
+    border-radius: 4px;
+    margin-bottom: 6px;
+}
+
+.pequeno {
+    color: #8b949e;
+    font-size: 10px;
+}
 </style>
 </head>
 
@@ -140,15 +164,16 @@ VERSION: 30.1.1 — IA LOCAL Q4 🧠
 
 [SISTEMA] Nombre global:
 SoyPerritoProProYT.IAOFICIAL
-<br>
+<br><br>
 
 [SISTEMA] V30.1.1 iniciada.
-<br>
+<br><br>
 
-[SISTEMA] Modelo local: SmolLM2-135M Q4
-<br>
+[SISTEMA] Modelo local:
+SmolLM2-135M-Instruct Q4
+<br><br>
 
-[IA] 🐶 Cargando mi cerebro...
+[IA] 🐶 Preparada para cargar mi cerebro...
 
 </div>
 
@@ -164,7 +189,7 @@ SoyPerritoProProYT.IAOFICIAL
 
 <button
     class="btn btn-green"
-    onclick="enviar()">
+    id="botonEnviar">
 Enviar
 </button>
 
@@ -174,25 +199,25 @@ Enviar
 
 <button
     class="btn btn-blue"
-    onclick="comandoBoton('jugar')">
+    id="botonJugar">
 🎮 BOTÓN JUGAR
 </button>
 
 <button
     class="btn btn-purple"
-    onclick="comandoBoton('cuentas')">
+    id="botonCuentas">
 🔐 CUENTAS JUEGOS
 </button>
 
 <button
     class="btn btn-red"
-    onclick="comandoBoton('youtube')">
+    id="botonYoutube">
 📺 VER YOUTUBE
 </button>
 
 <button
     class="btn btn-orange"
-    onclick="comandoBoton('navegar')">
+    id="botonNavegar">
 🌐 ENTRAR A WEBS
 </button>
 
@@ -210,8 +235,18 @@ import {
     env
 } from "https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.8.1";
 
+
+// ==========================
+// CONFIGURACIÓN
+// ==========================
+
 env.allowLocalModels = false;
 env.useBrowserCache = true;
+
+
+// ==========================
+// ELEMENTOS
+// ==========================
 
 const pantalla =
     document.getElementById("pantalla");
@@ -225,112 +260,29 @@ const estado =
 const contenedorWeb =
     document.getElementById("contenedor-web");
 
+const botonEnviar =
+    document.getElementById("botonEnviar");
+
+const botonJugar =
+    document.getElementById("botonJugar");
+
+const botonCuentas =
+    document.getElementById("botonCuentas");
+
+const botonYoutube =
+    document.getElementById("botonYoutube");
+
+const botonNavegar =
+    document.getElementById("botonNavegar");
+
+
+// ==========================
+// VARIABLES
+// ==========================
+
 let cerebro = null;
 let cargando = false;
 
 
-/* ==========================
-   CARGAR CEREBRO LOCAL
-========================== */
-
-async function cargarIA() {
-
-    if (cerebro || cargando) return;
-
-    cargando = true;
-
-    estado.textContent =
-        "🟡 Descargando cerebro Q4...";
-
-    try {
-
-        cerebro = await pipeline(
-            "text-generation",
-            "HuggingFaceTB/SmolLM2-135M-Instruct",
-            {
-                dtype: "q4",
-                device: "wasm"
-            }
-        );
-
-        estado.textContent =
-            "🟢 IA LOCAL LISTA";
-
-        agregarIA(
-            "¡Guau! 🐶 Mi cerebro Q4 ya está listo."
-        );
-
-    } catch (error) {
-
-        console.error(error);
-
-        estado.textContent =
-            "🔴 Error cargando IA";
-
-        agregarIA(
-            "❌ No pude cargar mi cerebro local."
-        );
-
-        agregarIA(
-            "Comprueba Internet y que tu navegador permita ejecutar IA local."
-        );
-    }
-
-    cargando = false;
-}
-
-
-/* ==========================
-   ENVIAR MENSAJE
-========================== */
-
-async function enviar() {
-
-    const mensaje =
-        entrada.value.trim();
-
-    if (!mensaje) return;
-
-    entrada.value = "";
-
-    agregarUsuario(mensaje);
-
-    if (!cerebro) {
-
-        agregarIA(
-            "🧠 Espera, estoy encendiendo mi cerebro..."
-        );
-
-        await cargarIA();
-
-        if (!cerebro) return;
-    }
-
-    agregarIA("🧠 Pensando...");
-
-    try {
-
-        const mensajes = [
-
-            {
-                role: "system",
-                content:
-                "Eres SoyPerritoProProYT.IAOFICIAL V30.1.1. " +
-                "Hablas español. Eres divertida, amable y gamer. " +
-                "Puedes llamar jefe al usuario. " +
-                "No inventes capacidades que no tienes."
-            },
-
-            {
-                role: "user",
-                content: mensaje
-            }
-
-        ];
-
-        const resultado =
-            await cerebro(mensajes, {
-
-                max_new_tokens: 80,
-
-               
+// ==========================
+// MOSTRAR MEN
