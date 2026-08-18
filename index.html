@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>SoyPerritoProProYT.IAOFICIAL V0.0.8</title>
+<title>SoyPerritoProProYT.IAOFICIAL V30.1.1</title>
 
 <style>
 body {
@@ -129,7 +129,7 @@ iframe {
 <h1>🐾 SoyPerritoProProYT.IAOFICIAL</h1>
 
 <div class="version">
-VERSION: 0.0.8 — IA LOCAL Q4 🧠
+VERSION: 30.1.1 — IA LOCAL Q4 🧠
 </div>
 
 <div class="estado" id="estado">
@@ -142,7 +142,7 @@ VERSION: 0.0.8 — IA LOCAL Q4 🧠
 SoyPerritoProProYT.IAOFICIAL
 <br>
 
-[SISTEMA] V0.0.8 iniciada.
+[SISTEMA] V30.1.1 iniciada.
 <br>
 
 [SISTEMA] Modelo local: SmolLM2-135M Q4
@@ -230,13 +230,12 @@ let cargando = false;
 
 
 /* ==========================
-   CARGAR IA Q4
+   CARGAR CEREBRO LOCAL
 ========================== */
 
 async function cargarIA() {
 
-    if (cerebro || cargando)
-        return;
+    if (cerebro || cargando) return;
 
     cargando = true;
 
@@ -249,15 +248,16 @@ async function cargarIA() {
             "text-generation",
             "HuggingFaceTB/SmolLM2-135M-Instruct",
             {
-                dtype: "q4"
+                dtype: "q4",
+                device: "wasm"
             }
         );
 
         estado.textContent =
-            "🟢 IA Q4 LISTA";
+            "🟢 IA LOCAL LISTA";
 
         agregarIA(
-            "¡Guau! 🐶 Mi cerebro Q4 está listo."
+            "¡Guau! 🐶 Mi cerebro Q4 ya está listo."
         );
 
     } catch (error) {
@@ -268,9 +268,11 @@ async function cargarIA() {
             "🔴 Error cargando IA";
 
         agregarIA(
-            "❌ No pude cargar mi cerebro. " +
-            "Comprueba que tienes Internet " +
-            "y un navegador compatible."
+            "❌ No pude cargar mi cerebro local."
+        );
+
+        agregarIA(
+            "Comprueba Internet y que tu navegador permita ejecutar IA local."
         );
     }
 
@@ -287,8 +289,7 @@ async function enviar() {
     const mensaje =
         entrada.value.trim();
 
-    if (!mensaje)
-        return;
+    if (!mensaje) return;
 
     entrada.value = "";
 
@@ -302,8 +303,7 @@ async function enviar() {
 
         await cargarIA();
 
-        if (!cerebro)
-            return;
+        if (!cerebro) return;
     }
 
     agregarIA("🧠 Pensando...");
@@ -315,7 +315,7 @@ async function enviar() {
             {
                 role: "system",
                 content:
-                "Eres SoyPerritoProProYT.IAOFICIAL V0.0.8. " +
+                "Eres SoyPerritoProProYT.IAOFICIAL V30.1.1. " +
                 "Hablas español. Eres divertida, amable y gamer. " +
                 "Puedes llamar jefe al usuario. " +
                 "No inventes capacidades que no tienes."
@@ -333,227 +333,4 @@ async function enviar() {
 
                 max_new_tokens: 80,
 
-                temperature: 0.7,
-
-                do_sample: true
-
-            });
-
-        quitarPensando();
-
-        let respuesta =
-            resultado[0].generated_text;
-
-        if (Array.isArray(respuesta)) {
-
-            const ultimo =
-                respuesta[respuesta.length - 1];
-
-            if (ultimo &&
-                ultimo.content) {
-
-                respuesta =
-                    ultimo.content;
-            }
-        }
-
-        if (typeof respuesta !== "string") {
-
-            respuesta =
-                String(respuesta);
-        }
-
-        agregarIA(respuesta);
-
-        hablar(respuesta);
-
-    } catch (error) {
-
-        console.error(error);
-
-        quitarPensando();
-
-        agregarIA(
-            "❌ Mi cerebro Q4 tuvo un problema."
-        );
-    }
-}
-
-
-/* ==========================
-   BOTONES
-========================== */
-
-function comandoBoton(tipo) {
-
-    if (tipo === "jugar") {
-
-        entrada.value =
-            "¿A qué juegos podemos jugar?";
-
-        enviar();
-
-        return;
-    }
-
-
-    if (tipo === "cuentas") {
-
-        entrada.value =
-            "Explícame las cuentas de videojuegos.";
-
-        enviar();
-
-        return;
-    }
-
-
-    if (tipo === "youtube") {
-
-        contenedorWeb.innerHTML =
-            `<iframe
-                src="https://www.youtube.com"
-                allowfullscreen>
-            </iframe>`;
-
-        entrada.value =
-            "Háblame de YouTube.";
-
-        enviar();
-
-        return;
-    }
-
-
-    if (tipo === "navegar") {
-
-        contenedorWeb.innerHTML =
-            `<iframe
-                src="https://www.google.com">
-            </iframe>`;
-
-        entrada.value =
-            "Quiero navegar por Internet.";
-
-        enviar();
-    }
-}
-
-
-/* ==========================
-   MENSAJES
-========================== */
-
-function agregarUsuario(texto) {
-
-    pantalla.innerHTML +=
-        `<br>
-        <span style="color:#fff;">
-        👉 Tú: ${escapar(texto)}
-        </span>`;
-
-    pantalla.scrollTop =
-        pantalla.scrollHeight;
-}
-
-
-function agregarIA(texto) {
-
-    pantalla.innerHTML +=
-        `<br>
-        <span style="color:#2ea043;">
-        🤖 IA: ${escapar(texto)}
-        </span>`;
-
-    pantalla.scrollTop =
-        pantalla.scrollHeight;
-}
-
-
-function quitarPensando() {
-
-    const spans =
-        pantalla.querySelectorAll("span");
-
-    for (const span of spans) {
-
-        if (
-            span.textContent ===
-            "🤖 IA: 🧠 Pensando..."
-        ) {
-
-            span.parentElement.remove();
-
-            break;
-        }
-    }
-}
-
-
-/* ==========================
-   SEGURIDAD
-========================== */
-
-function escapar(texto) {
-
-    return String(texto)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-}
-
-
-/* ==========================
-   VOZ
-========================== */
-
-function hablar(texto) {
-
-    if (!("speechSynthesis" in window))
-        return;
-
-    window.speechSynthesis.cancel();
-
-    const voz =
-        new SpeechSynthesisUtterance(texto);
-
-    voz.lang = "es-ES";
-
-    voz.pitch = 1.5;
-
-    voz.rate = 1.05;
-
-    window.speechSynthesis.speak(voz);
-}
-
-
-/* ==========================
-   ENTER
-========================== */
-
-entrada.addEventListener(
-    "keydown",
-    function(event) {
-
-        if (event.key === "Enter") {
-
-            enviar();
-
-        }
-
-    }
-);
-
-
-/* ==========================
-   INICIAR
-========================== */
-
-cargarIA();
-
-</script>
-
-</body>
-    </html>
+               
