@@ -2,455 +2,340 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>SoyPerritoProProYT.IAOFICIAL V30.1.1</title>
-
+<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
+<title>Mini Bedrock IA</title>
 <style>
-body{
-    background:#0d1117;
-    color:#c9d1d9;
-    font-family:monospace;
-    text-align:center;
-    padding:10px;
-    margin:0;
+html,body{
+ margin:0;
+ overflow:hidden;
+ background:#87ceeb;
+ font-family:Arial;
+ touch-action:none;
+}
+canvas{display:block}
+
+#chat{
+ position:fixed;
+ left:10px;
+ right:10px;
+ bottom:80px;
+ z-index:10;
+ display:flex;
+ gap:5px;
 }
 
-.box{
-    border:2px solid #238636;
-    border-radius:10px;
-    padding:15px;
-    max-width:420px;
-    margin:10px auto;
-    background:#161b22;
-    box-shadow:0 0 12px rgba(35,134,54,.3);
+#msg{
+ flex:1;
+ font-size:17px;
+ padding:12px;
+ border-radius:10px;
+ border:2px solid #333;
 }
 
-h1{
-    color:#2ea043;
-    font-size:15px;
-    margin:5px 0;
+button{
+ font-size:18px;
+ padding:10px 14px;
+ border:0;
+ border-radius:10px;
+ background:white;
 }
 
-.version{
-    color:#8b949e;
-    font-size:11px;
-    margin-bottom:8px;
-}
-
-.estado{
-    color:#2ea043;
-    font-size:11px;
-    margin-bottom:10px;
-}
-
-.chat{
-    background:#000;
-    border:1px solid #30363d;
-    height:180px;
-    overflow-y:auto;
-    text-align:left;
-    padding:10px;
-    font-size:12px;
-    color:#58a6ff;
-    margin-bottom:10px;
-    border-radius:6px;
-}
-
-.input-bar{
-    display:flex;
-    gap:5px;
-    margin-bottom:10px;
-}
-
-.txt{
-    width:73%;
-    padding:8px;
-    background:#21262d;
-    color:white;
-    border:1px solid #30363d;
-    border-radius:4px;
-    font-size:13px;
-}
-
-.btn{
-    padding:8px;
-    color:white;
-    border:none;
-    border-radius:4px;
-    cursor:pointer;
-    font-weight:bold;
-    font-size:12px;
-}
-
-.btn-green{
-    background:#238636;
-    width:23%;
-}
-
-.grid-buttons{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:8px;
-    margin-top:5px;
-}
-
-.btn-blue{
-    background:#1f6feb;
-}
-
-.btn-purple{
-    background:#8957e5;
-}
-
-.btn-red{
-    background:#da3637;
-}
-
-.btn-orange{
-    background:#d29922;
-}
-
-iframe{
-    width:100%;
-    height:300px;
-    border-radius:6px;
-    border:1px solid #30363d;
-    margin-top:8px;
-    background:white;
+#info{
+ position:fixed;
+ top:8px;
+ left:8px;
+ z-index:10;
+ background:#0009;
+ color:white;
+ padding:8px;
+ border-radius:8px;
 }
 </style>
 </head>
 
 <body>
 
-<div class="box">
-
-<h1>🐾 SoyPerritoProProYT.IAOFICIAL</h1>
-
-<div class="version">
-VERSION: 30.1.1 — IA GAMER 🎮
+<div id="info">
+🧱 Mini Bedrock IA<br>
+🤖 SoyPerritoProProYT.IaOFICIAL
 </div>
 
-<div class="estado" id="estado">
-🟢 IA GAMER LISTA
+<canvas id="game"></canvas>
+
+<div id="chat">
+<input id="msg" placeholder="Habla con tu IA...">
+<button onclick="send()">Enviar</button>
 </div>
-
-<div class="chat" id="pantalla">
-
-[SISTEMA] Nombre global:
-SoyPerritoProProYT.IAOFICIAL
-<br>
-
-[SISTEMA] V30.1.1 iniciada.
-<br>
-
-[SISTEMA] Sistema gamer activado.
-<br>
-
-[IA] 🐶 ¡Guau! Estoy lista.
-
-</div>
-
-<div class="input-bar">
-
-<input
-    type="text"
-    id="entrada"
-    class="txt"
-    placeholder="Escribe algo..."
-    autocomplete="off"
->
-
-<button
-    class="btn btn-green"
-    onclick="enviar()">
-Enviar
-</button>
-
-</div>
-
-<div class="grid-buttons">
-
-<button
-    class="btn btn-blue"
-    onclick="comandoBoton('jugar')">
-🎮 BOTÓN JUGAR
-</button>
-
-<button
-    class="btn btn-purple"
-    onclick="comandoBoton('cuentas')">
-🔐 CUENTAS JUEGOS
-</button>
-
-<button
-    class="btn btn-red"
-    onclick="comandoBoton('youtube')">
-📺 VER YOUTUBE
-</button>
-
-<button
-    class="btn btn-orange"
-    onclick="comandoBoton('navegar')">
-🌐 ENTRAR A WEBS
-</button>
-
-</div>
-
-<div id="contenedor-web"></div>
-
-</div>
-
 
 <script>
 
-const pantalla =
-document.getElementById("pantalla");
+const canvas=document.getElementById("game");
+const ctx=canvas.getContext("2d");
 
-const entrada =
-document.getElementById("entrada");
+function resize(){
+ canvas.width=innerWidth;
+ canvas.height=innerHeight;
+}
+resize();
+addEventListener("resize",resize);
 
-const contenedorWeb =
-document.getElementById("contenedor-web");
+const TILE=40;
+const W=100;
+const H=25;
 
+let world=[];
 
-/* =========================
-   CHAT
-========================= */
-
-function agregarUsuario(texto){
-
-    pantalla.innerHTML +=
-    `<br>
-    <span style="color:#fff;">
-    👉 Tú: ${escapar(texto)}
-    </span>`;
-
-    pantalla.scrollTop =
-    pantalla.scrollHeight;
+for(let y=0;y<H;y++){
+ world[y]=[];
+ for(let x=0;x<W;x++){
+  if(y>15) world[y][x]=2;
+  else if(y===15) world[y][x]=1;
+  else world[y][x]=0;
+ }
 }
 
+let player={
+ x:8,y:10,vx:0,vy:0,
+ w:.75,h:1.8,
+ onGround:false
+};
 
-function agregarIA(texto){
+let ai={
+ x:4,y:10,vx:0,vy:0,
+ w:.75,h:1.8,
+ onGround:false,
+ mode:"stop"
+};
 
-    pantalla.innerHTML +=
-    `<br>
-    <span style="color:#2ea043;">
-    🤖 IA: ${escapar(texto)}
-    </span>`;
+let cameraX=0;
 
-    pantalla.scrollTop =
-    pantalla.scrollHeight;
-
-    hablar(texto);
+function solid(x,y){
+ if(x<0||x>=W||y<0||y>=H)return true;
+ return world[y][x]!==0;
 }
 
+function physics(o){
 
-/* =========================
-   ENVIAR
-========================= */
+ o.vy+=0.025;
 
-function enviar(){
+ o.x+=o.vx;
 
-    const mensaje =
-    entrada.value.trim();
+ if(solid(Math.floor(o.x),Math.floor(o.y+o.h))){
+  o.x-=o.vx;
+  o.vx=0;
+ }
 
-    if(!mensaje) return;
+ o.y+=o.vy;
 
-    entrada.value="";
+ if(solid(Math.floor(o.x),Math.floor(o.y+o.h))){
+  o.y=Math.floor(o.y+o.h)-o.h;
+  o.vy=0;
+  o.onGround=true;
+ }else{
+  o.onGround=false;
+ }
 
-    agregarUsuario(mensaje);
-
-    const texto =
-    mensaje.toLowerCase();
-
-
-    if(
-        texto.includes("veck") ||
-        texto.includes("jugar")
-    ){
-
-        abrirVeck();
-
-        return;
-    }
-
-
-    if(
-        texto.includes("youtube") ||
-        texto.includes("vídeo") ||
-        texto.includes("video")
-    ){
-
-        abrirYoutube();
-
-        return;
-    }
-
-
-    if(
-        texto.includes("hola") ||
-        texto.includes("buenas")
-    ){
-
-        agregarIA(
-            "¡Guau guau! 🐶 Hola jefe. Soy la V30.1.1."
-        );
-
-        return;
-    }
-
-
-    agregarIA(
-        "He recibido tu mensaje: " + mensaje
-    );
 }
 
+function aiThink(){
 
-/* =========================
-   BOTONES
-========================= */
+ if(ai.mode==="follow"){
 
-function comandoBoton(tipo){
+  let dx=player.x-ai.x;
 
-    if(tipo === "jugar"){
+  if(Math.abs(dx)>1){
+   ai.vx=dx>0?.07:-.07;
+  }else{
+   ai.vx=0;
+  }
 
-        abrirVeck();
+  if(ai.onGround &&
+     Math.abs(player.y-ai.y)>1 &&
+     Math.random()<.04){
+   ai.vy=-.48;
+  }
+ }
 
-        return;
-    }
+ if(ai.mode==="jump"){
+  if(ai.onGround) ai.vy=-.48;
+ }
 
-
-    if(tipo === "cuentas"){
-
-        agregarIA(
-            "🔐 Las cuentas de juegos todavía son una función simulada."
-        );
-
-        return;
-    }
-
-
-    if(tipo === "youtube"){
-
-        abrirYoutube();
-
-        return;
-    }
-
-
-    if(tipo === "navegar"){
-
-        abrirWeb();
-
-        return;
-    }
 }
 
+function build(){
 
-/* =========================
-   VECK.IO
-========================= */
+ let bx=Math.floor(ai.x)+1;
+ let by=15;
 
-function abrirVeck(){
+ if(bx>=0&&bx<W&&world[by][bx]===0){
+  world[by][bx]=1;
+ }
 
-    agregarIA(
-        "🎮 ¡Abriendo veck.io! 🐶"
-    );
-
-    window.open(
-        "https://veck.io",
-        "_blank"
-    );
 }
 
+function breakBlock(){
 
-/* =========================
-   YOUTUBE
-========================= */
+ let bx=Math.floor(ai.x)+1;
+ let by=Math.floor(ai.y+1);
 
-function abrirYoutube(){
+ if(bx>=0&&bx<W&&by>=0&&by<H){
+  world[by][bx]=0;
+ }
 
-    agregarIA(
-        "📺 ¡Abriendo YouTube!"
-    );
-
-    window.open(
-        "https://www.youtube.com",
-        "_blank"
-    );
 }
 
+function command(text){
 
-/* =========================
-   WEB
-========================= */
+ text=text.toLowerCase();
 
-function abrirWeb(){
+ if(
+  text.includes("sígueme")||
+  text.includes("sigueme")||
+  text.includes("ven")||
+  text.includes("conmigo")
+ ){
+  ai.mode="follow";
+  return "🤖 Vale, te sigo.";
+ }
 
-    agregarIA(
-        "🌐 ¡Abriendo Google!"
-    );
+ if(text.includes("para")||text.includes("quieto")){
+  ai.mode="stop";
+  ai.vx=0;
+  return "🤖 Me quedo quieta.";
+ }
 
-    window.open(
-        "https://www.google.com",
-        "_blank"
-    );
+ if(text.includes("salta")){
+  ai.mode="jump";
+  return "🤖 ¡Saltando!";
+ }
+
+ if(
+  text.includes("construye")||
+  text.includes("construir")||
+  text.includes("casa")
+ ){
+  build();
+  return "🤖 He colocado un bloque.";
+ }
+
+ if(
+  text.includes("rompe")||
+  text.includes("romper")
+ ){
+  breakBlock();
+  return "🤖 He roto el bloque.";
+ }
+
+ if(text.includes("hola")){
+  return "🤖 ¡Hola! 😎";
+ }
+
+ return "🤖 No entiendo esa orden todavía.";
 }
 
+function send(){
 
-/* =========================
-   VOZ
-========================= */
+ let input=document.getElementById("msg");
+ let text=input.value.trim();
 
-function hablar(texto){
+ if(!text)return;
 
-    if(!("speechSynthesis" in window))
-        return;
+ let answer=command(text);
 
-    window.speechSynthesis.cancel();
+ document.getElementById("info").innerHTML=
+ "🧱 Mini Bedrock IA<br>"+
+ "🤖 "+answer;
 
-    const voz =
-    new SpeechSynthesisUtterance(texto);
-
-    voz.lang="es-ES";
-    voz.pitch=1.5;
-    voz.rate=1.05;
-
-    window.speechSynthesis.speak(voz);
+ input.value="";
 }
 
-
-/* =========================
-   SEGURIDAD
-========================= */
-
-function escapar(texto){
-
-    return String(texto)
-    .replace(/&/g,"&amp;")
-    .replace(/</g,"&lt;")
-    .replace(/>/g,"&gt;")
-    .replace(/"/g,"&quot;")
-    .replace(/'/g,"&#039;");
-}
-
-
-/* =========================
-   ENTER
-========================= */
-
-entrada.addEventListener(
-    "keydown",
-    function(event){
-
-        if(event.key==="Enter"){
-            enviar();
-        }
-
-    }
+document.getElementById("msg").addEventListener(
+ "keydown",
+ e=>{
+  if(e.key==="Enter")send();
+ }
 );
+
+function drawBlock(type,x,y){
+
+ if(type===1)ctx.fillStyle="#55aa35";
+ if(type===2)ctx.fillStyle="#795548";
+
+ ctx.fillRect(x,y,TILE,TILE);
+
+ ctx.strokeStyle="#0002";
+ ctx.strokeRect(x,y,TILE,TILE);
+}
+
+function draw(){
+
+ ctx.clearRect(0,0,canvas.width,canvas.height);
+
+ cameraX=player.x*TILE-canvas.width/2;
+
+ cameraX=Math.max(
+  0,
+  Math.min(cameraX,W*TILE-canvas.width)
+ );
+
+ for(let y=0;y<H;y++){
+  for(let x=0;x<W;x++){
+
+   if(world[y][x]){
+    drawBlock(
+     world[y][x],
+     x*TILE-cameraX,
+     y*TILE
+    );
+   }
+
+  }
+ }
+
+ // IA
+ ctx.fillStyle="#9b59ff";
+
+ ctx.fillRect(
+  ai.x*TILE-cameraX,
+  ai.y*TILE,
+  ai.w*TILE,
+  ai.h*TILE
+ );
+
+ ctx.fillStyle="white";
+ ctx.font="14px Arial";
+
+ ctx.fillText(
+  "🤖 IA",
+  ai.x*TILE-cameraX-5,
+  ai.y*TILE-5
+ );
+
+ // jugador
+ ctx.fillStyle="#3498db";
+
+ ctx.fillRect(
+  player.x*TILE-cameraX,
+  player.y*TILE,
+  player.w*TILE,
+  player.h*TILE
+ );
+
+}
+
+function loop(){
+
+ aiThink();
+
+ physics(player);
+ physics(ai);
+
+ draw();
+
+ requestAnimationFrame(loop);
+}
+
+loop();
 
 </script>
 
