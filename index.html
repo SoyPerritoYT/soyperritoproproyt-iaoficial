@@ -2,342 +2,815 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
-<title>Mini Bedrock IA</title>
+<meta name="viewport"
+content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+
+<title>SoyPerritoProProYT.IAOFICIAL V100.000.000</title>
+
 <style>
-html,body{
- margin:0;
- overflow:hidden;
- background:#87ceeb;
- font-family:Arial;
- touch-action:none;
-}
-canvas{display:block}
+*{box-sizing:border-box}
 
-#chat{
- position:fixed;
- left:10px;
- right:10px;
- bottom:80px;
- z-index:10;
- display:flex;
- gap:5px;
+body{
+margin:0;
+padding:10px;
+background:#0d1117;
+color:#c9d1d9;
+font-family:monospace;
+text-align:center;
 }
 
-#msg{
- flex:1;
- font-size:17px;
- padding:12px;
- border-radius:10px;
- border:2px solid #333;
+.box{
+max-width:470px;
+margin:auto;
+padding:14px;
+background:#161b22;
+border:2px solid #238636;
+border-radius:12px;
+}
+
+h1{
+font-size:16px;
+color:#2ea043;
+margin:5px;
+}
+
+.version{
+font-size:11px;
+color:#8b949e;
+}
+
+.chat{
+height:130px;
+overflow:auto;
+background:#000;
+border:1px solid #30363d;
+border-radius:6px;
+padding:8px;
+text-align:left;
+font-size:12px;
+margin-top:10px;
+}
+
+.input{
+display:flex;
+gap:5px;
+margin-top:8px;
+}
+
+input{
+flex:1;
+padding:9px;
+background:#21262d;
+color:white;
+border:1px solid #30363d;
+border-radius:5px;
 }
 
 button{
- font-size:18px;
- padding:10px 14px;
- border:0;
- border-radius:10px;
- background:white;
+border:0;
+border-radius:5px;
+padding:9px;
+color:white;
+font-family:monospace;
+font-weight:bold;
+margin:3px;
 }
 
-#info{
- position:fixed;
- top:8px;
- left:8px;
- z-index:10;
- background:#0009;
- color:white;
- padding:8px;
- border-radius:8px;
+.enviar{background:#238636}
+
+.grid{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:5px;
+margin-top:8px;
+}
+
+.jugar{background:#1f6feb}
+.cuentas{background:#8957e5}
+.youtube{background:#da3637}
+.web{background:#d29922}
+
+#juego{
+display:none;
+width:100%;
+max-width:440px;
+margin:12px auto 5px;
+background:#071018;
+border:2px solid #238636;
+border-radius:7px;
+touch-action:none;
+}
+
+.info{
+display:none;
+font-size:12px;
+margin:5px;
+}
+
+.controles{
+display:none;
+margin-top:5px;
+}
+
+.controles button{
+background:#30363d;
+font-size:20px;
+width:60px;
+height:48px;
+}
+
+.small{
+font-size:10px;
+color:#8b949e;
 }
 </style>
 </head>
 
 <body>
 
-<div id="info">
-🧱 Mini Bedrock IA<br>
-🤖 SoyPerritoProProYT.IaOFICIAL
+<div class="box">
+
+<h1>🐾 SoyPerritoProProYT.IAOFICIAL</h1>
+
+<div class="version">
+VERSION 100.000.000 — IA GAMER
 </div>
 
-<canvas id="game"></canvas>
+<div class="chat" id="chat">
+[SISTEMA] V100.000.000 iniciada.<br>
+[SISTEMA] IA Gamer activada.<br>
+[SISTEMA] Juego local preparado.<br>
+[IA] 🐶 ¡Lista para jugar!
+</div>
 
-<div id="chat">
-<input id="msg" placeholder="Habla con tu IA...">
-<button onclick="send()">Enviar</button>
+<div class="input">
+
+<input
+id="entrada"
+placeholder="Escribe algo..."
+autocomplete="off">
+
+<button class="enviar" onclick="enviar()">
+Enviar
+</button>
+
+</div>
+
+<div class="grid">
+
+<button class="jugar" onclick="iniciarJuego()">
+🎮 JUGAR
+</button>
+
+<button class="cuentas" onclick="cuentas()">
+🔐 CUENTAS
+</button>
+
+<button class="youtube" onclick="youtube()">
+📺 YOUTUBE
+</button>
+
+<button class="web" onclick="web()">
+🌐 WEB
+</button>
+
+</div>
+
+<div class="info" id="info">
+❤️ Vida: <span id="vida">100</span>
+&nbsp;&nbsp;
+🏆 Puntos: <span id="puntos">0</span>
+</div>
+
+<canvas id="juego" width="440" height="300"></canvas>
+
+<div class="controles">
+
+<div>
+<button onclick="moverJugador(0,-1)">⬆️</button>
+</div>
+
+<button onclick="moverJugador(-1,0)">⬅️</button>
+<button onclick="disparar()">🔫</button>
+<button onclick="moverJugador(1,0)">➡️</button>
+
+<div>
+<button onclick="moverJugador(0,1)">⬇️</button>
+</div>
+
+</div>
+
+<div class="small">
+PC: WASD / Flechas + ESPACIO para disparar<br>
+Tablet: botones táctiles
+</div>
+
 </div>
 
 <script>
 
-const canvas=document.getElementById("game");
+const canvas=document.getElementById("juego");
 const ctx=canvas.getContext("2d");
 
-function resize(){
- canvas.width=innerWidth;
- canvas.height=innerHeight;
-}
-resize();
-addEventListener("resize",resize);
+const chat=document.getElementById("chat");
+const entrada=document.getElementById("entrada");
 
-const TILE=40;
-const W=100;
-const H=25;
+const vidaHTML=document.getElementById("vida");
+const puntosHTML=document.getElementById("puntos");
 
-let world=[];
+let jugando=false;
+let puntos=0;
+let teclas={};
+let balas=[];
+let balasIA=[];
+let objetos=[];
 
-for(let y=0;y<H;y++){
- world[y]=[];
- for(let x=0;x<W;x++){
-  if(y>15) world[y][x]=2;
-  else if(y===15) world[y][x]=1;
-  else world[y][x]=0;
- }
-}
-
-let player={
- x:8,y:10,vx:0,vy:0,
- w:.75,h:1.8,
- onGround:false
+const jugador={
+x:70,
+y:150,
+r:14,
+velocidad:3.5,
+vida:100
 };
 
-let ai={
- x:4,y:10,vx:0,vy:0,
- w:.75,h:1.8,
- onGround:false,
- mode:"stop"
+const IA={
+x:360,
+y:150,
+r:14,
+velocidad:2.1,
+vida:100,
+ultimoDisparo:0
 };
 
-let cameraX=0;
 
-function solid(x,y){
- if(x<0||x>=W||y<0||y>=H)return true;
- return world[y][x]!==0;
-}
+/* ===============================
+   OBJETOS
+================================ */
 
-function physics(o){
+function crearObjetos(){
 
- o.vy+=0.025;
+objetos=[];
 
- o.x+=o.vx;
+for(let i=0;i<15;i++){
 
- if(solid(Math.floor(o.x),Math.floor(o.y+o.h))){
-  o.x-=o.vx;
-  o.vx=0;
- }
-
- o.y+=o.vy;
-
- if(solid(Math.floor(o.x),Math.floor(o.y+o.h))){
-  o.y=Math.floor(o.y+o.h)-o.h;
-  o.vy=0;
-  o.onGround=true;
- }else{
-  o.onGround=false;
- }
+objetos.push({
+x:20+Math.random()*400,
+y:20+Math.random()*260,
+r:5
+});
 
 }
 
-function aiThink(){
-
- if(ai.mode==="follow"){
-
-  let dx=player.x-ai.x;
-
-  if(Math.abs(dx)>1){
-   ai.vx=dx>0?.07:-.07;
-  }else{
-   ai.vx=0;
-  }
-
-  if(ai.onGround &&
-     Math.abs(player.y-ai.y)>1 &&
-     Math.random()<.04){
-   ai.vy=-.48;
-  }
- }
-
- if(ai.mode==="jump"){
-  if(ai.onGround) ai.vy=-.48;
- }
-
 }
 
-function build(){
 
- let bx=Math.floor(ai.x)+1;
- let by=15;
+/* ===============================
+   CHAT
+================================ */
 
- if(bx>=0&&bx<W&&world[by][bx]===0){
-  world[by][bx]=1;
- }
+function escribirIA(texto){
 
+chat.innerHTML+=
+`<br><span style="color:#2ea043">
+🤖 IA: ${escapar(texto)}
+</span>`;
+
+chat.scrollTop=chat.scrollHeight;
+
+hablar(texto);
 }
 
-function breakBlock(){
 
- let bx=Math.floor(ai.x)+1;
- let by=Math.floor(ai.y+1);
+function escribirUsuario(texto){
 
- if(bx>=0&&bx<W&&by>=0&&by<H){
-  world[by][bx]=0;
- }
+chat.innerHTML+=
+`<br><span style="color:white">
+👉 Tú: ${escapar(texto)}
+</span>`;
 
+chat.scrollTop=chat.scrollHeight;
 }
 
-function command(text){
 
- text=text.toLowerCase();
+/* ===============================
+   MATEMÁTICAS
+================================ */
 
- if(
-  text.includes("sígueme")||
-  text.includes("sigueme")||
-  text.includes("ven")||
-  text.includes("conmigo")
- ){
-  ai.mode="follow";
-  return "🤖 Vale, te sigo.";
- }
+function calcular(texto){
 
- if(text.includes("para")||text.includes("quieto")){
-  ai.mode="stop";
-  ai.vx=0;
-  return "🤖 Me quedo quieta.";
- }
+let t=texto.toLowerCase().trim();
 
- if(text.includes("salta")){
-  ai.mode="jump";
-  return "🤖 ¡Saltando!";
- }
+/* "suma 5 y 8" */
 
- if(
-  text.includes("construye")||
-  text.includes("construir")||
-  text.includes("casa")
- ){
-  build();
-  return "🤖 He colocado un bloque.";
- }
-
- if(
-  text.includes("rompe")||
-  text.includes("romper")
- ){
-  breakBlock();
-  return "🤖 He roto el bloque.";
- }
-
- if(text.includes("hola")){
-  return "🤖 ¡Hola! 😎";
- }
-
- return "🤖 No entiendo esa orden todavía.";
-}
-
-function send(){
-
- let input=document.getElementById("msg");
- let text=input.value.trim();
-
- if(!text)return;
-
- let answer=command(text);
-
- document.getElementById("info").innerHTML=
- "🧱 Mini Bedrock IA<br>"+
- "🤖 "+answer;
-
- input.value="";
-}
-
-document.getElementById("msg").addEventListener(
- "keydown",
- e=>{
-  if(e.key==="Enter")send();
- }
+let suma=t.match(
+/sum(?:a|ar)\s+(-?\d+(?:[.,]\d+)?)\s+(?:y|con)\s+(-?\d+(?:[.,]\d+)?)/i
 );
 
-function drawBlock(type,x,y){
+if(suma){
 
- if(type===1)ctx.fillStyle="#55aa35";
- if(type===2)ctx.fillStyle="#795548";
+let a=Number(suma[1].replace(",","."));
+let b=Number(suma[2].replace(",","."));
 
- ctx.fillRect(x,y,TILE,TILE);
-
- ctx.strokeStyle="#0002";
- ctx.strokeRect(x,y,TILE,TILE);
+return a+b;
 }
 
-function draw(){
 
- ctx.clearRect(0,0,canvas.width,canvas.height);
+/* "resta 20 y 7" */
 
- cameraX=player.x*TILE-canvas.width/2;
+let resta=t.match(
+/rest(?:a|ar)\s+(-?\d+(?:[.,]\d+)?)\s+(?:y|a)\s+(-?\d+(?:[.,]\d+)?)/i
+);
 
- cameraX=Math.max(
-  0,
-  Math.min(cameraX,W*TILE-canvas.width)
- );
+if(resta){
 
- for(let y=0;y<H;y++){
-  for(let x=0;x<W;x++){
+let a=Number(resta[1].replace(",","."));
+let b=Number(resta[2].replace(",","."));
 
-   if(world[y][x]){
-    drawBlock(
-     world[y][x],
-     x*TILE-cameraX,
-     y*TILE
-    );
-   }
+return a-b;
+}
 
-  }
- }
 
- // IA
- ctx.fillStyle="#9b59ff";
+/* "multiplica 6 por 9" */
 
- ctx.fillRect(
-  ai.x*TILE-cameraX,
-  ai.y*TILE,
-  ai.w*TILE,
-  ai.h*TILE
- );
+let multi=t.match(
+/multiplic(?:a|ar)\s+(-?\d+(?:[.,]\d+)?)\s+(?:por|x)\s+(-?\d+(?:[.,]\d+)?)/i
+);
 
- ctx.fillStyle="white";
- ctx.font="14px Arial";
+if(multi){
 
- ctx.fillText(
-  "🤖 IA",
-  ai.x*TILE-cameraX-5,
-  ai.y*TILE-5
- );
+let a=Number(multi[1].replace(",","."));
+let b=Number(multi[2].replace(",","."));
 
- // jugador
- ctx.fillStyle="#3498db";
+return a*b;
+}
 
- ctx.fillRect(
-  player.x*TILE-cameraX,
-  player.y*TILE,
-  player.w*TILE,
-  player.h*TILE
- );
+
+/* Operaciones normales */
+
+t=t
+.replace(/×/g,"*")
+.replace(/x/g,"*")
+.replace(/÷/g,"/")
+.replace(/,/g,".")
+.trim();
+
+if(!/^[0-9+\-*/().\s]+$/.test(t))
+return null;
+
+if(!/[+\-*/]/.test(t))
+return null;
+
+try{
+
+let resultado=Function(
+'"use strict";return ('+t+')'
+)();
+
+if(
+typeof resultado!=="number"||
+!Number.isFinite(resultado)
+)
+return null;
+
+return resultado;
+
+}catch(e){
+
+return null;
+}
 
 }
 
-function loop(){
 
- aiThink();
+/* ===============================
+   CHAT
+================================ */
 
- physics(player);
- physics(ai);
+function enviar(){
 
- draw();
+let texto=entrada.value.trim();
 
- requestAnimationFrame(loop);
+if(!texto)return;
+
+entrada.value="";
+
+escribirUsuario(texto);
+
+let t=texto.toLowerCase();
+
+let resultado=calcular(texto);
+
+if(resultado!==null){
+
+escribirIA("🧠 Resultado: "+resultado);
+
+return;
 }
 
-loop();
 
-</script>
+if(
+t.includes("jugar")||
+t.includes("juego")
+){
 
-</body>
-    </html>
+iniciarJuego();
+return;
+}
+
+
+if(t.includes("veck")){
+
+escribirIA("🌐 Abriendo veck.io...");
+
+window.open(
+"https://veck.io",
+"_blank"
+);
+
+return;
+}
+
+
+if(t.includes("hola")){
+
+escribirIA(
+"¡Guau guau! 🐶 Soy la V100.000.000."
+);
+
+return;
+}
+
+
+if(t.includes("sumar")){
+
+escribirIA(
+"➕ Puedes escribir: 5 + 8 o 'suma 5 y 8'."
+);
+
+return;
+}
+
+
+if(t.includes("restar")){
+
+escribirIA(
+"➖ Puedes escribir: 20 - 7 o 'resta 20 y 7'."
+);
+
+return;
+}
+
+
+if(t.includes("multiplicar")){
+
+escribirIA(
+"✖️ Puedes escribir: 6 * 9 o 'multiplica 6 por 9'."
+);
+
+return;
+}
+
+
+escribirIA(
+"He recibido: "+texto
+);
+
+}
+
+
+/* ===============================
+   JUEGO
+================================ */
+
+function iniciarJuego(){
+
+jugando=true;
+
+canvas.style.display="block";
+
+document.getElementById("info").style.display="block";
+
+document.querySelector(".controles").style.display="block";
+
+jugador.x=70;
+jugador.y=150;
+jugador.vida=100;
+
+IA.x=360;
+IA.y=150;
+IA.vida=100;
+
+puntos=0;
+
+balas=[];
+balasIA=[];
+
+crearObjetos();
+
+actualizarUI();
+
+escribirIA(
+"🎮 ¡Partida iniciada! ¡Intenta derrotarme!"
+);
+
+requestAnimationFrame(loop);
+
+}
+
+
+/* ===============================
+   TECLADO
+================================ */
+
+document.addEventListener("keydown",e=>{
+
+teclas[e.key.toLowerCase()]=true;
+
+if(e.code==="Space"){
+
+e.preventDefault();
+disparar();
+
+}
+
+});
+
+
+document.addEventListener("keyup",e=>{
+
+teclas[e.key.toLowerCase()]=false;
+
+});
+
+
+/* ===============================
+   JUGADOR
+================================ */
+
+function moverJugador(dx,dy){
+
+jugador.x+=dx*18;
+jugador.y+=dy*18;
+
+limitarJugador();
+
+}
+
+
+function actualizarJugador(){
+
+if(teclas["arrowup"]||teclas["w"])
+jugador.y-=jugador.velocidad;
+
+if(teclas["arrowdown"]||teclas["s"])
+jugador.y+=jugador.velocidad;
+
+if(teclas["arrowleft"]||teclas["a"])
+jugador.x-=jugador.velocidad;
+
+if(teclas["arrowright"]||teclas["d"])
+jugador.x+=jugador.velocidad;
+
+limitarJugador();
+
+}
+
+
+function limitarJugador(){
+
+jugador.x=Math.max(
+jugador.r,
+Math.min(canvas.width-jugador.r,jugador.x)
+);
+
+jugador.y=Math.max(
+jugador.r,
+Math.min(canvas.height-jugador.r,jugador.y)
+);
+
+}
+
+
+/* ===============================
+   IA
+================================ */
+
+function distancia(a,b){
+
+return Math.hypot(
+a.x-b.x,
+a.y-b.y
+);
+
+}
+
+
+function pensarIA(){
+
+const dx=jugador.x-IA.x;
+const dy=jugador.y-IA.y;
+
+const d=Math.hypot(dx,dy)||1;
+
+if(d>100){
+
+IA.x+=dx/d*IA.velocidad;
+IA.y+=dy/d*IA.velocidad;
+
+}else if(d<55){
+
+IA.x-=dx/d*IA.velocidad;
+IA.y-=dy/d*IA.velocidad;
+
+}
+
+if(
+d<260 &&
+Date.now()-IA.ultimoDisparo>700
+){
+
+dispararIA();
+
+IA.ultimoDisparo=Date.now();
+
+}
+
+limitarIA();
+
+}
+
+
+function limitarIA(){
+
+IA.x=Math.max(
+IA.r,
+Math.min(canvas.width-IA.r,IA.x)
+);
+
+IA.y=Math.max(
+IA.r,
+Math.min(canvas.height-IA.r,IA.y)
+);
+
+}
+
+
+/* ===============================
+   DISPAROS
+================================ */
+
+function disparar(){
+
+if(!jugando)return;
+
+let dx=IA.x-jugador.x;
+let dy=IA.y-jugador.y;
+let d=Math.hypot(dx,dy)||1;
+
+balas.push({
+x:jugador.x,
+y:jugador.y,
+vx:dx/d*6,
+vy:dy/d*6,
+vida:60
+});
+
+}
+
+
+function dispararIA(){
+
+let dx=jugador.x-IA.x;
+let dy=jugador.y-IA.y;
+let d=Math.hypot(dx,dy)||1;
+
+balasIA.push({
+x:IA.x,
+y:IA.y,
+vx:dx/d*4,
+vy:dy/d*4,
+vida:80
+});
+
+}
+
+
+/* ===============================
+   BALAS
+================================ */
+
+function actualizarBalas(){
+
+for(let i=balas.length-1;i>=0;i--){
+
+let b=balas[i];
+
+b.x+=b.vx;
+b.y+=b.vy;
+b.vida--;
+
+if(
+b.x<0||
+b.x>canvas.width||
+b.y<0||
+b.y>canvas.height||
+b.vida<=0
+){
+
+balas.splice(i,1);
+continue;
+
+}
+
+if(
+Math.hypot(
+b.x-IA.x,
+b.y-IA.y
+)<IA.r+4
+){
+
+IA.vida-=20;
+
+balas.splice(i,1);
+
+if(IA.vida<=0){
+
+puntos+=10;
+
+IA.vida=100;
+
+IA.x=360;
+IA.y=150;
+
+escribirIA(
+"💥 ¡Me has derrotado! +10 puntos."
+);
+
+}
+
+}
+
+}
+
+
+for(let i=balasIA.length-1;i>=0;i--){
+
+let b=balasIA[i];
+
+b.x+=b.vx;
+b.y+=b.vy;
+b.vida--;
+
+if(
+b.x<0||
+b.x>canvas.width||
+b.y<0||
+b.y>canvas.height||
+b.vida<=0
+){
+
+balasIA.splice(i,1);
+continue;
+
+}
+
+if(
+Math.hypot(
+b.x-jugador.x,
+b.y-jugador.y
+)<jugador.r+4
+){
+
+jugador.vida-=15;
+
+balasIA.splice(i,1);
+
+if(jugador.vida<=0){
+
+jugador.vida=100;
+
+jugador.x=70;
+jugador.y=150;
+
+escribirIA(
+"💥 ¡Te he eliminado! 😈"
+);
+
+}
+
+}
+
+}
+
+}
+
+
+/* ===============================
+   OBJETOS
+================================ */
+
+function actualizarObjetos(){
+
+for(let i=objetos.length-1;i>=0;i--){
+
+let o=objetos
