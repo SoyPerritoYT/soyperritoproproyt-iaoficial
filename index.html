@@ -16,6 +16,7 @@ body{margin:0;font-family:Arial,sans-serif;background:#111;color:#fff;display:fl
   </header>
   <div class="login">
     <input id="usuario" type="text" value="SoyPerritoProProYT" readonly>
+    <input id="correo" type="email" placeholder="Correo de Firebase" autocomplete="username">
     <input id="clave" type="password" placeholder="Contraseña" autocomplete="current-password">
     <button type="button" id="loginBtn">🔐 Entrar</button>
     <button type="button" id="logoutBtn" hidden>🚪 Salir</button>
@@ -28,47 +29,156 @@ body{margin:0;font-family:Arial,sans-serif;background:#111;color:#fff;display:fl
     <button id="enviar" type="submit">Enviar</button>
   </form>
 </div>
-<script>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
+import { getFirestore, doc, getDoc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
+
+const firebaseConfig={
+  apiKey:"AIzaSyAQClDYCVK7I1o@DMDKLCmKApS_Dy7cNw",
+  authDomain:"soyperritopropryt-iaoficial.firebaseapp.com",
+  projectId:"soyperritopropryt-iaoficial",
+  storageBucket:"soyperritopropryt-iaoficial.firebasestorage.app",
+  messagingSenderId:"964674229147",
+  appId:"1:964674229147:web:b6313429946d8a2f493be"
+};
+
+const app=initializeApp(firebaseConfig);
+const auth=getAuth(app);
+const db=getFirestore(app);
+
 const chat=document.getElementById('chat'),entrada=document.getElementById('entrada'),form=document.getElementById('form'),enviarBtn=document.getElementById('enviar'),estado=document.getElementById('estado');
-const claveInput=document.getElementById('clave'),loginBtn=document.getElementById('loginBtn'),logoutBtn=document.getElementById('logoutBtn'),ownerBadge=document.getElementById('ownerBadge');
+const correoInput=document.getElementById('correo'),claveInput=document.getElementById('clave'),loginBtn=document.getElementById('loginBtn'),logoutBtn=document.getElementById('logoutBtn'),ownerBadge=document.getElementById('ownerBadge');
 let historial=[];
-const CUENTA='SoyPerritoProProYT', HASH_KEY='sp_owner_password_hash', CHAT_KEY='sp_owner_chat';
+let usuarioActual=null;
+
 function mensaje(texto,tipo){const el=document.createElement('div');el.className='msg '+tipo;el.textContent=texto;chat.appendChild(el);chat.scrollTop=chat.scrollHeight;return el;}
-function renderHistorial(){chat.innerHTML='';if(!historial.length)mensaje('¡Hola! 🐶 Soy tu IA. Ya estoy lista. Escribe /ayuda para ver mis comandos.','ai');for(const m of historial)mensaje(m.content,m.role==='user'?'user':'ai');}
-async function hash(texto){const bytes=new TextEncoder().encode(texto);const digest=await crypto.subtle.digest('SHA-256',bytes);return [...new Uint8Array(digest)].map(b=>b.toString(16).padStart(2,'0')).join('');}
-function cargar(){try{historial=JSON.parse(localStorage.getItem(CHAT_KEY)||'[]');}catch{historial=[];}renderHistorial();}
-function guardar(){localStorage.setItem(CHAT_KEY,JSON.stringify(historial.slice(-80)));}
+function renderHistorial(){chat.innerHTML='';if(!historial.length)mensaje('¡Hola! 🐶 Soy tu IA. Tus chats se guardarán online con Firebase. Escribe /ayuda para ver mis comandos.','ai');for(const m of historial)mensaje(m.content,m.role==='user'?'user':'ai');}
+
+async function cargarChat(uid){
+  try{
+    const ref=doc(db,'users',uid,'chats','principal');
+    const snap=await getDoc(ref);
+    historial=snap.exists()&&Array.isArray(snap.data().messages)?snap.data().messages:[];
+  }catch(e){historial=[];console.error(e);}
+  renderHistorial();
+}
+
+async function guardarChat(){
+  if(!usuarioActual)return;
+  try{
+    const ref=doc(db,'users',usuarioActual.uid,'chats','principal');
+    await setDoc(ref,{messages:historial.slice(-80),updatedAt:serverTimestamp()},{merge:true});
+  }catch(e){console.error('Error guardando chat:',e);estado.textContent='⚠️ No se pudo guardar el chat';}
+}
+
+async function guardarPerfil(uid,email){
+  try{
+    await setDoc(doc(db,'users',uid,'profile','info'),{displayName:'SoyPerritoProProYT',email:email||'',updatedAt:serverTimestamp()},{merge:true});
+  }catch(e){console.error('Error guardando perfil:',e);}
+}
+
 async function iniciar(){
- const pass=claveInput.value;
- if(pass.length<4){alert('La contraseña debe tener al menos 4 caracteres.');return;}
- const nuevo=localStorage.getItem(HASH_KEY);
- const h=await hash(pass);
- if(!nuevo){localStorage.setItem(HASH_KEY,h);activar();alert('Cuenta creada en este dispositivo. Guarda tu contraseña: no se puede recuperar desde la web.');return;}
- if(h!==nuevo){alert('Contraseña incorrecta.');return;}
- activar();
+  const email=correoInput.value.trim();
+  const pass=claveInput.value;
+  if(!email||!pass){alert('Escribe el correo y la contraseña de tu cuenta de Firebase.');return;}
+  loginBtn.disabled=true;
+  try{
+    await signInWithEmailAndPassword(auth,email,pass);
+  }catch(e){
+    const errores={
+      'auth/invalid-credential':'Correo o contraseña incorrectos.',
+      'auth/invalid-email':'El correo no es válido.',
+      'auth/user-disabled':'Esta cuenta está desactivada.',
+      'auth/too-many-requests':'Demasiados intentos. Espera un poco y vuelve a probar.'
+    };
+    alert(errores[e.code]||'No se pudo iniciar sesión.');
+  }finally{loginBtn.disabled=false;}
 }
-function activar(){sessionStorage.setItem('sp_owner','1');claveInput.value='';claveInput.hidden=true;loginBtn.hidden=true;logoutBtn.hidden=false;ownerBadge.innerHTML='<div class="owner">👑 MODO DUEÑO ACTIVADO · SoyPerritoProProYT</div>';estado.textContent='👑 Dueño reconocido · IA lista';entrada.focus();}
-function salir(){sessionStorage.removeItem('sp_owner');claveInput.hidden=false;loginBtn.hidden=false;logoutBtn.hidden=true;ownerBadge.textContent='';estado.textContent='Inicia sesión para activar tu modo dueño';}
+
+function activar(user){
+  usuarioActual=user;
+  correoInput.value=user.email||'';
+  correoInput.hidden=true;
+  claveInput.hidden=true;
+  loginBtn.hidden=true;
+  logoutBtn.hidden=false;
+  ownerBadge.innerHTML='<div class="owner">👑 MODO DUEÑO ACTIVADO · SoyPerritoProProYT</div>';
+  estado.textContent='👑 Dueño reconocido · Firebase conectado';
+  entrada.focus();
+}
+
+async function salir(){
+  await signOut(auth);
+  usuarioActual=null;
+  historial=[];
+  correoInput.hidden=false;
+  claveInput.hidden=false;
+  loginBtn.hidden=false;
+  logoutBtn.hidden=true;
+  ownerBadge.textContent='';
+  estado.textContent='Inicia sesión para activar tu modo dueño';
+  renderHistorial();
+}
+
 function comando(t){
- if(t==='/ayuda')return '🐶 COMANDOS DE SOYPERRITOPROPROYT\n\n/ayuda — Ver comandos\n/perfil — Ver tu perfil\n/juegos — Ver tus proyectos\n/ajustes — Ver ajustes\n/limpiar — Borrar el chat guardado';
- if(t==='/perfil')return '👑 PERFIL\nUsuario: SoyPerritoProProYT\nRol: Dueño\nEstado: reconocido en este dispositivo';
- if(t==='/juegos')return '🎮 PROYECTOS\n• SoyPerritoProProYT-IAOFICIAL\n• Tu futuro juego de Roblox\n• SoyPerritoProProYT-Console';
- if(t==='/ajustes')return '⚙️ AJUSTES\n• Cuenta de dueño: activa\n• Guardado local: activo\n• API de IA: conectada mediante /api/chat';
- if(t==='/limpiar'){historial=[];guardar();renderHistorial();return '🧹 Chat limpiado.';}
- return null;
+  if(t==='/ayuda')return '🐶 COMANDOS DE SOYPERRITOPROPROYT\n\n/ayuda — Ver comandos\n/perfil — Ver tu perfil\n/juegos — Ver tus proyectos\n/ajustes — Ver ajustes\n/limpiar — Borrar el chat guardado online';
+  if(t==='/perfil')return '👑 PERFIL\nUsuario: SoyPerritoProProYT\nRol: Dueño\nEstado: conectado con Firebase';
+  if(t==='/juegos')return '🎮 PROYECTOS\n• SoyPerritoProProYT-IAOFICIAL\n• Tu futuro juego de Roblox\n• SoyPerritoProProYT-Console';
+  if(t==='/ajustes')return '⚙️ AJUSTES\n• Cuenta: Firebase Authentication\n• Chats: Firestore online\n• API de IA: /api/chat';
+  if(t==='/limpiar'){historial=[];guardarChat();renderHistorial();return '🧹 Chat limpiado y actualizado en Firestore.';}
+  return null;
 }
-loginBtn.addEventListener('click',iniciar);logoutBtn.addEventListener('click',salir);
-if(sessionStorage.getItem('sp_owner')==='1')activar();cargar();
+
+loginBtn.addEventListener('click',iniciar);
+logoutBtn.addEventListener('click',salir);
+
+onAuthStateChanged(auth,async user=>{
+  if(user){
+    activar(user);
+    await guardarPerfil(user.uid,user.email);
+    await cargarChat(user.uid);
+  }else{
+    usuarioActual=null;
+    historial=[];
+    renderHistorial();
+  }
+});
+
 async function enviar(){
- const texto=entrada.value.trim();if(!texto)return;entrada.value='';mensaje(texto,'user');historial.push({role:'user',content:texto});guardar();
- const cmd=comando(texto);if(cmd){mensaje(cmd,'ai');historial.push({role:'assistant',content:cmd});guardar();return;}
- if(sessionStorage.getItem('sp_owner')!=='1'){mensaje('🔐 Inicia sesión como SoyPerritoProProYT para usar la IA.','ai');return;}
- enviarBtn.disabled=true;entrada.disabled=true;estado.textContent='Pensando...';const espera=mensaje('Escribiendo...','ai');
- try{const r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:texto,history:historial.slice(-12)})});const data=await r.json().catch(()=>({}));if(!r.ok)throw new Error(data.error||'No se pudo conectar con la API.');espera.textContent=data.reply||'La IA no devolvió una respuesta.';if(data.reply)historial.push({role:'assistant',content:data.reply});guardar();estado.textContent='👑 API conectada · Modo dueño';}
- catch(e){espera.textContent='❌ '+e.message;estado.textContent='API no disponible';}
- finally{enviarBtn.disabled=false;entrada.disabled=false;entrada.focus();}
+  const texto=entrada.value.trim();
+  if(!texto)return;
+  if(!usuarioActual){mensaje('🔐 Inicia sesión con tu cuenta de Firebase para usar la IA y guardar chats online.','ai');return;}
+  entrada.value='';
+  mensaje(texto,'user');
+  historial.push({role:'user',content:texto});
+  await guardarChat();
+
+  const cmd=comando(texto);
+  if(cmd){mensaje(cmd,'ai');historial.push({role:'assistant',content:cmd});await guardarChat();return;}
+
+  enviarBtn.disabled=true;entrada.disabled=true;estado.textContent='Pensando...';
+  const espera=mensaje('Escribiendo...','ai');
+  try{
+    const r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:texto,history:historial.slice(-12)})});
+    const data=await r.json().catch(()=>({}));
+    if(!r.ok)throw new Error(data.error||'No se pudo conectar con la API.');
+    espera.textContent=data.reply||'La IA no devolvió una respuesta.';
+    if(data.reply)historial.push({role:'assistant',content:data.reply});
+    await guardarChat();
+    estado.textContent='👑 Firebase + API conectados';
+  }catch(e){
+    espera.textContent='❌ '+e.message;
+    estado.textContent='API no disponible';
+    await guardarChat();
+  }finally{
+    enviarBtn.disabled=false;entrada.disabled=false;entrada.focus();
+  }
 }
+
 form.addEventListener('submit',e=>{e.preventDefault();enviar();});
+renderHistorial();
 </script>
 </body>
 </html>
