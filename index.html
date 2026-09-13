@@ -29,7 +29,7 @@ body{margin:0;font-family:Arial,sans-serif;background:#111;color:#fff;display:fl
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
-import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
+import { getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
 import { getFirestore, doc, getDoc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
 
 const firebaseConfig={
@@ -79,17 +79,33 @@ async function guardarPerfil(uid,user){
 
 async function iniciar(){
   loginBtn.disabled=true;
+  estado.textContent='🔄 Redirigiendo a Google...';
   try{
-    await signInWithPopup(auth,provider);
+    await signInWithRedirect(auth,provider);
   }catch(e){
     const errores={
-      'auth/popup-closed-by-user':'Cerraste la ventana de Google.',
-      'auth/popup-blocked':'El navegador bloqueó la ventana de Google. Permite ventanas emergentes.',
-      'auth/cancelled-popup-request':'El inicio de sesión fue cancelado.',
-      'auth/unauthorized-domain':'Este dominio no está autorizado en Firebase Authentication.'
+      'auth/unauthorized-domain':'Este dominio no está autorizado en Firebase Authentication.',
+      'auth/operation-not-allowed':'El inicio de sesión con Google no está activado en Firebase Authentication.'
     };
     alert(errores[e.code]||('No se pudo iniciar sesión con Google: '+e.message));
-  }finally{loginBtn.disabled=false;}
+    loginBtn.disabled=false;
+    estado.textContent='Inicia sesión con Google para activar tu modo dueño';
+  }
+}
+
+async function comprobarRedireccion(){
+  try{
+    await getRedirectResult(auth);
+  }catch(e){
+    const errores={
+      'auth/unauthorized-domain':'Este dominio no está autorizado en Firebase Authentication.',
+      'auth/operation-not-allowed':'El inicio de sesión con Google no está activado en Firebase Authentication.',
+      'auth/popup-blocked':'El navegador bloqueó el inicio de sesión.'
+    };
+    console.error('Error en redirección de Google:',e);
+    estado.textContent=errores[e.code]||'No se pudo completar el inicio de sesión con Google.';
+    alert(errores[e.code]||('No se pudo iniciar sesión con Google: '+e.message));
+  }
 }
 
 function activar(user){
@@ -135,6 +151,8 @@ onAuthStateChanged(auth,async user=>{
     renderHistorial();
   }
 });
+
+comprobarRedireccion();
 
 async function enviar(){
   const texto=entrada.value.trim();
