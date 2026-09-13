@@ -5,60 +5,68 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>SoyPerritoProProYT.IAOFICIAL</title>
 <style>
-body{margin:0;font-family:Arial,sans-serif;background:#111;color:#fff;display:flex;justify-content:center;min-height:100vh}.app{width:min(720px,100%);display:flex;flex-direction:column;height:100vh;background:#181818}.top{padding:18px;text-align:center;background:#242424;border-bottom:1px solid #333}.top h1{margin:0;font-size:22px}.status{font-size:13px;color:#aaa;margin-top:6px}.login{padding:12px 16px;text-align:center;background:#202020;border-bottom:1px solid #333}.google{border:0;border-radius:12px;padding:11px 18px;background:#fff;color:#111;font-weight:bold;cursor:pointer}.google:hover{background:#eee}.chat{flex:1;overflow:auto;padding:16px}.msg{max-width:85%;padding:11px 14px;border-radius:14px;margin:8px 0;white-space:pre-wrap;line-height:1.4}.user{margin-left:auto;background:#315efb}.ai{margin-right:auto;background:#292929}.form{display:flex;gap:8px;padding:12px;background:#242424;border-top:1px solid #333}.form input{flex:1;padding:13px;border:0;border-radius:12px;background:#333;color:#fff;outline:0}.form button{border:0;border-radius:12px;padding:0 18px;background:#fff;color:#111;font-weight:bold;cursor:pointer}.form button:disabled{opacity:.5}.hint{text-align:center;color:#777;font-size:12px;padding-bottom:8px}
+body{margin:0;font-family:Arial,sans-serif;background:#111;color:#fff;display:flex;justify-content:center;min-height:100vh}.app{width:min(720px,100%);display:flex;flex-direction:column;height:100vh;background:#181818}.top{padding:18px;text-align:center;background:#242424;border-bottom:1px solid #333}.top h1{margin:0;font-size:22px}.status{font-size:13px;color:#aaa;margin-top:6px}.login{padding:12px 16px;text-align:center;background:#202020;border-bottom:1px solid #333}.login input{padding:11px;border:0;border-radius:10px;background:#333;color:#fff;margin:3px;width:150px}.login button{border:0;border-radius:10px;padding:11px 14px;background:#fff;color:#111;font-weight:bold;cursor:pointer;margin:3px}.owner{color:#ffd84d;font-weight:bold;margin-top:6px}.chat{flex:1;overflow:auto;padding:16px}.msg{max-width:85%;padding:11px 14px;border-radius:14px;margin:8px 0;white-space:pre-wrap;line-height:1.4}.user{margin-left:auto;background:#315efb}.ai{margin-right:auto;background:#292929}.form{display:flex;gap:8px;padding:12px;background:#242424;border-top:1px solid #333}.form input{flex:1;padding:13px;border:0;border-radius:12px;background:#333;color:#fff;outline:0}.form button{border:0;border-radius:12px;padding:0 18px;background:#fff;color:#111;font-weight:bold;cursor:pointer}.form button:disabled{opacity:.5}.hint{text-align:center;color:#777;font-size:12px;padding-bottom:8px}
 </style>
 </head>
 <body>
 <div class="app">
   <header class="top">
     <h1>🐶 SoyPerritoProProYT.IAOFICIAL</h1>
-    <div class="status" id="estado">Listo para chatear</div>
+    <div class="status" id="estado">Inicia sesión para activar tu modo dueño</div>
   </header>
   <div class="login">
-    <button class="google" type="button" id="googleLogin">🔐 Continuar con Google</button>
+    <input id="usuario" type="text" value="SoyPerritoProProYT" readonly>
+    <input id="clave" type="password" placeholder="Contraseña" autocomplete="current-password">
+    <button type="button" id="loginBtn">🔐 Entrar</button>
+    <button type="button" id="logoutBtn" hidden>🚪 Salir</button>
+    <div id="ownerBadge"></div>
   </div>
   <main class="chat" id="chat"></main>
-  <div class="hint">Escribe un mensaje y pulsa Enviar o Enter.</div>
+  <div class="hint">Comandos: /ayuda · /perfil · /juegos · /ajustes · /limpiar</div>
   <form class="form" id="form">
     <input id="entrada" type="text" placeholder="Escribe algo..." autocomplete="off" maxlength="4000">
     <button id="enviar" type="submit">Enviar</button>
   </form>
 </div>
 <script>
-const chat=document.getElementById('chat');
-const entrada=document.getElementById('entrada');
-const form=document.getElementById('form');
-const enviarBtn=document.getElementById('enviar');
-const estado=document.getElementById('estado');
-const historial=[];
+const chat=document.getElementById('chat'),entrada=document.getElementById('entrada'),form=document.getElementById('form'),enviarBtn=document.getElementById('enviar'),estado=document.getElementById('estado');
+const claveInput=document.getElementById('clave'),loginBtn=document.getElementById('loginBtn'),logoutBtn=document.getElementById('logoutBtn'),ownerBadge=document.getElementById('ownerBadge');
+let historial=[];
+const CUENTA='SoyPerritoProProYT', HASH_KEY='sp_owner_password_hash', CHAT_KEY='sp_owner_chat';
 function mensaje(texto,tipo){const el=document.createElement('div');el.className='msg '+tipo;el.textContent=texto;chat.appendChild(el);chat.scrollTop=chat.scrollHeight;return el;}
-mensaje('¡Hola! 🐶 Soy tu IA. Escríbeme algo para empezar.','ai');
-
-document.getElementById('googleLogin').addEventListener('click',()=>{
-  alert('El botón de Google ya está preparado. Para activar el inicio de sesión real necesitamos configurar Google/Firebase y su dominio autorizado.');
-});
-
+function renderHistorial(){chat.innerHTML='';if(!historial.length)mensaje('¡Hola! 🐶 Soy tu IA. Ya estoy lista. Escribe /ayuda para ver mis comandos.','ai');for(const m of historial)mensaje(m.content,m.role==='user'?'user':'ai');}
+async function hash(texto){const bytes=new TextEncoder().encode(texto);const digest=await crypto.subtle.digest('SHA-256',bytes);return [...new Uint8Array(digest)].map(b=>b.toString(16).padStart(2,'0')).join('');}
+function cargar(){try{historial=JSON.parse(localStorage.getItem(CHAT_KEY)||'[]');}catch{historial=[];}renderHistorial();}
+function guardar(){localStorage.setItem(CHAT_KEY,JSON.stringify(historial.slice(-80)));}
+async function iniciar(){
+ const pass=claveInput.value;
+ if(pass.length<4){alert('La contraseña debe tener al menos 4 caracteres.');return;}
+ const nuevo=localStorage.getItem(HASH_KEY);
+ const h=await hash(pass);
+ if(!nuevo){localStorage.setItem(HASH_KEY,h);activar();alert('Cuenta creada en este dispositivo. Guarda tu contraseña: no se puede recuperar desde la web.');return;}
+ if(h!==nuevo){alert('Contraseña incorrecta.');return;}
+ activar();
+}
+function activar(){sessionStorage.setItem('sp_owner','1');claveInput.value='';claveInput.hidden=true;loginBtn.hidden=true;logoutBtn.hidden=false;ownerBadge.innerHTML='<div class="owner">👑 MODO DUEÑO ACTIVADO · SoyPerritoProProYT</div>';estado.textContent='👑 Dueño reconocido · IA lista';entrada.focus();}
+function salir(){sessionStorage.removeItem('sp_owner');claveInput.hidden=false;loginBtn.hidden=false;logoutBtn.hidden=true;ownerBadge.textContent='';estado.textContent='Inicia sesión para activar tu modo dueño';}
+function comando(t){
+ if(t==='/ayuda')return '🐶 COMANDOS DE SOYPERRITOPROPROYT\n\n/ayuda — Ver comandos\n/perfil — Ver tu perfil\n/juegos — Ver tus proyectos\n/ajustes — Ver ajustes\n/limpiar — Borrar el chat guardado';
+ if(t==='/perfil')return '👑 PERFIL\nUsuario: SoyPerritoProProYT\nRol: Dueño\nEstado: reconocido en este dispositivo';
+ if(t==='/juegos')return '🎮 PROYECTOS\n• SoyPerritoProProYT-IAOFICIAL\n• Tu futuro juego de Roblox\n• SoyPerritoProProYT-Console';
+ if(t==='/ajustes')return '⚙️ AJUSTES\n• Cuenta de dueño: activa\n• Guardado local: activo\n• API de IA: conectada mediante /api/chat';
+ if(t==='/limpiar'){historial=[];guardar();renderHistorial();return '🧹 Chat limpiado.';}
+ return null;
+}
+loginBtn.addEventListener('click',iniciar);logoutBtn.addEventListener('click',salir);
+if(sessionStorage.getItem('sp_owner')==='1')activar();cargar();
 async function enviar(){
- const texto=entrada.value.trim();
- if(!texto)return;
- entrada.value='';
- mensaje(texto,'user');
- historial.push({role:'user',content:texto});
- enviarBtn.disabled=true;entrada.disabled=true;estado.textContent='Pensando...';
- const espera=mensaje('Escribiendo...','ai');
- try{
-   const r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:texto,history:historial.slice(-12)})});
-   const data=await r.json().catch(()=>({}));
-   if(!r.ok)throw new Error(data.error||'No se pudo conectar con la API.');
-   espera.textContent=data.reply||'La IA no devolvió una respuesta.';
-   if(data.reply)historial.push({role:'assistant',content:data.reply});
-   estado.textContent='API conectada';
- }catch(e){
-   espera.textContent='❌ '+e.message+'\n\nSi estás usando GitHub Pages, recuerda que /api/chat necesita estar desplegado en un servidor compatible.';
-   estado.textContent='API no disponible';
- }finally{
-   enviarBtn.disabled=false;entrada.disabled=false;entrada.focus();
- }
+ const texto=entrada.value.trim();if(!texto)return;entrada.value='';mensaje(texto,'user');historial.push({role:'user',content:texto});guardar();
+ const cmd=comando(texto);if(cmd){mensaje(cmd,'ai');historial.push({role:'assistant',content:cmd});guardar();return;}
+ if(sessionStorage.getItem('sp_owner')!=='1'){mensaje('🔐 Inicia sesión como SoyPerritoProProYT para usar la IA.','ai');return;}
+ enviarBtn.disabled=true;entrada.disabled=true;estado.textContent='Pensando...';const espera=mensaje('Escribiendo...','ai');
+ try{const r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:texto,history:historial.slice(-12)})});const data=await r.json().catch(()=>({}));if(!r.ok)throw new Error(data.error||'No se pudo conectar con la API.');espera.textContent=data.reply||'La IA no devolvió una respuesta.';if(data.reply)historial.push({role:'assistant',content:data.reply});guardar();estado.textContent='👑 API conectada · Modo dueño';}
+ catch(e){espera.textContent='❌ '+e.message;estado.textContent='API no disponible';}
+ finally{enviarBtn.disabled=false;entrada.disabled=false;entrada.focus();}
 }
 form.addEventListener('submit',e=>{e.preventDefault();enviar();});
 </script>
