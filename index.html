@@ -5,17 +5,24 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>SoyPerritoProProYT.IAOFICIAL</title>
 <style>
-body{margin:0;font-family:Arial,sans-serif;background:#111;color:#fff;display:flex;justify-content:center;min-height:100vh}.app{width:min(720px,100%);display:flex;flex-direction:column;height:100vh;background:#181818}.top{padding:18px;text-align:center;background:#242424;border-bottom:1px solid #333}.top h1{margin:0;font-size:22px}.status{font-size:13px;color:#aaa;margin-top:6px}.login{padding:12px 16px;text-align:center;background:#202020;border-bottom:1px solid #333}.login button{border:0;border-radius:10px;padding:11px 14px;background:#fff;color:#111;font-weight:bold;cursor:pointer;margin:3px}.owner{color:#ffd84d;font-weight:bold;margin-top:6px}.community{color:#7dc8ff;font-weight:bold;margin-top:6px}.chat{flex:1;overflow:auto;padding:16px}.msg{max-width:85%;padding:11px 14px;border-radius:14px;margin:8px 0;white-space:pre-wrap;line-height:1.4}.user{margin-left:auto;background:#315efb}.ai{margin-right:auto;background:#292929}.form{display:flex;gap:8px;padding:12px;background:#242424;border-top:1px solid #333}.form input{flex:1;padding:13px;border:0;border-radius:12px;background:#333;color:#fff;outline:0}.form button{border:0;border-radius:12px;padding:0 18px;background:#fff;color:#111;font-weight:bold;cursor:pointer}.form button:disabled{opacity:.5}.hint{text-align:center;color:#777;font-size:12px;padding-bottom:8px}
+body{margin:0;font-family:Arial,sans-serif;background:#111;color:#fff;display:flex;justify-content:center;min-height:100vh}.app{width:min(720px,100%);display:flex;flex-direction:column;height:100vh;background:#181818}.top{padding:18px;text-align:center;background:#242424;border-bottom:1px solid #333}.top h1{margin:0;font-size:22px}.status{font-size:13px;color:#aaa;margin-top:6px}.login{padding:12px 16px;text-align:center;background:#202020;border-bottom:1px solid #333}.login input{padding:11px;margin:3px;border:0;border-radius:10px;background:#333;color:#fff;outline:0;box-sizing:border-box}.login button{border:0;border-radius:10px;padding:11px 14px;background:#fff;color:#111;font-weight:bold;cursor:pointer;margin:3px}.owner{color:#ffd84d;font-weight:bold;margin-top:6px}.community{color:#7dc8ff;font-weight:bold;margin-top:6px}.chat{flex:1;overflow:auto;padding:16px}.msg{max-width:85%;padding:11px 14px;border-radius:14px;margin:8px 0;white-space:pre-wrap;line-height:1.4}.user{margin-left:auto;background:#315efb}.ai{margin-right:auto;background:#292929}.form{display:flex;gap:8px;padding:12px;background:#242424;border-top:1px solid #333}.form input{flex:1;padding:13px;border:0;border-radius:12px;background:#333;color:#fff;outline:0}.form button{border:0;border-radius:12px;padding:0 18px;background:#fff;color:#111;font-weight:bold;cursor:pointer}.form button:disabled{opacity:.5}.hint{text-align:center;color:#777;font-size:12px;padding-bottom:8px}.error{color:#ff7d7d;font-size:12px;margin-top:4px}
 </style>
 </head>
 <body>
 <div class="app">
   <header class="top">
     <h1>🐶 SoyPerritoProProYT.IAOFICIAL</h1>
-    <div class="status" id="estado">Inicia sesión con Google para activar tu modo dueño</div>
+    <div class="status" id="estado">Crea una cuenta o inicia sesión</div>
   </header>
-  <div class="login">
-    <button type="button" id="loginBtn">🔐 Continuar con Google</button>
+  <div class="login" id="loginPanel">
+    <input id="nombre" type="text" placeholder="Nombre de usuario" autocomplete="username" maxlength="40">
+    <input id="correo" type="email" placeholder="Correo" autocomplete="email">
+    <input id="contrasena" type="password" placeholder="Contraseña" autocomplete="current-password">
+    <div>
+      <button type="button" id="crearBtn">🆕 Crear cuenta</button>
+      <button type="button" id="loginBtn">🔐 Iniciar sesión</button>
+    </div>
+    <div class="error" id="errorLogin"></div>
     <button type="button" id="logoutBtn" hidden>🚪 Salir</button>
     <div id="ownerBadge"></div>
   </div>
@@ -29,7 +36,7 @@ body{margin:0;font-family:Arial,sans-serif;background:#111;color:#fff;display:fl
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
-import { getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
 import { getFirestore, doc, getDoc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
 
 const firebaseConfig={
@@ -41,153 +48,88 @@ const firebaseConfig={
   appId:"1:964674229147:web:b6313429946d8a2f493be"
 };
 
-const OWNER_EMAIL='perritojuanperrito@gmail.com';
+const OWNER_NAME='SoyPerritoProProYT';
 const app=initializeApp(firebaseConfig);
 const auth=getAuth(app);
 const db=getFirestore(app);
-const provider=new GoogleAuthProvider();
-
 const chat=document.getElementById('chat'),entrada=document.getElementById('entrada'),form=document.getElementById('form'),enviarBtn=document.getElementById('enviar'),estado=document.getElementById('estado');
-const loginBtn=document.getElementById('loginBtn'),logoutBtn=document.getElementById('logoutBtn'),ownerBadge=document.getElementById('ownerBadge');
-let historial=[];
-let usuarioActual=null;
-let esDueno=false;
+const nombre=document.getElementById('nombre'),correo=document.getElementById('correo'),contrasena=document.getElementById('contrasena');
+const crearBtn=document.getElementById('crearBtn'),loginBtn=document.getElementById('loginBtn'),logoutBtn=document.getElementById('logoutBtn'),ownerBadge=document.getElementById('ownerBadge'),errorLogin=document.getElementById('errorLogin');
+let historial=[];let usuarioActual=null;let esDueno=false;let nombreActual='';
 
 function mensaje(texto,tipo){const el=document.createElement('div');el.className='msg '+tipo;el.textContent=texto;chat.appendChild(el);chat.scrollTop=chat.scrollHeight;return el;}
-function renderHistorial(){chat.innerHTML='';if(!historial.length)mensaje('¡Hola! 🐶 Soy tu IA. Tus chats se guardarán online con Firebase. Escribe /ayuda para ver mis comandos.','ai');for(const m of historial)mensaje(m.content,m.role==='user'?'user':'ai');}
+function renderHistorial(){chat.innerHTML='';if(!historial.length)mensaje('¡Hola! 🐶 Soy tu IA. Inicia sesión para usarla y guardar tus chats. Escribe /ayuda para ver mis comandos.','ai');for(const m of historial)mensaje(m.content,m.role==='user'?'user':'ai');}
+function mostrarError(e){const errores={'auth/email-already-in-use':'Ese correo ya tiene una cuenta.','auth/invalid-email':'El correo no es válido.','auth/weak-password':'La contraseña es demasiado corta.','auth/invalid-credential':'Correo o contraseña incorrectos.','auth/invalid-login-credentials':'Correo o contraseña incorrectos.','auth/user-not-found':'No existe una cuenta con ese correo.','auth/wrong-password':'Contraseña incorrecta.','auth/api-key-not-valid.-please-pass-a-valid-api-key.':'La clave web de Firebase no es válida. Revisa la configuración de tu app web en Firebase.'};errorLogin.textContent=errores[e.code]||e.message||'Ha ocurrido un error.';}
 
-async function cargarChat(uid){
+async function cargarChat(uid){try{const snap=await getDoc(doc(db,'users',uid,'chats','principal'));historial=snap.exists()&&Array.isArray(snap.data().messages)?snap.data().messages:[];}catch(e){historial=[];console.error(e);}renderHistorial();}
+async function guardarChat(){if(!usuarioActual)return;try{await setDoc(doc(db,'users',usuarioActual.uid,'chats','principal'),{messages:historial.slice(-80),updatedAt:serverTimestamp()},{merge:true});}catch(e){console.error('Error guardando chat:',e);}}
+async function guardarPerfil(uid,user){try{await setDoc(doc(db,'users',uid,'profile','info'),{displayName:nombreActual||user.displayName||'Usuario',email:user.email||'',photoURL:user.photoURL||'',role:esDueno?'owner':'community',updatedAt:serverTimestamp()},{merge:true});}catch(e){console.error('Error guardando perfil:',e);}}
+
+async function crearCuenta(){
+  errorLogin.textContent='';
+  const n=nombre.value.trim(),c=correo.value.trim(),p=contrasena.value;
+  if(!n||!c||!p){errorLogin.textContent='Completa nombre, correo y contraseña.';return;}
+  if(n.length<3){errorLogin.textContent='El nombre debe tener al menos 3 caracteres.';return;}
   try{
-    const ref=doc(db,'users',uid,'chats','principal');
-    const snap=await getDoc(ref);
-    historial=snap.exists()&&Array.isArray(snap.data().messages)?snap.data().messages:[];
-  }catch(e){historial=[];console.error(e);}
-  renderHistorial();
+    crearBtn.disabled=true;loginBtn.disabled=true;estado.textContent='🔄 Creando cuenta...';
+    const cred=await createUserWithEmailAndPassword(auth,c,p);
+    await updateProfile(cred.user,{displayName:n});
+    nombreActual=n;
+    await guardarPerfil(cred.user.uid,cred.user);
+  }catch(e){mostrarError(e);estado.textContent='Crea una cuenta o inicia sesión';}finally{crearBtn.disabled=false;loginBtn.disabled=false;}
 }
 
-async function guardarChat(){
-  if(!usuarioActual)return;
+async function iniciarSesion(){
+  errorLogin.textContent='';
+  const c=correo.value.trim(),p=contrasena.value;
+  if(!c||!p){errorLogin.textContent='Escribe correo y contraseña.';return;}
   try{
-    const ref=doc(db,'users',usuarioActual.uid,'chats','principal');
-    await setDoc(ref,{messages:historial.slice(-80),updatedAt:serverTimestamp()},{merge:true});
-  }catch(e){console.error('Error guardando chat:',e);estado.textContent='⚠️ No se pudo guardar el chat';}
+    crearBtn.disabled=true;loginBtn.disabled=true;estado.textContent='🔄 Iniciando sesión...';
+    await signInWithEmailAndPassword(auth,c,p);
+  }catch(e){mostrarError(e);estado.textContent='Crea una cuenta o inicia sesión';}finally{crearBtn.disabled=false;loginBtn.disabled=false;}
 }
 
-async function guardarPerfil(uid,user){
-  try{
-    await setDoc(doc(db,'users',uid,'profile','info'),{displayName:'SoyPerritoProProYT',email:user.email||'',photoURL:user.photoURL||'',role:esDueno?'owner':'community',updatedAt:serverTimestamp()},{merge:true});
-  }catch(e){console.error('Error guardando perfil:',e);}
-}
-
-async function iniciar(){
-  loginBtn.disabled=true;
-  estado.textContent='🔄 Redirigiendo a Google...';
-  try{
-    await signInWithRedirect(auth,provider);
-  }catch(e){
-    const errores={'auth/unauthorized-domain':'Este dominio no está autorizado en Firebase Authentication.','auth/operation-not-allowed':'El inicio de sesión con Google no está activado en Firebase Authentication.'};
-    alert(errores[e.code]||('No se pudo iniciar sesión con Google: '+e.message));
-    loginBtn.disabled=false;
-    estado.textContent='Inicia sesión con Google para activar tu modo dueño';
-  }
-}
-
-async function comprobarRedireccion(){
-  try{await getRedirectResult(auth);}catch(e){
-    const errores={'auth/unauthorized-domain':'Este dominio no está autorizado en Firebase Authentication.','auth/operation-not-allowed':'El inicio de sesión con Google no está activado en Firebase Authentication.'};
-    console.error('Error en redirección de Google:',e);
-    estado.textContent=errores[e.code]||'No se pudo completar el inicio de sesión con Google.';
-    alert(errores[e.code]||('No se pudo iniciar sesión con Google: '+e.message));
-  }
-}
-
-function activar(user){
+async function activar(user){
   usuarioActual=user;
-  esDueno=(user.email||'').toLowerCase()===OWNER_EMAIL;
-  loginBtn.hidden=true;
-  logoutBtn.hidden=false;
-  if(esDueno){
-    ownerBadge.innerHTML='<div class="owner">👑 MODO DUEÑO ACTIVADO · SoyPerritoProProYT</div>';
-    estado.textContent='👑 Dueño conectado · Firebase conectado';
-  }else{
-    ownerBadge.innerHTML='<div class="community">👥 MODO COMUNIDAD · Bienvenido</div>';
-    estado.textContent='👥 Comunidad · Firebase conectado';
-  }
-  entrada.focus();
+  nombreActual=user.displayName||'';
+  if(!nombreActual){try{const snap=await getDoc(doc(db,'users',user.uid,'profile','info'));if(snap.exists())nombreActual=snap.data().displayName||'';}catch(e){}}
+  esDueno=nombreActual===OWNER_NAME;
+  nombre.value=nombreActual;
+  loginPanel.querySelectorAll('input').forEach(x=>x.hidden=true);
+  crearBtn.hidden=true;loginBtn.hidden=true;logoutBtn.hidden=false;errorLogin.textContent='';
+  if(esDueno){ownerBadge.innerHTML='<div class="owner">👑 MODO DUEÑO ACTIVADO · SoyPerritoProProYT</div>';estado.textContent='👑 Dueño conectado · Firebase conectado';}
+  else{ownerBadge.innerHTML='<div class="community">👥 MODO COMUNIDAD · Bienvenido '+(nombreActual||'')+'</div>';estado.textContent='👥 Comunidad · Firebase conectado';}
+  await guardarPerfil(user.uid,user);await cargarChat(user.uid);entrada.focus();
 }
 
-async function salir(){
-  await signOut(auth);
-  usuarioActual=null;
-  esDueno=false;
-  historial=[];
-  loginBtn.hidden=false;
-  logoutBtn.hidden=true;
-  ownerBadge.textContent='';
-  estado.textContent='Inicia sesión con Google para activar tu modo dueño';
-  renderHistorial();
-}
+async function salir(){await signOut(auth);usuarioActual=null;esDueno=false;nombreActual='';historial=[];loginPanel.querySelectorAll('input').forEach(x=>{x.hidden=false;x.value='';});crearBtn.hidden=false;loginBtn.hidden=false;logoutBtn.hidden=true;ownerBadge.textContent='';errorLogin.textContent='';estado.textContent='Crea una cuenta o inicia sesión';renderHistorial();}
 
 function comando(t){
   if(t==='/ayuda')return '🐶 COMANDOS DE SOYPERRITOPROPROYT\n\n/ayuda — Ver comandos\n/perfil — Ver tu perfil\n/juegos — Ver tus proyectos\n/ajustes — Ver ajustes\n/limpiar — Borrar el chat guardado online';
-  if(t==='/perfil')return esDueno?'👑 PERFIL\nUsuario: SoyPerritoProProYT\nRol: Dueño\nEstado: conectado con Firebase':'👥 PERFIL\nRol: Comunidad\nEstado: conectado con Firebase';
+  if(t==='/perfil')return esDueno?'👑 PERFIL\nUsuario: SoyPerritoProProYT\nRol: Dueño\nEstado: conectado con Firebase':'👥 PERFIL\nUsuario: '+(nombreActual||'Usuario')+'\nRol: Comunidad\nEstado: conectado con Firebase';
   if(t==='/juegos')return '🎮 PROYECTOS\n• SoyPerritoProProYT-IAOFICIAL\n• Tu futuro juego de Roblox\n• SoyPerritoProProYT-Console';
-  if(t==='/ajustes')return '⚙️ AJUSTES\n• Cuenta: Google + Firebase Authentication\n• Chats: Firestore online\n• API de IA: /api/chat';
+  if(t==='/ajustes')return '⚙️ AJUSTES\n• Cuenta: correo + contraseña\n• Chats: Firestore online\n• API de IA: /api/chat';
   if(t==='/limpiar'){historial=[];guardarChat();renderHistorial();return '🧹 Chat limpiado y actualizado en Firestore.';}
   return null;
 }
 
-loginBtn.addEventListener('click',iniciar);
-logoutBtn.addEventListener('click',salir);
-
-onAuthStateChanged(auth,async user=>{
-  if(user){
-    activar(user);
-    await guardarPerfil(user.uid,user);
-    await cargarChat(user.uid);
-  }else{
-    usuarioActual=null;
-    esDueno=false;
-    historial=[];
-    renderHistorial();
-  }
-});
-
-comprobarRedireccion();
+crearBtn.addEventListener('click',crearCuenta);loginBtn.addEventListener('click',iniciarSesion);logoutBtn.addEventListener('click',salir);
+onAuthStateChanged(auth,async user=>{if(user)await activar(user);else{usuarioActual=null;esDueno=false;historial=[];renderHistorial();}});
 
 async function enviar(){
-  const texto=entrada.value.trim();
-  if(!texto)return;
-  if(!usuarioActual){mensaje('🔐 Inicia sesión con Google para usar la IA y guardar chats online.','ai');return;}
-  entrada.value='';
-  mensaje(texto,'user');
-  historial.push({role:'user',content:texto});
-  await guardarChat();
-
-  const cmd=comando(texto);
-  if(cmd){mensaje(cmd,'ai');historial.push({role:'assistant',content:cmd});await guardarChat();return;}
-
-  enviarBtn.disabled=true;entrada.disabled=true;estado.textContent='Pensando...';
-  const espera=mensaje('Escribiendo...','ai');
+  const texto=entrada.value.trim();if(!texto)return;
+  if(!usuarioActual){mensaje('🔐 Crea una cuenta o inicia sesión para usar la IA y guardar chats.','ai');return;}
+  entrada.value='';mensaje(texto,'user');historial.push({role:'user',content:texto});await guardarChat();
+  const cmd=comando(texto);if(cmd){mensaje(cmd,'ai');historial.push({role:'assistant',content:cmd});await guardarChat();return;}
+  enviarBtn.disabled=true;entrada.disabled=true;estado.textContent='Pensando...';const espera=mensaje('Escribiendo...','ai');
   try{
     const r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:texto,history:historial.slice(-12)})});
-    const data=await r.json().catch(()=>({}));
-    if(!r.ok)throw new Error(data.error||'No se pudo conectar con la API.');
-    espera.textContent=data.reply||'La IA no devolvió una respuesta.';
-    if(data.reply)historial.push({role:'assistant',content:data.reply});
-    await guardarChat();
-    estado.textContent=esDueno?'👑 Dueño conectado · Firebase + API':'👥 Comunidad conectada · Firebase + API';
-  }catch(e){
-    espera.textContent='❌ '+e.message;
-    estado.textContent='API no disponible';
-    await guardarChat();
-  }finally{
-    enviarBtn.disabled=false;entrada.disabled=false;entrada.focus();
-  }
+    const data=await r.json().catch(()=>({}));if(!r.ok)throw new Error(data.error||'No se pudo conectar con la API.');
+    espera.textContent=data.reply||'La IA no devolvió una respuesta.';if(data.reply)historial.push({role:'assistant',content:data.reply});await guardarChat();estado.textContent=esDueno?'👑 Dueño conectado · Firebase + API':'👥 Comunidad conectada · Firebase + API';
+  }catch(e){espera.textContent='❌ '+e.message;estado.textContent='API no disponible';await guardarChat();}
+  finally{enviarBtn.disabled=false;entrada.disabled=false;entrada.focus();}
 }
-
-form.addEventListener('submit',e=>{e.preventDefault();enviar();});
-renderHistorial();
+form.addEventListener('submit',e=>{e.preventDefault();enviar();});renderHistorial();
 </script>
 </body>
 </html>
