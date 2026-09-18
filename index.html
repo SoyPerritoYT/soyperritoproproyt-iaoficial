@@ -10,56 +10,45 @@ body{margin:0;font-family:Arial,sans-serif;background:#111;color:#fff;display:fl
 </head>
 <body>
 <div class="app">
-<header class="top"><h1>🐶 SoyPerritoProProYT.IAOFICIAL</h1><div class="status" id="estado">Inicia sesión con Google</div></header>
-<div class="login" id="loginPanel">
-<button type="button" class="google" id="googleBtn">🔵 Continuar con Google</button>
-<div class="error" id="errorLogin" aria-live="polite"></div>
-<button type="button" class="google" id="logoutBtn" hidden>🚪 Cerrar sesión</button>
-<div id="ownerBadge"></div>
-</div>
+<header class="top"><h1>🐶 SoyPerritoProProYT.IAOFICIAL</h1><div class="status" id="estado">🟢 Sin inicio de sesión · Chats no guardados</div></header>
 <main class="chat" id="chat"></main>
 <div class="hint">Comandos: /ayuda · /perfil · /juegos · /ajustes · /limpiar</div>
 <form class="form" id="form"><input id="entrada" type="text" placeholder="Escribe algo..." autocomplete="off" maxlength="4000"><button id="enviar" type="submit">Enviar</button></form>
 </div>
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
-import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
-import { getFirestore, doc, getDoc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
-const firebaseConfig={apiKey:"AIzaSyAQEiDYEVKEY1tGeDRDKLcWkAps_Oy7cNw",authDomain:"soyperritoproproyt-iaoficial.firebaseapp.com",projectId:"soyperritoproproyt-iaoficial",storageBucket:"soyperritoproproyt-iaoficial.firebasestorage.app",messagingSenderId:"954824229147",appId:"1:954824229147:web:863134299466d8a2f493be",measurementId:"G-FGHGHT7Y17"};
-const OWNER_EMAIL='perritojuanperrito@gmail.com';
-const app=initializeApp(firebaseConfig),auth=getAuth(app),db=getFirestore(app),provider=new GoogleAuthProvider();
-const chat=document.getElementById('chat'),entrada=document.getElementById('entrada'),form=document.getElementById('form'),enviarBtn=document.getElementById('enviar'),estado=document.getElementById('estado'),googleBtn=document.getElementById('googleBtn'),logoutBtn=document.getElementById('logoutBtn'),ownerBadge=document.getElementById('ownerBadge'),errorLogin=document.getElementById('errorLogin');
-let historial=[],usuarioActual=null,esDueno=false,nombreActual='';
+<script>
+const chat=document.getElementById('chat'),entrada=document.getElementById('entrada'),form=document.getElementById('form'),enviarBtn=document.getElementById('enviar'),estado=document.getElementById('estado');
+let historial=[];
 function mensaje(texto,tipo){const el=document.createElement('div');el.className='msg '+tipo;el.textContent=texto;chat.appendChild(el);chat.scrollTop=chat.scrollHeight;return el}
-function renderHistorial(){chat.innerHTML='';if(!historial.length)mensaje('¡Hola! 🐶 Soy tu IA. Inicia sesión con Google para usarla y guardar tus chats. Escribe /ayuda para ver mis comandos.','ai');for(const m of historial)mensaje(m.content,m.role==='user'?'user':'ai')}
-function mostrarError(e){const code=e?.code||'sin-codigo';const message=e?.message||'Sin mensaje adicional.';const errores={'auth/popup-closed-by-user':'Inicio de sesión cancelado.','auth/popup-blocked':'El navegador bloqueó la ventana de Google.','auth/unauthorized-domain':'Este dominio no está autorizado en Firebase.','auth/operation-not-allowed':'Activa Google como proveedor de inicio de sesión en Firebase.','auth/invalid-api-key':'La clave de Firebase no es válida.'};errorLogin.textContent=(errores[code]||'No se pudo iniciar sesión con Google.')+'\n\n🔎 Código: '+code+'\n📋 Detalle: '+message;console.error('Error de inicio de sesión con Google:',e)}
-async function cargarChat(uid){try{const snap=await getDoc(doc(db,'users',uid,'chats','principal'));historial=snap.exists()&&Array.isArray(snap.data().messages)?snap.data().messages:[]}catch(e){historial=[];console.error(e)}renderHistorial()}
-async function guardarChat(){if(!usuarioActual)return;try{await setDoc(doc(db,'users',usuarioActual.uid,'chats','principal'),{messages:historial.slice(-80),updatedAt:serverTimestamp()},{merge:true})}catch(e){console.error(e)}}
-async function guardarPerfil(uid,user){try{await setDoc(doc(db,'users',uid,'profile','info'),{displayName:nombreActual||user.displayName||'Usuario',email:user.email||'',photoURL:user.photoURL||'',role:esDueno?'owner':'community',updatedAt:serverTimestamp()},{merge:true})}catch(e){console.error(e)}}
-async function iniciarGoogle(){errorLogin.textContent='';try{googleBtn.disabled=true;estado.textContent='🔄 Abriendo Google...';await signInWithPopup(auth,provider)}catch(e){mostrarError(e);estado.textContent='Inicia sesión con Google'}finally{googleBtn.disabled=false}}
-async function activar(user){
- usuarioActual=user;
- nombreActual=user.displayName||user.email?.split('@')[0]||'Usuario';
- esDueno=(user.email||'').toLowerCase()===OWNER_EMAIL.toLowerCase();
- googleBtn.hidden=true;
- logoutBtn.hidden=false;
- errorLogin.textContent='';
- const nombre=nombreActual||'Usuario';
- const correo=user.email||'Cuenta de Google';
- ownerBadge.innerHTML='<div class="account">👤 Cuenta: '+correo+'</div><div class="welcome">✅ ¡Hola, '+nombre+'! Ya puedes usar tu IA.</div>'+ (esDueno?'<div class="owner">👑 MODO DUEÑO</div>':'<div class="community">👥 MODO COMUNIDAD</div>');
- estado.textContent=esDueno?'👑 Dueño conectado · Google + Firebase':'👥 Comunidad conectada · Google + Firebase';
- await guardarPerfil(user.uid,user);
- await cargarChat(user.uid);
- entrada.focus();
+function comando(t){
+  if(t==='/ayuda')return '🐶 COMANDOS DE SOYPERRITOPROPROYT\n\n/ayuda — Ver comandos\n/perfil — Ver perfil\n/juegos — Ver proyectos\n/ajustes — Ver ajustes\n/limpiar — Borrar este chat';
+  if(t==='/perfil')return '🐶 SOYPERRITOPROPROYT\n🤖 SoyPerritoProProYT.IAOFICIAL';
+  if(t==='/juegos')return '🎮 PROYECTOS\n• SoyPerritoProProYT-IAOFICIAL\n• Tu futuro juego de Roblox\n• SoyPerritoProProYT-Console';
+  if(t==='/ajustes')return '⚙️ AJUSTES\n• Inicio de sesión: No necesario\n• Chats: No se guardan\n• API de IA: /api/chat';
+  if(t==='/limpiar'){historial=[];chat.innerHTML='';mensaje('🧹 Chat limpiado.','ai');return null}
+  return null;
 }
-async function salir(){await signOut(auth);usuarioActual=null;esDueno=false;nombreActual='';historial=[];googleBtn.hidden=false;logoutBtn.hidden=true;ownerBadge.textContent='';errorLogin.textContent='';estado.textContent='Inicia sesión con Google';renderHistorial()}
-function comando(t){if(t==='/ayuda')return '🐶 COMANDOS DE SOYPERRITOPROPROYT\n\n/ayuda — Ver comandos\n/perfil — Ver tu perfil\n/juegos — Ver tus proyectos\n/ajustes — Ver ajustes\n/limpiar — Borrar el chat guardado online';if(t==='/perfil')return esDueno?'👑 PERFIL\nCorreo: '+OWNER_EMAIL+'\nRol: Dueño\nInicio de sesión: Google':'👥 PERFIL\nNombre: '+nombreActual+'\nCorreo: '+(usuarioActual?.email||'')+'\nRol: Comunidad\nInicio de sesión: Google';if(t==='/juegos')return '🎮 PROYECTOS\n• SoyPerritoProProYT-IAOFICIAL\n• Tu futuro juego de Roblox\n• SoyPerritoProProYT-Console';if(t==='/ajustes')return '⚙️ AJUSTES\n• Cuenta: Google\n• Chats: Firestore online\n• API de IA: /api/chat';if(t==='/limpiar'){historial=[];guardarChat();renderHistorial();return '🧹 Chat limpiado y actualizado en Firestore.'}return null}
-googleBtn.addEventListener('click',iniciarGoogle);
-logoutBtn.addEventListener('click',salir);
-onAuthStateChanged(auth,async user=>{if(user)await activar(user);else{usuarioActual=null;esDueno=false;historial=[];renderHistorial()}});
-async function enviar(){const texto=entrada.value.trim();if(!texto)return;if(!usuarioActual){mensaje('🔐 Inicia sesión con Google para usar la IA y guardar chats.','ai');return}entrada.value='';mensaje(texto,'user');historial.push({role:'user',content:texto});await guardarChat();const cmd=comando(texto);if(cmd){mensaje(cmd,'ai');historial.push({role:'assistant',content:cmd});await guardarChat();return}enviarBtn.disabled=true;entrada.disabled=true;estado.textContent='Pensando...';const espera=mensaje('Escribiendo...','ai');try{const r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:texto,history:historial.slice(-12)})});const data=await r.json().catch(()=>({}));if(!r.ok)throw new Error(data.error||'No se pudo conectar con la API.');espera.textContent=data.reply||'La IA no devolvió una respuesta.';if(data.reply)historial.push({role:'assistant',content:data.reply});await guardarChat();estado.textContent=esDueno?'👑 Dueño conectado · Google + Firebase + API':'👥 Comunidad conectada · Google + Firebase + API'}catch(e){espera.textContent='❌ '+e.message;estado.textContent='API no disponible';await guardarChat()}finally{enviarBtn.disabled=false;entrada.disabled=false;entrada.focus()}}
+async function enviar(){
+  const texto=entrada.value.trim();
+  if(!texto)return;
+  entrada.value='';
+  mensaje(texto,'user');
+  historial.push({role:'user',content:texto});
+  const cmd=comando(texto);
+  if(cmd){mensaje(cmd,'ai');historial.push({role:'assistant',content:cmd});return}
+  enviarBtn.disabled=true;entrada.disabled=true;estado.textContent='Pensando...';
+  const espera=mensaje('Escribiendo...','ai');
+  try{
+    const r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:texto,history:historial.slice(-12)})});
+    const data=await r.json().catch(()=>({}));
+    if(!r.ok)throw new Error(data.error||'No se pudo conectar con la API.');
+    espera.textContent=data.reply||'La IA no devolvió una respuesta.';
+    if(data.reply)historial.push({role:'assistant',content:data.reply});
+    estado.textContent='🟢 IA lista · Chats no guardados';
+  }catch(e){espera.textContent='❌ '+e.message;estado.textContent='🔴 API no disponible'}
+  finally{enviarBtn.disabled=false;entrada.disabled=false;entrada.focus()}
+}
 form.addEventListener('submit',e=>{e.preventDefault();enviar()});
-renderHistorial();
+mensaje('¡Hola! 🐶 Soy SoyPerritoProProYT.IAOFICIAL. No necesitas iniciar sesión y los chats no se guardan. Escribe /ayuda para ver mis comandos.','ai');
 </script>
 </body>
 </html>
