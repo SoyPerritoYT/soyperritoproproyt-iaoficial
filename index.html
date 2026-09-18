@@ -45,6 +45,11 @@ body{margin:0;font-family:Arial,sans-serif;background:#111;color:#fff;display:fl
 </div>
 <div id="mediaResult" class="mediaResult"></div>
 <div class="media">
+<button type="button" id="githubBtn">🐙 GitHub</button>
+<button type="button" id="githubOpenBtn">🌐 Abrir GitHub</button>
+<div id="githubMsg" class="authMsg">🐙 Modo GitHub</div>
+</div>
+<div class="media">
 <button type="button" id="youtubeConnectBtn">🔗 Conectar YouTube</button>
 <button type="button" id="youtubeUploadBtn" disabled>⬆️ Subir vídeo generado</button>
 <input id="youtubeTitle" type="text" placeholder="Título del vídeo" maxlength="100">
@@ -181,7 +186,7 @@ function crearRepositorioGitHub(){
  if(!name){msg.textContent='❌ Escribe un nombre de repositorio.';return}
  msg.textContent='🔐 Para crear repositorios automáticamente falta conectar GitHub OAuth de forma segura. No se puede usar directamente la conexión GitHub de ChatGPT desde esta página.';
 }
-\nasync function conectarYouTube(){
+async function conectarYouTube(){
  const msg=document.getElementById('youtubeMsg'),btn=document.getElementById('youtubeConnectBtn'),upload=document.getElementById('youtubeUploadBtn');
  if(!window.google?.accounts?.oauth2){msg.textContent='❌ No se pudo cargar Google OAuth.';return}
  btn.disabled=true;msg.textContent='Conectando con Google...';
