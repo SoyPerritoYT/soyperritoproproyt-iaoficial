@@ -173,7 +173,7 @@ async function crearVideo(){
 function abrirGitHub(){ window.open('https://github.com/','_blank','noopener'); }
 function modoGitHub(){
  const msg=document.getElementById('githubMsg');
- msg.textContent='🐙 Modo GitHub: el sitio puede preparar acciones sobre repositorios, pero para crear repositorios desde la web hace falta una autorización OAuth de GitHub con un backend seguro. No pegues un token personal aquí.';
+ msg.textContent='🐙 Modo GitHub: consultar y trabajar con tus repositorios mediante una conexión autorizada.';
 }
 function crearRepositorioGitHub(){
  const name=document.getElementById('githubRepoName').value.trim();
@@ -214,7 +214,7 @@ async function subirVideoGenerado(){
  }catch(e){msg.textContent='❌ '+e.message}finally{upload.disabled=false}
 }
 
-document.getElementById('githubBtn').addEventListener('click',modoGitHub);document.getElementById('githubOpenBtn').addEventListener('click',abrirGitHub);document.getElementById('githubCreateBtn').addEventListener('click',crearRepositorioGitHub);registerBtn.addEventListener('click',()=>authAction('register'));loginBtn.addEventListener('click',()=>authAction('login'));logoutBtn.addEventListener('click',salir);
+document.getElementById('githubBtn').addEventListener('click',modoGitHub);document.getElementById('githubOpenBtn').addEventListener('click',abrirGitHub);registerBtn.addEventListener('click',()=>authAction('register'));loginBtn.addEventListener('click',()=>authAction('login'));logoutBtn.addEventListener('click',salir);
 imagenBtn.addEventListener('click',crearImagen);videoBtn.addEventListener('click',crearVideo);nuevoChatBtn.addEventListener('click',nuevoChat);chatSelect.addEventListener('change',cambiarChat);document.getElementById('youtubeConnectBtn').addEventListener('click',conectarYouTube);document.getElementById('youtubeUploadBtn').addEventListener('click',subirVideoGenerado);
 form.addEventListener('submit',e=>{e.preventDefault();enviar()});
 onAuthStateChanged(auth,user=>{if(user)activar(user);else{usuarioActual=null;nombreActual='';historial=[];chats=[];chatId=null;userName.disabled=false;registerBtn.hidden=false;loginBtn.hidden=false;logoutBtn.hidden=true;chatSelect.innerHTML='<option value="">💬 Cambiar de chat</option>';estado.textContent='🔐 Crea una cuenta o inicia sesión';render()}});
