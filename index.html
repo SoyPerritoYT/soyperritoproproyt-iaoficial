@@ -44,6 +44,13 @@ body{margin:0;font-family:Arial,sans-serif;background:#111;color:#fff;display:fl
 <button type="button" id="videoBtn">🎬 Crear vídeo</button>
 </div>
 <div id="mediaResult" class="mediaResult"></div>
+<div class="media">
+<button type="button" id="youtubeConnectBtn">🔗 Conectar YouTube</button>
+<button type="button" id="youtubeUploadBtn" disabled>⬆️ Subir vídeo generado</button>
+<input id="youtubeTitle" type="text" placeholder="Título del vídeo" maxlength="100">
+<textarea id="youtubeDescription" placeholder="Descripción del vídeo" maxlength="5000" rows="3" style="flex:1;min-width:220px;padding:10px;border:0;border-radius:10px;background:#333;color:#fff"></textarea>
+<div id="youtubeMsg" class="authMsg"></div>
+</div>
 
 <form class="form" id="form">
 <input id="entrada" type="text" placeholder="Escribe algo..." autocomplete="off" maxlength="4000">
@@ -52,6 +59,7 @@ body{margin:0;font-family:Arial,sans-serif;background:#111;color:#fff;display:fl
 </div>
 
 <script src="https://js.puter.com/v2/"></script>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 <script type="module">
 import {initializeApp} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
 import {getAuth,createUserWithEmailAndPassword,signInWithEmailAndPassword,onAuthStateChanged,signOut,updateProfile} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
@@ -65,6 +73,9 @@ const userName=document.getElementById('userName'),userPass=document.getElementB
 const imagenBtn=document.getElementById('imagenBtn'),videoBtn=document.getElementById('videoBtn'),mediaResult=document.getElementById('mediaResult');
 
 let historial=[],usuarioActual=null,nombreActual='',chatId=null,chats=[];
+let youtubeAccessToken=null;
+const YOUTUBE_CLIENT_ID='954824229147-uf1ev0v052lvotutaue61nkncfj19.apps.googleusercontent.com';
+const YOUTUBE_SCOPE='https://www.googleapis.com/auth/youtube.upload';
 
 function mensaje(texto,tipo){const el=document.createElement('div');el.className='msg '+tipo;el.textContent=texto;chat.appendChild(el);chat.scrollTop=chat.scrollHeight;return el}
 function render(){chat.innerHTML='';if(!historial.length)mensaje('¡Hola! 🐶 Crea una cuenta o inicia sesión para usar la IA y guardar tus chats.','ai');for(const m of historial)mensaje(m.content,m.role==='user'?'user':'ai')}
@@ -154,8 +165,40 @@ async function crearVideo(){
  catch(e){mediaResult.textContent='❌ No se pudo crear el vídeo.'}finally{videoBtn.disabled=false}
 }
 
+async function conectarYouTube(){
+ const msg=document.getElementById('youtubeMsg'),btn=document.getElementById('youtubeConnectBtn'),upload=document.getElementById('youtubeUploadBtn');
+ if(!window.google?.accounts?.oauth2){msg.textContent='❌ No se pudo cargar Google OAuth.';return}
+ btn.disabled=true;msg.textContent='Conectando con Google...';
+ try{
+  const client=google.accounts.oauth2.initTokenClient({client_id:YOUTUBE_CLIENT_ID,scope:YOUTUBE_SCOPE,callback:(resp)=>{
+   if(resp.error){msg.textContent='❌ Google no autorizó la conexión.';return}
+   youtubeAccessToken=resp.access_token;upload.disabled=false;msg.textContent='✅ YouTube conectado.'
+  }});
+  client.requestAccessToken({prompt:'consent'});
+ }catch(e){msg.textContent='❌ No se pudo conectar YouTube.'}finally{btn.disabled=false}
+}
+async function subirVideoGenerado(){
+ const msg=document.getElementById('youtubeMsg'),upload=document.getElementById('youtubeUploadBtn');
+ if(!youtubeAccessToken){msg.textContent='❌ Conecta YouTube primero.';return}
+ const video=mediaResult.querySelector('video');
+ if(!video?.src){msg.textContent='❌ Primero crea un vídeo.';return}
+ upload.disabled=true;msg.textContent='⬆️ Subiendo vídeo...';
+ try{
+  const vr=await fetch(video.src);if(!vr.ok)throw new Error('No se pudo leer el vídeo generado.');
+  const blob=await vr.blob();
+  const title=(document.getElementById('youtubeTitle').value||'Vídeo de SoyPerritoProProYT').trim();
+  const description=(document.getElementById('youtubeDescription').value||'Vídeo creado con SoyPerritoProProYT.IAOFICIAL').trim();
+  const metadata={snippet:{title,description,categoryId:'20'},status:{privacyStatus:'private'}};
+  const boundary='----soyperrito'+Date.now();
+  const body=new Blob(['--'+boundary+'\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n',JSON.stringify(metadata),'\r\n--'+boundary+'\r\nContent-Type: '+(blob.type||'video/mp4')+'\r\n\r\n',blob,'\r\n--'+boundary+'--\r\n']);
+  const r=await fetch('https://www.googleapis.com/upload/youtube/v3/videos?part=snippet,status&uploadType=multipart',{method:'POST',headers:{Authorization:'Bearer '+youtubeAccessToken,'Content-Type':'multipart/related; boundary='+boundary},body});
+  const d=await r.json().catch(()=>({}));if(!r.ok)throw new Error(d.error?.message||'YouTube rechazó la subida.');
+  msg.textContent='✅ Vídeo subido a YouTube como privado para revisión.';
+ }catch(e){msg.textContent='❌ '+e.message}finally{upload.disabled=false}
+}
+
 registerBtn.addEventListener('click',()=>authAction('register'));loginBtn.addEventListener('click',()=>authAction('login'));logoutBtn.addEventListener('click',salir);
-imagenBtn.addEventListener('click',crearImagen);videoBtn.addEventListener('click',crearVideo);nuevoChatBtn.addEventListener('click',nuevoChat);chatSelect.addEventListener('change',cambiarChat);
+imagenBtn.addEventListener('click',crearImagen);videoBtn.addEventListener('click',crearVideo);nuevoChatBtn.addEventListener('click',nuevoChat);chatSelect.addEventListener('change',cambiarChat);document.getElementById('youtubeConnectBtn').addEventListener('click',conectarYouTube);document.getElementById('youtubeUploadBtn').addEventListener('click',subirVideoGenerado);
 form.addEventListener('submit',e=>{e.preventDefault();enviar()});
 onAuthStateChanged(auth,user=>{if(user)activar(user);else{usuarioActual=null;nombreActual='';historial=[];chats=[];chatId=null;userName.disabled=false;registerBtn.hidden=false;loginBtn.hidden=false;logoutBtn.hidden=true;chatSelect.innerHTML='<option value="">💬 Cambiar de chat</option>';estado.textContent='🔐 Crea una cuenta o inicia sesión';render()}});
 render();
