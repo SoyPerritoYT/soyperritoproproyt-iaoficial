@@ -49,6 +49,11 @@ body{margin:0;font-family:Arial,sans-serif;background:#111;color:#fff;display:fl
 <button type="button" id="youtubeUploadBtn" disabled>⬆️ Subir vídeo generado</button>
 <input id="youtubeTitle" type="text" placeholder="Título del vídeo" maxlength="100">
 <textarea id="youtubeDescription" placeholder="Descripción del vídeo" maxlength="5000" rows="3" style="flex:1;min-width:220px;padding:10px;border:0;border-radius:10px;background:#333;color:#fff"></textarea>
+<select id="youtubePrivacy" aria-label="Visibilidad del vídeo" style="padding:10px;border:0;border-radius:10px;background:#333;color:#fff">
+<option value="private">🔒 Privado</option>
+<option value="unlisted">🔗 Oculto</option>
+<option value="public">🌍 Público</option>
+</select>
 <div id="youtubeMsg" class="authMsg"></div>
 </div>
 
@@ -188,7 +193,8 @@ async function subirVideoGenerado(){
   const blob=await vr.blob();
   const title=(document.getElementById('youtubeTitle').value||'Vídeo de SoyPerritoProProYT').trim();
   const description=(document.getElementById('youtubeDescription').value||'Vídeo creado con SoyPerritoProProYT.IAOFICIAL').trim();
-  const metadata={snippet:{title,description,categoryId:'20'},status:{privacyStatus:'private'}};
+  const privacy=document.getElementById('youtubePrivacy').value;
+  const metadata={snippet:{title,description,categoryId:'20'},status:{privacyStatus:privacy}};
   const boundary='----soyperrito'+Date.now();
   const body=new Blob(['--'+boundary+'\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n',JSON.stringify(metadata),'\r\n--'+boundary+'\r\nContent-Type: '+(blob.type||'video/mp4')+'\r\n\r\n',blob,'\r\n--'+boundary+'--\r\n']);
   const r=await fetch('https://www.googleapis.com/upload/youtube/v3/videos?part=snippet,status&uploadType=multipart',{method:'POST',headers:{Authorization:'Bearer '+youtubeAccessToken,'Content-Type':'multipart/related; boundary='+boundary},body});
