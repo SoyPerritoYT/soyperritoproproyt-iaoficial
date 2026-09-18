@@ -11,9 +11,9 @@ body{margin:0;font-family:Arial,sans-serif;background:#111;color:#fff;display:fl
 .status{font-size:13px;color:#aaa;margin-top:6px}
 .authBox{padding:14px 16px;background:#202020;border-bottom:1px solid #333;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .authBox input{min-width:130px;flex:1;padding:11px;border:0;border-radius:10px;background:#333;color:#fff}
-.authBox button,.media button{border:0;border-radius:10px;padding:10px 14px;font-weight:bold;cursor:pointer}
+.authBox button,.media button,.chatBar button{border:0;border-radius:10px;padding:10px 14px;font-weight:bold;cursor:pointer}
 .authBox button:disabled,.media button:disabled{opacity:.5}.authMsg{width:100%;font-size:12px;color:#aaa;white-space:pre-wrap}
-.chat{flex:1;overflow:auto;padding:16px}.msg{max-width:85%;padding:11px 14px;border-radius:14px;margin:8px 0;white-space:pre-wrap;line-height:1.4}
+.chatBar{display:flex;gap:8px;padding:10px 12px;background:#202020;border-bottom:1px solid #333}.chatBar button{background:#fff;color:#111}.chatBar select{flex:1;min-width:0;padding:10px;border:0;border-radius:10px;background:#333;color:#fff}.chat{flex:1;overflow:auto;padding:16px}.msg{max-width:85%;padding:11px 14px;border-radius:14px;margin:8px 0;white-space:pre-wrap;line-height:1.4}
 .user{margin-left:auto;background:#315efb}.ai{margin-right:auto;background:#292929}
 .hint{text-align:center;color:#777;font-size:12px;padding:8px}
 .media{display:flex;gap:8px;padding:10px 12px;flex-wrap:wrap;background:#202020;border-top:1px solid #333}
@@ -36,7 +36,7 @@ body{margin:0;font-family:Arial,sans-serif;background:#111;color:#fff;display:fl
 <div id="authMsg" class="authMsg"></div>
 </div>
 
-<main class="chat" id="chat"></main>
+<div class="chatBar"><button type="button" id="nuevoChatBtn">➕ Nuevo chat</button><select id="chatSelect" aria-label="Cambiar de chat"><option value="">💬 Cambiar de chat</option></select></div><main class="chat" id="chat"></main>
 <div class="hint">Comandos: /ayuda · /perfil · /juegos · /ajustes · /limpiar</div>
 
 <div class="media">
@@ -64,7 +64,7 @@ const chat=document.getElementById('chat'),entrada=document.getElementById('entr
 const userName=document.getElementById('userName'),userPass=document.getElementById('userPass'),registerBtn=document.getElementById('registerBtn'),loginBtn=document.getElementById('loginBtn'),logoutBtn=document.getElementById('logoutBtn'),authMsg=document.getElementById('authMsg');
 const imagenBtn=document.getElementById('imagenBtn'),videoBtn=document.getElementById('videoBtn'),mediaResult=document.getElementById('mediaResult');
 
-let historial=[],usuarioActual=null,nombreActual='';
+let historial=[],usuarioActual=null,nombreActual='',chatId=null,chats=[];
 
 function mensaje(texto,tipo){const el=document.createElement('div');el.className='msg '+tipo;el.textContent=texto;chat.appendChild(el);chat.scrollTop=chat.scrollHeight;return el}
 function render(){chat.innerHTML='';if(!historial.length)mensaje('¡Hola! 🐶 Crea una cuenta o inicia sesión para usar la IA y guardar tus chats.','ai');for(const m of historial)mensaje(m.content,m.role==='user'?'user':'ai')}
@@ -84,14 +84,13 @@ function errorFirebase(e){
 async function guardarPerfil(user){
  await setDoc(doc(db,'users',user.uid,'profile','info'),{username:nombreActual,displayName:nombreActual,updatedAt:serverTimestamp()},{merge:true});
 }
-async function cargarChat(){
- try{const s=await getDoc(doc(db,'users',usuarioActual.uid,'chats','principal'));historial=s.exists()&&Array.isArray(s.data().messages)?s.data().messages:[]}
- catch(e){historial=[]}
- render();
-}
+async function cargarChats(){try{const s=await getDoc(doc(db,'users',usuarioActual.uid,'chatIndex','list'));chats=s.exists()&&Array.isArray(s.data().chats)?s.data().chats:[]}catch(e){chats=[]}if(!chats.length){chats=[{id:'chat-'+Date.now(),title:'Nuevo chat'}];await guardarIndice()}chatId=chats[0].id;renderChatSelect();await cargarChatActual()}
+function renderChatSelect(){chatSelect.innerHTML='<option value="">💬 Cambiar de chat</option>';for(const c of chats){const o=document.createElement('option');o.value=c.id;o.textContent='💬 '+c.title;chatSelect.appendChild(o)}chatSelect.value=chatId||''}
+async function guardarIndice(){if(!usuarioActual)return;await setDoc(doc(db,'users',usuarioActual.uid,'chatIndex','list'),{chats,updatedAt:serverTimestamp()},{merge:true})}
+async function cargarChatActual(){if(!chatId){historial=[];render();return}try{const s=await getDoc(doc(db,'users',usuarioActual.uid,'chats',chatId));historial=s.exists()&&Array.isArray(s.data().messages)?s.data().messages:[]}catch(e){historial=[]}render()}
 async function guardarChat(){
  if(!usuarioActual)return;
- try{await setDoc(doc(db,'users',usuarioActual.uid,'chats','principal'),{messages:historial.slice(-80),updatedAt:serverTimestamp()},{merge:true})}catch(e){console.error(e)}
+ try{await setDoc(doc(db,'users',usuarioActual.uid,'chats',chatId),{messages:historial.slice(-80),updatedAt:serverTimestamp()},{merge:true})}catch(e){console.error(e)}
 }
 async function authAction(action){
  const u=normalizarUsuario(userName.value),p=userPass.value;
@@ -115,9 +114,11 @@ async function activar(user){
  registerBtn.hidden=true;loginBtn.hidden=true;logoutBtn.hidden=false;
  authMsg.textContent='✅ Sesión iniciada';
  estado.textContent='🟢 '+nombreActual+' · Chats guardados con Firebase';
- await guardarPerfil(user);await cargarChat();entrada.focus();
+ await guardarPerfil(user);await cargarChats();entrada.focus();
 }
 async function salir(){await signOut(auth)}
+async function nuevoChat(){if(!usuarioActual)return;const id='chat-'+Date.now();chats.unshift({id,title:'Nuevo chat'});chatId=id;historial=[];renderChatSelect();render();await guardarIndice();await guardarChat()}
+async function cambiarChat(){if(!usuarioActual||!chatSelect.value)return;chatId=chatSelect.value;await cargarChatActual()}
 function comando(t){
  if(t==='/ayuda')return '🐶 COMANDOS\n/ayuda — Ver comandos\n/perfil — Ver cuenta\n/juegos — Ver proyectos\n/ajustes — Ver ajustes\n/limpiar — Borrar chat guardado';
  if(t==='/perfil')return '👤 Usuario: '+nombreActual+'\n💾 Chats: Firebase';
@@ -154,9 +155,9 @@ async function crearVideo(){
 }
 
 registerBtn.addEventListener('click',()=>authAction('register'));loginBtn.addEventListener('click',()=>authAction('login'));logoutBtn.addEventListener('click',salir);
-imagenBtn.addEventListener('click',crearImagen);videoBtn.addEventListener('click',crearVideo);
+imagenBtn.addEventListener('click',crearImagen);videoBtn.addEventListener('click',crearVideo);nuevoChatBtn.addEventListener('click',nuevoChat);chatSelect.addEventListener('change',cambiarChat);
 form.addEventListener('submit',e=>{e.preventDefault();enviar()});
-onAuthStateChanged(auth,user=>{if(user)activar(user);else{usuarioActual=null;nombreActual='';historial=[];userName.disabled=false;registerBtn.hidden=false;loginBtn.hidden=false;logoutBtn.hidden=true;estado.textContent='🔐 Crea una cuenta o inicia sesión';render()}});
+onAuthStateChanged(auth,user=>{if(user)activar(user);else{usuarioActual=null;nombreActual='';historial=[];chats=[];chatId=null;userName.disabled=false;registerBtn.hidden=false;loginBtn.hidden=false;logoutBtn.hidden=true;chatSelect.innerHTML='<option value="">💬 Cambiar de chat</option>';estado.textContent='🔐 Crea una cuenta o inicia sesión';render()}});
 render();
 </script>
 </body>
