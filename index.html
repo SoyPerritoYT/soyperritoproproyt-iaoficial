@@ -45,6 +45,14 @@ body{margin:0;font-family:Arial,sans-serif;background:#111;color:#fff;display:fl
 </div>
 <div id="mediaResult" class="mediaResult"></div>
 <div class="media">
+<button type="button" id="videojuegosBtn">🎮 Modo Videojuegos</button>
+<div id="videojuegosMenu" hidden style="width:100%;gap:8px;flex-wrap:wrap">
+<button type="button" id="robloxBtn">🟦 Roblox</button>
+<button type="button" id="fortniteBtn">🟪 Fortnite</button>
+<div id="videojuegosMsg" class="authMsg">🎮 Elige un videojuego para abrirlo.</div>
+</div>
+</div>
+<div class="media">
 <button type="button" id="githubBtn">🐙 GitHub</button>
 <button type="button" id="githubOpenBtn">🌐 Abrir GitHub</button>
 <div id="githubMsg" class="authMsg">🐙 Modo GitHub</div>
@@ -175,7 +183,7 @@ async function crearVideo(){
  catch(e){mediaResult.textContent='❌ No se pudo crear el vídeo.'}finally{videoBtn.disabled=false}
 }
 
-function abrirGitHub(){ window.open('https://github.com/','_blank','noopener'); }
+function abrirVideojuego(url,nombre){ const msg=document.getElementById('videojuegosMsg'); msg.textContent='🎮 Abriendo '+nombre+'...'; window.open(url,'_blank','noopener'); }\nfunction modoVideojuegos(){ const menu=document.getElementById('videojuegosMenu'); menu.hidden=!menu.hidden; }\nfunction abrirGitHub(){ window.open('https://github.com/','_blank','noopener'); }
 function modoGitHub(){
  const msg=document.getElementById('githubMsg');
  msg.textContent='🐙 Modo GitHub: consultar y trabajar con tus repositorios mediante una conexión autorizada.';
@@ -219,7 +227,7 @@ async function subirVideoGenerado(){
  }catch(e){msg.textContent='❌ '+e.message}finally{upload.disabled=false}
 }
 
-document.getElementById('githubBtn').addEventListener('click',modoGitHub);document.getElementById('githubOpenBtn').addEventListener('click',abrirGitHub);registerBtn.addEventListener('click',()=>authAction('register'));loginBtn.addEventListener('click',()=>authAction('login'));logoutBtn.addEventListener('click',salir);
+document.getElementById('videojuegosBtn').addEventListener('click',modoVideojuegos);document.getElementById('robloxBtn').addEventListener('click',()=>abrirVideojuego('https://www.roblox.com/','Roblox'));document.getElementById('fortniteBtn').addEventListener('click',()=>abrirVideojuego('https://www.fortnite.com/','Fortnite'));document.getElementById('githubBtn').addEventListener('click',modoGitHub);document.getElementById('githubOpenBtn').addEventListener('click',abrirGitHub);registerBtn.addEventListener('click',()=>authAction('register'));loginBtn.addEventListener('click',()=>authAction('login'));logoutBtn.addEventListener('click',salir);
 imagenBtn.addEventListener('click',crearImagen);videoBtn.addEventListener('click',crearVideo);nuevoChatBtn.addEventListener('click',nuevoChat);chatSelect.addEventListener('change',cambiarChat);document.getElementById('youtubeConnectBtn').addEventListener('click',conectarYouTube);document.getElementById('youtubeUploadBtn').addEventListener('click',subirVideoGenerado);
 form.addEventListener('submit',e=>{e.preventDefault();enviar()});
 onAuthStateChanged(auth,user=>{if(user)activar(user);else{usuarioActual=null;nombreActual='';historial=[];chats=[];chatId=null;userName.disabled=false;registerBtn.hidden=false;loginBtn.hidden=false;logoutBtn.hidden=true;chatSelect.innerHTML='<option value="">💬 Cambiar de chat</option>';estado.textContent='🔐 Crea una cuenta o inicia sesión';render()}});
