@@ -13,8 +13,9 @@ body{margin:0;font-family:Arial,sans-serif;background:#111;color:#fff;display:fl
 <header class="top"><h1>🐶 SoyPerritoProProYT.IAOFICIAL</h1><div class="status" id="estado">🟢 Sin inicio de sesión · Chats no guardados</div></header>
 <main class="chat" id="chat"></main>
 <div class="hint">Comandos: /ayuda · /perfil · /juegos · /ajustes · /limpiar</div>
-<form class="form" id="form"><input id="entrada" type="text" placeholder="Escribe algo..." autocomplete="off" maxlength="4000"><button id="enviar" type="submit">Enviar</button></form>
+<div style="display:flex;gap:8px;padding:10px 12px;flex-wrap:wrap;background:#202020;border-top:1px solid #333"><button type="button" id="imagenBtn" style="border:0;border-radius:12px;padding:10px 14px;background:#7c5cff;color:white;font-weight:bold;cursor:pointer">🖼️ Crear imagen</button><button type="button" id="videoBtn" style="border:0;border-radius:12px;padding:10px 14px;background:#ff4d6d;color:white;font-weight:bold;cursor:pointer">🎬 Crear vídeo</button></div><div id="mediaResult" style="padding:12px;background:#181818"></div><form class="form" id="form"><input id="entrada" type="text" placeholder="Escribe algo..." autocomplete="off" maxlength="4000"><button id="enviar" type="submit">Enviar</button></form>
 </div>
+<script src="https://js.puter.com/v2/"></script>
 <script>
 const chat=document.getElementById('chat'),entrada=document.getElementById('entrada'),form=document.getElementById('form'),enviarBtn=document.getElementById('enviar'),estado=document.getElementById('estado');
 let historial=[];
@@ -47,6 +48,11 @@ async function enviar(){
   }catch(e){espera.textContent='❌ '+e.message;estado.textContent='🔴 API no disponible'}
   finally{enviarBtn.disabled=false;entrada.disabled=false;entrada.focus()}
 }
+
+const imagenBtn=document.getElementById('imagenBtn'),videoBtn=document.getElementById('videoBtn'),mediaResult=document.getElementById('mediaResult');
+async function crearImagen(){const prompt=window.prompt('🖼️ ¿Qué imagen quieres crear?');if(!prompt)return;mediaResult.textContent='🖼️ Generando imagen...';imagenBtn.disabled=true;try{const img=await puter.ai.txt2img(prompt,{model:'gpt-image-2'});mediaResult.innerHTML='';mediaResult.appendChild(img);}catch(e){mediaResult.textContent='❌ No se pudo crear la imagen: '+(e?.message||e);}finally{imagenBtn.disabled=false}}
+async function crearVideo(){const prompt=window.prompt('🎬 ¿Qué vídeo quieres crear?');if(!prompt)return;mediaResult.textContent='🎬 Generando vídeo...';videoBtn.disabled=true;try{const video=await puter.ai.txt2vid(prompt,true);mediaResult.innerHTML='';mediaResult.appendChild(video);}catch(e){mediaResult.textContent='❌ No se pudo crear el vídeo: '+(e?.message||e);}finally{videoBtn.disabled=false}}
+imagenBtn.addEventListener('click',crearImagen);videoBtn.addEventListener('click',crearVideo);
 form.addEventListener('submit',e=>{e.preventDefault();enviar()});
 mensaje('¡Hola! 🐶 Soy SoyPerritoProProYT.IAOFICIAL. No necesitas iniciar sesión y los chats no se guardan. Escribe /ayuda para ver mis comandos.','ai');
 </script>
