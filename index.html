@@ -183,7 +183,9 @@ async function crearVideo(){
  catch(e){mediaResult.textContent='❌ No se pudo crear el vídeo.'}finally{videoBtn.disabled=false}
 }
 
-function abrirVideojuego(url,nombre){ const msg=document.getElementById('videojuegosMsg'); msg.textContent='🎮 Abriendo '+nombre+'...'; window.open(url,'_blank','noopener'); }\nfunction modoVideojuegos(){ const menu=document.getElementById('videojuegosMenu'); menu.hidden=!menu.hidden; }\nfunction abrirGitHub(){ window.open('https://github.com/','_blank','noopener'); }
+function abrirVideojuego(url,nombre){ const msg=document.getElementById('videojuegosMsg'); msg.textContent='🎮 Abriendo '+nombre+'...'; window.open(url,'_blank','noopener'); }
+function modoVideojuegos(){ const menu=document.getElementById('videojuegosMenu'); menu.hidden=!menu.hidden; }
+function abrirGitHub(){ window.open('https://github.com/','_blank','noopener'); }
 function modoGitHub(){
  const msg=document.getElementById('githubMsg');
  msg.textContent='🐙 Modo GitHub: consultar y trabajar con tus repositorios mediante una conexión autorizada.';
