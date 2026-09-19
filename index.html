@@ -18,7 +18,23 @@
   <div id="mediaControls" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px"></div>
 </div>
 <div class="tools"><button id="videojuegosBtn">🎮 Modo Videojuegos</button><div id="videojuegosMenu" class="menu" hidden><button id="robloxBtn">🟦 Roblox</button><button id="fortniteBtn">🟪 Fortnite</button></div></div>
-<div class="tools"><button id="githubBtn">🐙 GitHub</button><button id="githubOpenBtn">🌐 Abrir GitHub</button></div>
+<div class="tools">
+<button id="githubBtn" type="button">🐙 Modo GitHub</button>
+<button id="githubOpenBtn" type="button">🌐 Abrir GitHub</button>
+<div id="githubMode" hidden style="width:100%;display:grid;gap:8px">
+<div id="githubStatus" class="msginfo">🔐 GitHub no conectado.</div>
+<div style="display:flex;gap:8px;flex-wrap:wrap">
+<input id="githubPath" placeholder="Ruta del archivo, ej. index.html" maxlength="300" style="flex:1;min-width:220px">
+<input id="githubMessage" placeholder="Mensaje del cambio" maxlength="120" style="flex:1;min-width:220px">
+</div>
+<textarea id="githubContent" placeholder="Contenido nuevo del archivo..." rows="10" maxlength="2097152" style="width:100%;padding:10px;border:0;border-radius:10px;background:#333;color:#fff"></textarea>
+<div style="display:flex;gap:8px;flex-wrap:wrap">
+<button id="githubReadBtn" type="button">📖 Leer archivo</button>
+<button id="githubWriteBtn" type="button">💾 Guardar cambios</button>
+</div>
+<div id="githubMsg" class="msginfo"></div>
+</div>
+</div>
 <div class="tools"><button id="youtubeConnectBtn">🔗 Conectar YouTube</button><button id="youtubeUploadBtn" disabled>⬆️ Subir vídeo generado</button><input id="youtubeTitle" placeholder="Título del vídeo" maxlength="100"><textarea id="youtubeDescription" placeholder="Descripción" rows="2" maxlength="5000"></textarea><select id="youtubePrivacy"><option value="private">🔒 Privado</option><option value="unlisted">🔗 Oculto</option><option value="public">🌍 Público</option></select><div id="youtubeMsg" class="msginfo"></div></div>
 <form id="form" class="form"><input id="entrada" placeholder="Escribe algo..." maxlength="4000" autocomplete="off"><button id="enviar">Enviar</button></form>
 </div>
@@ -61,5 +77,86 @@ async function verificarArchivo(){if(!usuarioActual)return msg('🔐 Inicia sesi
 function mostrarMedia(el,tipo){const stage=$('mediaStage');stage.innerHTML='';$('mediaPlayer').hidden=false;if(tipo==='video'){el.controls=true;el.playsInline=true;el.autoplay=false;stage.appendChild(el);crearControlesVideo(el)}else{el.style.cursor='zoom-in';stage.appendChild(el);el.onclick=()=>el.style.maxWidth=el.style.maxWidth==='100%'?'180%':'100%';$('mediaControls').innerHTML='<span style="color:#aaa;font-size:12px">🖼️ Toca la imagen para ampliar/reducir.</span>'}}function crearControlesVideo(v){const c=$('mediaControls');c.innerHTML='';const b=document.createElement('button');b.textContent='▶️ / ⏸️';b.onclick=()=>v.paused?v.play():v.pause();const vol=document.createElement('input');vol.type='range';vol.min=0;vol.max=1;vol.step=.01;vol.value=v.volume;vol.title='Volumen';vol.oninput=()=>v.volume=Number(vol.value);const fs=document.createElement('button');fs.textContent='⛶ Pantalla completa';fs.onclick=()=>v.requestFullscreen?.();c.append(b,vol,fs)}async function crearImagen(){const p=prompt('¿Qué imagen quieres crear?');if(!p)return;$('imagenBtn').disabled=true;$('mediaResult').textContent='🖼️ Creando...';try{const img=await puter.ai.txt2img(p,{model:'gpt-image-2'});$('mediaResult').innerHTML='';$('mediaResult').appendChild(img);mostrarMedia(img,'image')}catch{$('mediaResult').textContent='❌ No se pudo crear la imagen.'}finally{$('imagenBtn').disabled=false}}
 const videoIdeas=['Un perrito gamer blanco compite en una carrera de karts futurista y celebra una victoria inesperada.','Un perrito blanco descubre una habitación secreta llena de máquinas arcade y tiene que superar un reto divertido.','Un perrito gamer intenta derrotar a un enorme robot en una arena digital llena de luces RGB.','Un perrito blanco viaja al espacio en una nave gamer y encuentra un planeta de videojuegos.','Un perrito gamer abre una tienda de videojuegos y todo se convierte en un caos divertido.'];function crearVideo(){const p=$('videoPrompt').value.trim();if(!p)return $('videoGeneratorMsg').textContent='✍️ Escribe una idea o pulsa 🎲 Idea aleatoria.';generarVideoConPrompt(p)}function generarIdeaVideo(){const p=videoIdeas[Math.floor(Math.random()*videoIdeas.length)];$('videoPrompt').value=p;$('videoGeneratorMsg').textContent='🎲 ¡Idea nueva! Puedes editarla antes de generar.'}async function generarVideoConPrompt(p){$('generateVideoBtn').disabled=true;$('randomVideoBtn').disabled=true;$('videoGeneratorMsg').textContent='🎬 Generando vídeo real...';$('mediaResult').textContent='🎬 Wan v3.0 está creando el MP4...';try{const d=await api('/api/video',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:p})});if(!d.url)throw Error(d.error||'No se recibió el vídeo.');const v=document.createElement('video');v.src=d.url;v.controls=true;v.playsInline=true;v.preload='metadata';$('mediaResult').innerHTML='';mostrarMedia(v,'video');const i=document.createElement('div');i.className='videoInfo';i.textContent='🎬 Vídeo real generado · Wan v3.0 Video · 8 s · 9:16';$('mediaResult').appendChild(i);$('videoGeneratorMsg').textContent='✅ ¡Vídeo creado!'}catch(e){$('mediaResult').textContent='❌ No se pudo crear el vídeo.';$('videoGeneratorMsg').textContent='❌ '+(e.message||'Error desconocido.')}finally{$('generateVideoBtn').disabled=false;$('randomVideoBtn').disabled=false}}async function conectarYouTube(){if(!google?.accounts?.oauth2)return $('youtubeMsg').textContent='❌ No se pudo cargar Google OAuth.';$('youtubeConnectBtn').disabled=true;$('youtubeMsg').textContent='Conectando con Google...';try{const c=google.accounts.oauth2.initTokenClient({client_id:YOUTUBE_CLIENT_ID,scope:YOUTUBE_SCOPE,callback:r=>{if(r.error)return $('youtubeMsg').textContent='❌ Google no autorizó la conexión.';youtubeAccessToken=r.access_token;$('youtubeUploadBtn').disabled=false;$('youtubeMsg').textContent='✅ YouTube conectado.'}});c.requestAccessToken({prompt:'consent'})}catch{$('youtubeMsg').textContent='❌ No se pudo conectar YouTube.'}finally{$('youtubeConnectBtn').disabled=false}}
 async function subir(){const v=$('mediaResult').querySelector('video');if(!youtubeAccessToken)return $('youtubeMsg').textContent='❌ Conecta YouTube primero.';if(!v?.src)return $('youtubeMsg').textContent='❌ Primero crea un vídeo con la IA.';$('youtubeUploadBtn').disabled=true;$('youtubeMsg').textContent='⬆️ Subiendo...';try{const b=await(await fetch(v.src)).blob(),title=($('youtubeTitle').value||'Vídeo de SoyPerritoProProYT').trim(),description=($('youtubeDescription').value||'Vídeo creado con SoyPerritoProProYT.IAOFICIAL').trim(),privacy=$('youtubePrivacy').value,meta={snippet:{title,description,categoryId:'20'},status:{privacyStatus:privacy}},boundary='----sp'+Date.now(),body=new Blob(['--'+boundary+'\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n',JSON.stringify(meta),'\r\n--'+boundary+'\r\nContent-Type: '+(b.type||'video/mp4')+'\r\n\r\n',b,'\r\n--'+boundary+'--\r\n']);const r=await fetch('https://www.googleapis.com/upload/youtube/v3/videos?part=snippet,status&uploadType=multipart',{method:'POST',headers:{Authorization:'Bearer '+youtubeAccessToken,'Content-Type':'multipart/related; boundary='+boundary},body}),d=await r.json().catch(()=>({}));if(!r.ok)throw Error(d.error?.message||'YouTube rechazó la subida.');$('youtubeMsg').innerHTML='✅ Vídeo subido. <a class="youtubeLink" target="_blank" rel="noopener" href="https://www.youtube.com/watch?v='+encodeURIComponent(d.id||'')+'">▶️ Ver en YouTube</a>'}catch(e){$('youtubeMsg').textContent='❌ '+e.message}finally{$('youtubeUploadBtn').disabled=false}}
-$('registerBtn').onclick=()=>auth('register');$('loginBtn').onclick=()=>auth('login');$('logoutBtn').onclick=()=>{localStorage.removeItem('sp_session_v1');location.reload()};$('nuevoChatBtn').onclick=nuevo;$('chatSelect').onchange=async e=>{chatId=e.target.value;await cargarActual()};$('verificaBtn').onclick=verificarArchivo;$('imagenBtn').onclick=crearImagen;$('generateVideoBtn').onclick=crearVideo;$('randomVideoBtn').onclick=generarIdeaVideo;$('videojuegosBtn').onclick=()=>{$('videojuegosMenu').hidden=!$('videojuegosMenu').hidden};$('robloxBtn').onclick=()=>open('https://www.roblox.com/','_blank');$('fortniteBtn').onclick=()=>open('https://www.fortnite.com/','_blank');$('githubBtn').onclick=()=>{$('githubBtn').textContent='🐙 GitHub'};$('githubOpenBtn').onclick=()=>open('https://github.com/','_blank');$('mediaClose').onclick=()=>{$('mediaPlayer').hidden=true;$('mediaStage').innerHTML='';$('mediaControls').innerHTML=''};$('youtubeConnectBtn').onclick=conectarYouTube;$('youtubeUploadBtn').onclick=subir;$('form').onsubmit=e=>{e.preventDefault();enviar()};render();sesion();
+
+// ===== MODO GITHUB =====
+let githubToken = sessionStorage.getItem('sp_github_token') || '';
+
+function b64urlDecode(value){
+  const normalized = value.replace(/-/g,'+').replace(/_/g,'/');
+  const pad = normalized.length % 4 ? '='.repeat(4 - (normalized.length % 4)) : '';
+  const bin = atob(normalized + pad);
+  const bytes = Uint8Array.from(bin, c => c.charCodeAt(0));
+  return new TextDecoder().decode(bytes);
+}
+
+function recibirSesionGitHub(){
+  const raw = location.hash.startsWith('#github_token=') ? decodeURIComponent(location.hash.slice('#github_token='.length)) : '';
+  if(!raw) return;
+  const parts = raw.split('.');
+  if(parts.length !== 2) return;
+  try{
+    const data = JSON.parse(b64urlDecode(parts[0]));
+    if(!data.token || !data.exp || Date.now() > Number(data.exp)) return;
+    githubToken = data.token;
+    sessionStorage.setItem('sp_github_token', githubToken);
+    history.replaceState(null,'',location.pathname + location.search);
+  }catch{}
+}
+
+async function githubRequest(method='GET', body=null){
+  const opt={method,headers:{Authorization:'Bearer '+githubToken}};
+  if(body){opt.headers['Content-Type']='application/json';opt.body=JSON.stringify(body)}
+  return api('/api/github',opt);
+}
+
+async function actualizarEstadoGitHub(){
+  if(!githubToken){
+    $('githubStatus').textContent='🔐 GitHub no conectado. Pulsa “Modo GitHub” para autorizarlo.';
+    return;
+  }
+  try{
+    const d=await githubRequest('GET');
+    $('githubStatus').textContent='✅ GitHub conectado como @'+d.login+' · puedes modificar archivos de este proyecto.';
+  }catch(e){
+    githubToken='';
+    sessionStorage.removeItem('sp_github_token');
+    $('githubStatus').textContent='🔐 La conexión de GitHub ha caducado. Vuelve a autorizarla.';
+  }
+}
+
+function abrirModoGitHub(){
+  $('githubMode').hidden=!$('githubMode').hidden;
+  if(!$('githubMode').hidden){
+    if(!githubToken) open('https://soy-perrito-pro-pro-yt-iaoficial-au.vercel.app/?return_to=main','_self');
+    else actualizarEstadoGitHub();
+  }
+}
+
+async function leerArchivoGitHub(){
+  if(!githubToken) return $('githubMsg').textContent='🔐 Conecta GitHub primero.';
+  const path=$('githubPath').value.trim();
+  if(!path) return $('githubMsg').textContent='✍️ Escribe la ruta del archivo.';
+  $('githubReadBtn').disabled=true;$('githubMsg').textContent='📖 Leyendo...';
+  try{
+    const d=await githubRequest('POST',{action:'read',path});
+    $('githubContent').value=d.content||'';
+    $('githubMsg').textContent='✅ Archivo leído: '+d.path;
+  }catch(e){$('githubMsg').textContent='❌ '+e.message}
+  finally{$('githubReadBtn').disabled=false}
+}
+
+async function guardarArchivoGitHub(){
+  if(!githubToken) return $('githubMsg').textContent='🔐 Conecta GitHub primero.';
+  const path=$('githubPath').value.trim(),content=$('githubContent').value;
+  if(!path) return $('githubMsg').textContent='✍️ Escribe la ruta del archivo.';
+  if(!content && !confirm('El contenido está vacío. ¿Quieres guardar un archivo vacío?')) return;
+  $('githubWriteBtn').disabled=true;$('githubMsg').textContent='💾 Guardando en GitHub...';
+  try{
+    const d=await githubRequest('POST',{action:'write',path,content,message:$('githubMessage').value.trim()||'Update from SoyPerritoProProYT.IAOFICIAL'});
+    $('githubMsg').textContent='✅ Cambios guardados en GitHub'+(d.commit_sha?' · commit '+d.commit_sha.slice(0,7):'')+'.';
+  }catch(e){$('githubMsg').textContent='❌ '+e.message}
+  finally{$('githubWriteBtn').disabled=false}
+}
+
+$('registerBtn').onclick=()=>auth('register');$('loginBtn').onclick=()=>auth('login');$('logoutBtn').onclick=()=>{localStorage.removeItem('sp_session_v1');location.reload()};$('nuevoChatBtn').onclick=nuevo;$('chatSelect').onchange=async e=>{chatId=e.target.value;await cargarActual()};$('verificaBtn').onclick=verificarArchivo;$('imagenBtn').onclick=crearImagen;$('generateVideoBtn').onclick=crearVideo;$('randomVideoBtn').onclick=generarIdeaVideo;$('videojuegosBtn').onclick=()=>{$('videojuegosMenu').hidden=!$('videojuegosMenu').hidden};$('robloxBtn').onclick=()=>open('https://www.roblox.com/','_blank');$('fortniteBtn').onclick=()=>open('https://www.fortnite.com/','_blank');$('githubBtn').onclick=abrirModoGitHub;$('githubReadBtn').onclick=leerArchivoGitHub;$('githubWriteBtn').onclick=guardarArchivoGitHub;$('githubOpenBtn').onclick=()=>open('https://github.com/','_blank');$('mediaClose').onclick=()=>{$('mediaPlayer').hidden=true;$('mediaStage').innerHTML='';$('mediaControls').innerHTML=''};$('youtubeConnectBtn').onclick=conectarYouTube;$('youtubeUploadBtn').onclick=subir;$('form').onsubmit=e=>{e.preventDefault();enviar()};recibirSesionGitHub();render();sesion();
 </script></body></html>
