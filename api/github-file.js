@@ -1,26 +1,11 @@
 function token(req){const m=req.headers.cookie?.match(/(?:^|; )github_token=([^;]*)/);return m?decodeURIComponent(m[1]):""}
-async function gh(url, opts={}){const t=opts.token;delete opts.token;opts.headers={...(opts.headers||{}),Accept:"application/vnd.github+json",Authorization:"Bearer "+t,"User-Agent":"SoyPerritoProProYT-IAOFICIAL"};return fetch("https://api.github.com"+url,opts)}
+async function gh(url,opts={}){const t=opts.token;delete opts.token;opts.headers={...(opts.headers||{}),Accept:"application/vnd.github+json",Authorization:"Bearer "+t,"User-Agent":"SoyPerritoProProYT-IAOFICIAL"};return fetch("https://api.github.com"+url,opts)}
 export default async function handler(req,res){
- const t=token(req); if(!t)return res.status(401).json({error:"GitHub no conectado."});
+ const t=token(req);if(!t)return res.status(401).json({error:"GitHub no conectado."});
  const repo="SoyPerritoYT/soyperritoproproyt-iaoficial";
  try{
-  if(req.method==="GET"){
-   const path=String(req.query.path||"index.html").trim();
-   const r=await gh("/repos/"+repo+"/contents/"+encodeURIComponent(path).replace(/%2F/g,"/"),{token:t});
-   const d=await r.json(); if(!r.ok)return res.status(r.status).json({error:d.message||"No se pudo leer el archivo."});
-   return res.json({name:d.name,path:d.path,sha:d.sha,content:d.encoding==="base64"?Buffer.from(d.content.replace(/\n/g,""),"base64").toString("utf8"):""});
-  }
-  if(req.method==="PUT"){
-   const body=typeof req.body==="string"?JSON.parse(req.body||"{}"):(req.body||{});
-   const path=String(body.path||"").trim(), content=String(body.content??"");
-   if(!path||path.includes(".."))return res.status(400).json({error:"Ruta no válida."});
-   if(content.length>1000000)return res.status(400).json({error:"Archivo demasiado grande."});
-   let sha=body.sha;
-   if(!sha){const r=await gh("/repos/"+repo+"/contents/"+encodeURIComponent(path).replace(/%2F/g,"/"),{token:t});if(r.ok){const d=await r.json();sha=d.sha}}
-   const r=await gh("/repos/"+repo+"/contents/"+encodeURIComponent(path).replace(/%2F/g,"/"),{token:t,method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({message:"Actualización desde SoyPerritoProProYT.IAOFICIAL",content:Buffer.from(content,"utf8").toString("base64"),...(sha?{sha}:{})})});
-   const d=await r.json();if(!r.ok)return res.status(r.status).json({error:d.message||"GitHub rechazó el cambio."});
-   return res.json({ok:true,path:d.content?.path,sha:d.content?.sha});
-  }
-  res.status(405).json({error:"Método no permitido."});
- }catch(e){res.status(500).json({error:e.message||"Error de GitHub."})}
+  if(req.method==="GET"){const path=String(req.query.path||"index.html").trim();const r=await gh("/repos/"+repo+"/contents/"+encodeURIComponent(path).replace(/%2F/g,"/"),{token:t});const d=await r.json();if(!r.ok)return res.status(r.status).json({error:d.message||"No se pudo leer el archivo."});return res.json({name:d.name,path:d.path,sha:d.sha,content:d.encoding==="base64"?Buffer.from(d.content.replace(/\n/g,""),"base64").toString("utf8"):""});}
+  if(req.method==="PUT"){const body=typeof req.body==="string"?JSON.parse(req.body||"{}"):(req.body||{});const path=String(body.path||"").trim(),content=String(body.content??"");if(!path||path.includes(".."))return res.status(400).json({error:"Ruta no válida."});if(content.length>1000000)return res.status(400).json({error:"Archivo demasiado grande."});let sha=body.sha;if(!sha){const r=await gh("/repos/"+repo+"/contents/"+encodeURIComponent(path).replace(/%2F/g,"/"),{token:t});if(r.ok){const d=await r.json();sha=d.sha}}const r=await gh("/repos/"+repo+"/contents/"+encodeURIComponent(path).replace(/%2F/g,"/"),{token:t,method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({message:"Actualización desde SoyPerritoProProYT.IAOFICIAL",content:Buffer.from(content,"utf8").toString("base64"),...(sha?{sha}:{})})});const d=await r.json();if(!r.ok)return res.status(r.status).json({error:d.message||"GitHub rechazó el cambio."});return res.json({ok:true,path:d.content?.path,sha:d.content?.sha});}
+  return res.status(405).json({error:"Método no permitido."});
+ }catch(e){return res.status(500).json({error:e.message||"Error de GitHub."})}
 }
