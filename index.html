@@ -6,7 +6,7 @@
 <div class="auth"><input id="userName" placeholder="Nombre de usuario" maxlength="30" autocomplete="username"><input id="userPass" type="password" placeholder="Contraseña (6+ caracteres)" maxlength="100" autocomplete="current-password"><button id="registerBtn">Crear cuenta</button><button id="loginBtn">Entrar</button><button id="logoutBtn" hidden>Cerrar sesión</button><div id="authMsg" class="msginfo"></div></div>
 <div class="chatbar"><select id="chatSelect" aria-label="Chats"><option>💬 Inicia sesión para ver tus chats</option></select><button id="nuevoChatBtn">➕ Nuevo chat</button></div>
 <main id="chat" class="chat"></main><div class="hint">Comandos: /ayuda · /perfil · /juegos · /ajustes · /limpiar · @verifica</div><input id="archivoVerificar" type="file" hidden accept=".txt,.md,.json,.js,.html,.css,.csv,.xml,.yaml,.yml,.mcfunction,.lua">
-<div class="tools"><button id="verificaBtn" type="button">📁 Elegir archivo para verificar</button></div>
+<div class="tools" id="verificaTools"><button id="verificaBtn" type="button">📁 Elegir archivo</button></div>
 <div class="tools"><button id="imagenBtn">🖼️ Crear imagen</button><button id="videoBtn">🎬 Crear vídeo</button></div>
 <div id="mediaResult" class="media" aria-live="polite"></div>
 <div id="mediaPlayer" class="media" hidden>
