@@ -1,0 +1,9 @@
+{
+  "name": "soyperritoproproyt-iaoficial",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "ai": "latest",
+    "@vercel/blob": "latest"
+  }
+}
