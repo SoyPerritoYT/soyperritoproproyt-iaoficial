@@ -25,8 +25,8 @@
 <script src="https://js.puter.com/v2/"></script><script src="https://accounts.google.com/gsi/client" async defer></script><script>
 const $=id=>document.getElementById(id);let usuarioActual=null,nombreActual='',chats=[],chatId='',historial=[],youtubeAccessToken=null;
 const YOUTUBE_CLIENT_ID='954824229147-uf1pv1ch0v052lv0tutaueb1nknc7j19.apps.googleusercontent.com',YOUTUBE_SCOPE='https://www.googleapis.com/auth/youtube.upload';
-function msg(t,r){const e=document.createElement('div');e.className='msg '+r;e.textContent=t;$('chat').appendChild(e);$('chat').scrollTop=$('chat').scrollHeight;return e}
-function render(){ $('chat').innerHTML=''; if(!historial.length){msg('¡Hola! 🐶 Tus chats se guardan automáticamente en este dispositivo.','ai');return} historial.forEach(m=>msg(m.content,m.role==='user'?'user':'ai'))}
+function msg(t,r){const e=document.createElement('div');e.className='msg '+r;e.textContent=t;$('chat').appendChild(e);return e}
+function render(){const pos=$('chat').scrollTop;$('chat').innerHTML='';if(!historial.length){msg('¡Hola! 🐶 Tus chats se guardan automáticamente en este dispositivo.','ai')}else historial.forEach(m=>msg(m.content,m.role==='user'?'user':'ai'));$('chat').scrollTop=pos;requestAnimationFrame(()=>{$('chat').scrollTop=pos})}
 function norm(v){return String(v||'').trim().toLowerCase().replace(/[^a-z0-9_.-]/g,'').slice(0,30)}
 async function api(url,opt={}){const r=await fetch(url,opt),d=await r.json().catch(()=>({}));if(!r.ok)throw Error(d.error||'Error del servidor.');return d}
 function getAccounts(){try{return JSON.parse(localStorage.getItem('sp_accounts_v1')||'{}')}catch{return {}}}
