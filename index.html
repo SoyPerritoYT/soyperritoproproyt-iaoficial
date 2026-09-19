@@ -158,5 +158,39 @@ async function guardarArchivoGitHub(){
   finally{$('githubWriteBtn').disabled=false}
 }
 
-$('registerBtn').onclick=()=>auth('register');$('loginBtn').onclick=()=>auth('login');$('logoutBtn').onclick=()=>{localStorage.removeItem('sp_session_v1');location.reload()};$('nuevoChatBtn').onclick=nuevo;$('chatSelect').onchange=async e=>{chatId=e.target.value;await cargarActual()};$('verificaBtn').onclick=verificarArchivo;$('imagenBtn').onclick=crearImagen;$('generateVideoBtn').onclick=crearVideo;$('randomVideoBtn').onclick=generarIdeaVideo;$('videojuegosBtn').onclick=()=>{$('videojuegosMenu').hidden=!$('videojuegosMenu').hidden};$('robloxBtn').onclick=()=>open('https://www.roblox.com/','_blank');$('fortniteBtn').onclick=()=>open('https://www.fortnite.com/','_blank');$('githubBtn').onclick=abrirModoGitHub;$('githubReadBtn').onclick=leerArchivoGitHub;$('githubWriteBtn').onclick=guardarArchivoGitHub;$('githubOpenBtn').onclick=()=>open('https://github.com/','_blank');$('mediaClose').onclick=()=>{$('mediaPlayer').hidden=true;$('mediaStage').innerHTML='';$('mediaControls').innerHTML=''};$('youtubeConnectBtn').onclick=conectarYouTube;$('youtubeUploadBtn').onclick=subir;$('form').onsubmit=e=>{e.preventDefault();enviar()};recibirSesionGitHub();render();sesion();
+$('registerBtn').onclick=()=>auth('register');$('loginBtn').onclick=()=>auth('login');$('logoutBtn').onclick=()=>{localStorage.removeItem('sp_session_v1');location.reload()};$('nuevoChatBtn').onclick=nuevo;$('chatSelect').onchange=async e=>{chatId=e.target.value;await cargarActual()};$('verificaBtn').onclick=verificarArchivo;$('imagenBtn').onclick=crearImagen;$('generateVideoBtn').onclick=crearVideo;$('randomVideoBtn').onclick=generarIdeaVideo;$('videojuegosBtn').onclick=()=>{$('videojuegosMenu').hidden=!$('videojuegosMenu').hidden};$('robloxBtn').onclick=()=>open('https://www.roblox.com/','_blank');$('fortniteBtn').onclick=()=>open('https://www.fortnite.com/','_blank');$('githubBtn').onclick=abrirModoGitHub;$('githubReadBtn').onclick=leerArchivoGitHub;$('githubWriteBtn').onclick=guardarArchivoGitHub;$('githubOpenBtn').onclick=()=>open('https://github.com/','_blank');
+async function githubModeInit(){
+  const hash=location.hash.startsWith('#github_token=')?decodeURIComponent(location.hash.slice('#github_token='.length)):'';
+  if(hash){sessionStorage.setItem('sp_github_session',hash);history.replaceState(null,'',location.pathname+location.search);}
+  const token=sessionStorage.getItem('sp_github_session');
+  if(!token){$('githubMode').hidden=true;return;}
+  try{
+    const r=await fetch('https://soy-perrito-pro-pro-yt-iaoficial-au.vercel.app/api/github-session',{headers:{Authorization:'Bearer '+token}});
+    const d=await r.json();
+    if(!r.ok) throw Error(d.error||'Sesión de GitHub no válida.');
+    $('githubMode').hidden=false;
+    $('githubModeStatus').textContent='🐙 GitHub conectado: @'+d.login+(d.permission==='write'?' · ✏️ escritura':' · 👀 solo lectura');
+    $('githubModeMsg').textContent=d.permission==='write'?'✅ Modo GitHub activado. Puedes modificar archivos de tu repo.':'👀 Conexión de solo lectura.';
+  }catch(e){
+    sessionStorage.removeItem('sp_github_session');
+    $('githubMode').hidden=true;
+    $('githubModeMsg').textContent='❌ '+e.message;
+  }
+}
+async function githubSaveFile(){
+  const token=sessionStorage.getItem('sp_github_session');
+  if(!token)return $('githubModeMsg').textContent='🔐 Conecta GitHub primero.';
+  const path=$('githubPath').value.trim(), content=$('githubContent').value, message=$('githubCommit').value.trim()||'Actualización desde SoyPerritoProProYT.IAOFICIAL';
+  if(!path)return $('githubModeMsg').textContent='✍️ Escribe la ruta del archivo.';
+  $('githubSave').disabled=true;$('githubModeMsg').textContent='⏳ Guardando en GitHub...';
+  try{
+    const r=await fetch('https://soy-perrito-pro-pro-yt-iaoficial-au.vercel.app/api/github-file',{method:'PUT',headers:{'Content-Type':'application/json',Authorization:'Bearer '+token},body:JSON.stringify({path,content,message})});
+    const d=await r.json();
+    if(!r.ok)throw Error(d.error||'GitHub rechazó el cambio.');
+    $('githubModeMsg').textContent='✅ '+d.path+' actualizado correctamente en GitHub.';
+  }catch(e){$('githubModeMsg').textContent='❌ '+e.message}
+  finally{$('githubSave').disabled=false}
+}
+$('githubSave').onclick=githubSaveFile;
+githubModeInit();$('mediaClose').onclick=()=>{$('mediaPlayer').hidden=true;$('mediaStage').innerHTML='';$('mediaControls').innerHTML=''};$('youtubeConnectBtn').onclick=conectarYouTube;$('youtubeUploadBtn').onclick=subir;$('form').onsubmit=e=>{e.preventDefault();enviar()};recibirSesionGitHub();render();sesion();
 </script></body></html>
