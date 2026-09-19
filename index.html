@@ -41,10 +41,10 @@
 <script src="https://js.puter.com/v2/"></script><script src="https://accounts.google.com/gsi/client" async defer></script><script>
 const $=id=>document.getElementById(id);let usuarioActual=null,nombreActual='',chats=[],chatId='',historial=[],youtubeAccessToken=null,githubConnected=false,githubPermission='read',githubLogin='';
 const YOUTUBE_CLIENT_ID='954824229147-uf1pv1ch0v052lv0tutaueb1nknc7j19.apps.googleusercontent.com',YOUTUBE_SCOPE='https://www.googleapis.com/auth/youtube.upload';
-const GITHUB_AUTH_URL='https://soy-perrito-pro-yt-iaoficial-au.vercel.app';
-const GITHUB_API_URL='https://soy-perrito-pro-yt-iaoficial-au.vercel.app/api/github-repo';
+const GITHUB_AUTH_URL='https://soy-perrito-pro-pro-yt-iaoficial-au.vercel.app';
+const GITHUB_API_URL='https://soy-perrito-pro-pro-yt-iaoficial-au.vercel.app/api/github-repo';
 async function actualizarGitHub(){try{const r=await fetch(GITHUB_AUTH_URL+'/api/github-me',{credentials:'include'});const d=await r.json();githubConnected=!!d.connected;githubPermission=d.permission||'read';githubLogin=d.login||'';const s=$('githubStatus'),b=$('githubBtn'),m=$('githubModeBtn');if(githubConnected){s.textContent='🟢 GitHub: @'+githubLogin+(githubPermission==='write'?' · escritura activa':' · solo lectura');b.textContent='🐙 GitHub conectado';m.disabled=githubPermission!=='write';m.textContent=githubPermission==='write'?'🛠️ Modo GitHub activo':'🛠️ Modo GitHub (solo lectura)'}else{s.textContent='⚪ GitHub no conectado.';b.textContent='🐙 Conectar GitHub';m.disabled=true}}catch{$('githubStatus').textContent='❌ No se pudo comprobar GitHub.'}}
-function conectarGitHub(){window.location.href=GITHUB_AUTH_URL+'/?permission=write'}
+function conectarGitHub(){window.location.href=GITHUB_AUTH_URL+'/api/github-auth?action=login&permission=write'}
 async function githubGuardarArchivo(path,content,message){if(!githubConnected||githubPermission!=='write')throw Error('Conecta GitHub con permiso para crear y modificar archivos.');const r=await fetch(GITHUB_API_URL+'?repo='+encodeURIComponent('SoyPerritoYT/soyperritoproproyt-iaoficial'),{method:'PUT',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({path,content,message,branch:'main'})});const d=await r.json().catch(()=>({}));if(!r.ok)throw Error(d.error||'No se pudo guardar en GitHub.');return d}
 function abrirModoGitHub(){if(!githubConnected||githubPermission!=='write')return conectarGitHub();historial.push({role:'assistant',content:'🛠️ Modo GitHub activo para @'+githubLogin+'. Puedo preparar cambios de archivos del repositorio SoyPerritoYT/soyperritoproproyt-iaoficial.'});render();guardar()}
 function msg(t,r){const e=document.createElement('div');e.className='msg '+r;e.textContent=t;$('chat').appendChild(e);return e}
