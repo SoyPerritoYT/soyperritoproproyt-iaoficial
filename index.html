@@ -51,7 +51,14 @@ function initGithubSession(){
  else githubSession=sessionStorage.getItem('sp_github_session')||'';
  if(login){githubLogin=login;sessionStorage.setItem('sp_github_login',login)}
  else githubLogin=sessionStorage.getItem('sp_github_login')||'';
- actualizarGitHub();
+ if(githubSession){
+  githubConnected=true;githubPermission='write';
+  $('githubStatus').textContent='🟢 GitHub: @'+(githubLogin||'cuenta conectada')+' · escritura activa';
+  $('githubMode').hidden=false;
+ } else {
+  $('githubStatus').textContent='⚪ GitHub no conectado.';
+  $('githubMode').hidden=true;
+ }
 }
 async function actualizarGitHub(){
  if(!githubSession){$('githubStatus').textContent='⚪ GitHub no conectado.';$('githubMode').hidden=true;return}
