@@ -1,239 +1,39 @@
-<!doctype html>
-<html lang="es">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SoyPerritoProProYT.IAOFICIAL</title>
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>SoyPerritoProProYT.IAOFICIAL</title>
 <style>
-body{margin:0;font-family:Arial,sans-serif;background:#111;color:#fff;display:flex;justify-content:center;min-height:100vh}
-.app{width:min(720px,100%);display:flex;flex-direction:column;height:100vh;background:#181818}
-.top{padding:18px;text-align:center;background:#242424;border-bottom:1px solid #333}.top h1{margin:0;font-size:22px}
-.status{font-size:13px;color:#aaa;margin-top:6px}
-.authBox{padding:14px 16px;background:#202020;border-bottom:1px solid #333;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-.authBox input{min-width:130px;flex:1;padding:11px;border:0;border-radius:10px;background:#333;color:#fff}
-.authBox button,.media button,.chatBar button{border:0;border-radius:10px;padding:10px 14px;font-weight:bold;cursor:pointer}
-.authBox button:disabled,.media button:disabled{opacity:.5}.authMsg{width:100%;font-size:12px;color:#aaa;white-space:pre-wrap}
-.chatBar{display:flex;gap:8px;padding:10px 12px;background:#202020;border-bottom:1px solid #333}.chatBar button{background:#fff;color:#111}.chatBar select{flex:1;min-width:0;padding:10px;border:0;border-radius:10px;background:#333;color:#fff}.chat{flex:1;overflow:auto;padding:16px}.msg{max-width:85%;padding:11px 14px;border-radius:14px;margin:8px 0;white-space:pre-wrap;line-height:1.4}
-.user{margin-left:auto;background:#315efb}.ai{margin-right:auto;background:#292929}
-.hint{text-align:center;color:#777;font-size:12px;padding:8px}
-.media{display:flex;gap:8px;padding:10px 12px;flex-wrap:wrap;background:#202020;border-top:1px solid #333}
-.mediaResult{padding:12px;background:#181818;max-height:280px;overflow:auto}.mediaResult img,.mediaResult video{max-width:100%;border-radius:12px}
-.form{display:flex;gap:8px;padding:12px;background:#242424;border-top:1px solid #333}
-.form input{flex:1;padding:13px;border:0;border-radius:12px;background:#333;color:#fff;outline:0}
-.form button{border:0;border-radius:12px;padding:0 18px;background:#fff;color:#111;font-weight:bold;cursor:pointer}.form button:disabled{opacity:.5}
-</style>
-</head>
-<body>
-<div class="app">
+*{box-sizing:border-box}body{margin:0;background:#101012;color:#fff;font-family:Arial,sans-serif}.app{width:min(820px,100%);min-height:100vh;margin:auto;background:#18181b;display:flex;flex-direction:column}.top{padding:18px;text-align:center;background:#242428;border-bottom:1px solid #333}.top h1{margin:0;font-size:22px}.status{margin-top:6px;color:#aaa;font-size:13px}.auth{padding:12px;background:#202024;display:flex;gap:8px;flex-wrap:wrap;border-bottom:1px solid #333}.auth input{flex:1;min-width:130px;padding:11px;border:0;border-radius:10px;background:#333;color:#fff}.auth button,.tools button,.chatbar button,.form button{border:0;border-radius:10px;padding:10px 14px;font-weight:bold;cursor:pointer}.auth button:disabled,.tools button:disabled{opacity:.5}.msginfo{width:100%;font-size:12px;color:#aaa;white-space:pre-wrap}.chatbar{display:flex;gap:8px;padding:10px;background:#202024;border-bottom:1px solid #333}.chatbar select{flex:1;min-width:0;padding:10px;border:0;border-radius:10px;background:#333;color:#fff}.chat{flex:1;min-height:280px;padding:16px;overflow:auto}.msg{max-width:85%;padding:11px 14px;margin:8px 0;border-radius:14px;white-space:pre-wrap;line-height:1.4}.user{margin-left:auto;background:#315efb}.ai{margin-right:auto;background:#29292e}.tools{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap;padding:10px 12px;background:#202024;border-top:1px solid #333}.tools input,.tools textarea,.tools select{padding:10px;border:0;border-radius:10px;background:#333;color:#fff}.tools textarea{flex:1;min-width:220px}.menu{width:100%;display:flex;justify-content:flex-end;gap:8px}.media{padding:14px;background:#111113;border-top:1px solid #333}.media img,.media video{display:block;max-width:100%;margin-left:auto;border-radius:12px}.media video{width:min(100%,720px);max-height:430px;background:#000}.videoInfo{text-align:right;color:#aaa;font-size:12px;margin-top:8px}.youtubeLink{display:inline-block;margin-top:8px;padding:9px 12px;border-radius:10px;background:#fff;color:#111;text-decoration:none;font-weight:bold}.hint{text-align:center;color:#777;font-size:12px;padding:8px}.form{display:flex;gap:8px;padding:12px;background:#242428;border-top:1px solid #333}.form input{flex:1;min-width:0;padding:13px;border:0;border-radius:12px;background:#333;color:#fff}.form button{background:#fff;color:#111}@media(max-width:560px){.auth input,.auth button,.tools button,.tools input,.tools textarea,.tools select,.menu button{width:100%}.tools,.menu{justify-content:stretch}}
+</style></head><body><div class="app">
 <header class="top"><h1>🐶 SoyPerritoProProYT.IAOFICIAL</h1><div class="status" id="estado">🔐 Crea una cuenta o inicia sesión</div></header>
-
-<div class="authBox">
-<input id="userName" type="text" placeholder="Nombre de usuario" maxlength="30" autocomplete="username">
-<input id="userPass" type="password" placeholder="Contraseña (6+ caracteres)" maxlength="100" autocomplete="current-password">
-<button type="button" id="registerBtn">Crear cuenta</button>
-<button type="button" id="loginBtn">Entrar</button>
-<button type="button" id="logoutBtn" hidden>Cerrar sesión</button>
-<div id="authMsg" class="authMsg"></div>
+<div class="auth"><input id="userName" placeholder="Nombre de usuario" maxlength="30" autocomplete="username"><input id="userPass" type="password" placeholder="Contraseña (6+ caracteres)" maxlength="100" autocomplete="current-password"><button id="registerBtn">Crear cuenta</button><button id="loginBtn">Entrar</button><button id="logoutBtn" hidden>Cerrar sesión</button><div id="authMsg" class="msginfo"></div></div>
+<div class="chatbar"><select id="chatSelect" aria-label="Chats"><option>💬 Inicia sesión para ver tus chats</option></select><button id="nuevoChatBtn">➕ Nuevo chat</button></div>
+<main id="chat" class="chat"></main><div class="hint">Comandos: /ayuda · /perfil · /juegos · /ajustes · /limpiar</div>
+<div class="tools"><button id="imagenBtn">🖼️ Crear imagen</button><button id="videoBtn">🎬 Crear vídeo</button></div>
+<div id="mediaResult" class="media" aria-live="polite"></div>
+<div class="tools"><button id="videojuegosBtn">🎮 Modo Videojuegos</button><div id="videojuegosMenu" class="menu" hidden><button id="robloxBtn">🟦 Roblox</button><button id="fortniteBtn">🟪 Fortnite</button></div></div>
+<div class="tools"><button id="githubBtn">🐙 GitHub</button><button id="githubOpenBtn">🌐 Abrir GitHub</button></div>
+<div class="tools"><button id="youtubeConnectBtn">🔗 Conectar YouTube</button><button id="youtubeUploadBtn" disabled>⬆️ Subir vídeo generado</button><input id="youtubeTitle" placeholder="Título del vídeo" maxlength="100"><textarea id="youtubeDescription" placeholder="Descripción" rows="2" maxlength="5000"></textarea><select id="youtubePrivacy"><option value="private">🔒 Privado</option><option value="unlisted">🔗 Oculto</option><option value="public">🌍 Público</option></select><div id="youtubeMsg" class="msginfo"></div></div>
+<form id="form" class="form"><input id="entrada" placeholder="Escribe algo..." maxlength="4000" autocomplete="off"><button id="enviar">Enviar</button></form>
 </div>
-
-<div class="chatBar"><button type="button" id="nuevoChatBtn">➕ Nuevo chat</button><select id="chatSelect" aria-label="Cambiar de chat"><option value="">💬 Cambiar de chat</option></select></div><main class="chat" id="chat"></main>
-<div class="hint">Comandos: /ayuda · /perfil · /juegos · /ajustes · /limpiar</div>
-
-<div class="media">
-<button type="button" id="imagenBtn">🖼️ Crear imagen</button>
-<button type="button" id="videoBtn">🎬 Crear vídeo</button>
-</div>
-<div id="mediaResult" class="mediaResult"></div>
-<div class="media">
-<button type="button" id="videojuegosBtn">🎮 Modo Videojuegos</button>
-<div id="videojuegosMenu" hidden style="width:100%;gap:8px;flex-wrap:wrap">
-<button type="button" id="robloxBtn">🟦 Roblox</button>
-<button type="button" id="fortniteBtn">🟪 Fortnite</button>
-<div id="videojuegosMsg" class="authMsg">🎮 Elige un videojuego para abrirlo.</div>
-</div>
-</div>
-<div class="media">
-<button type="button" id="githubBtn">🐙 GitHub</button>
-<button type="button" id="githubOpenBtn">🌐 Abrir GitHub</button>
-<div id="githubMsg" class="authMsg">🐙 Modo GitHub</div>
-</div>
-<div class="media">
-<button type="button" id="youtubeConnectBtn">🔗 Conectar YouTube</button>
-<button type="button" id="youtubeUploadBtn" disabled>⬆️ Subir vídeo generado</button>
-<input id="youtubeTitle" type="text" placeholder="Título del vídeo" maxlength="100">
-<textarea id="youtubeDescription" placeholder="Descripción del vídeo" maxlength="5000" rows="3" style="flex:1;min-width:220px;padding:10px;border:0;border-radius:10px;background:#333;color:#fff"></textarea>
-<select id="youtubePrivacy" aria-label="Visibilidad del vídeo" style="padding:10px;border:0;border-radius:10px;background:#333;color:#fff">
-<option value="private">🔒 Privado</option>
-<option value="unlisted">🔗 Oculto</option>
-<option value="public">🌍 Público</option>
-</select>
-<div id="youtubeMsg" class="authMsg"></div>
-</div>
-
-<form class="form" id="form">
-<input id="entrada" type="text" placeholder="Escribe algo..." autocomplete="off" maxlength="4000">
-<button id="enviar" type="submit">Enviar</button>
-</form>
-</div>
-
-<script src="https://js.puter.com/v2/"></script>
-<script src="https://accounts.google.com/gsi/client" async defer></script>
-<script type="module">
-import {initializeApp} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
-import {getAuth,createUserWithEmailAndPassword,signInWithEmailAndPassword,onAuthStateChanged,signOut,updateProfile} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
-import {getFirestore,doc,getDoc,setDoc,serverTimestamp} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
-
-const firebaseConfig={apiKey:"AIzaSyAQEiDYEVKEY1tGeDRDKLcWkAps_Oy7cNw",authDomain:"soyperritoproproyt-iaoficial.firebaseapp.com",projectId:"soyperritoproproyt-iaoficial",storageBucket:"soyperritoproproyt-iaoficial.firebasestorage.app",messagingSenderId:"954824229147",appId:"1:954824229147:web:863134299466d8a2f493be",measurementId:"G-FGHGHT7Y17"};
-const app=initializeApp(firebaseConfig),auth=getAuth(app),db=getFirestore(app);
-
-const chat=document.getElementById('chat'),entrada=document.getElementById('entrada'),form=document.getElementById('form'),enviarBtn=document.getElementById('enviar'),estado=document.getElementById('estado');
-const userName=document.getElementById('userName'),userPass=document.getElementById('userPass'),registerBtn=document.getElementById('registerBtn'),loginBtn=document.getElementById('loginBtn'),logoutBtn=document.getElementById('logoutBtn'),authMsg=document.getElementById('authMsg');
-const imagenBtn=document.getElementById('imagenBtn'),videoBtn=document.getElementById('videoBtn'),mediaResult=document.getElementById('mediaResult');
-
-let historial=[],usuarioActual=null,nombreActual='',chatId=null,chats=[];
-let youtubeAccessToken=null;
-const YOUTUBE_CLIENT_ID='954824229147-uf1pv1ch0v052lv0tutaueb1nknc7j19.apps.googleusercontent.com';
-const YOUTUBE_SCOPE='https://www.googleapis.com/auth/youtube.upload';
-
-function mensaje(texto,tipo){const el=document.createElement('div');el.className='msg '+tipo;el.textContent=texto;chat.appendChild(el);chat.scrollTop=chat.scrollHeight;return el}
-function render(){chat.innerHTML='';if(!historial.length)mensaje('¡Hola! 🐶 Crea una cuenta o inicia sesión para usar la IA y guardar tus chats.','ai');for(const m of historial)mensaje(m.content,m.role==='user'?'user':'ai')}
-function normalizarUsuario(v){return String(v||'').trim().toLowerCase().replace(/[^a-z0-9_.-]/g,'').slice(0,30)}
-function emailInterno(u){return u+'@soyperritoproproyt.local'}
-function errorFirebase(e){
- const map={
- 'auth/email-already-in-use':'Ese nombre de usuario ya está usado.',
- 'auth/invalid-credential':'Nombre o contraseña incorrectos.',
- 'auth/invalid-email':'El nombre de usuario no es válido.',
- 'auth/weak-password':'La contraseña debe tener al menos 6 caracteres.',
- 'auth/operation-not-allowed':'Activa el proveedor Email/Contraseña en Firebase Authentication.',
- 'auth/network-request-failed':'No hay conexión con Firebase.'
- };
- authMsg.textContent='❌ '+(map[e?.code]||'No se pudo completar la operación.')+'\nCódigo: '+(e?.code||'desconocido');
-}
-async function guardarPerfil(user){
- await setDoc(doc(db,'users',user.uid,'profile','info'),{username:nombreActual,displayName:nombreActual,updatedAt:serverTimestamp()},{merge:true});
-}
-async function cargarChats(){try{const s=await getDoc(doc(db,'users',usuarioActual.uid,'chatIndex','list'));chats=s.exists()&&Array.isArray(s.data().chats)?s.data().chats:[]}catch(e){chats=[]}if(!chats.length){chats=[{id:'chat-'+Date.now(),title:'Nuevo chat'}];await guardarIndice()}chatId=chats[0].id;renderChatSelect();await cargarChatActual()}
-function renderChatSelect(){chatSelect.innerHTML='<option value="">💬 Cambiar de chat</option>';for(const c of chats){const o=document.createElement('option');o.value=c.id;o.textContent='💬 '+c.title;chatSelect.appendChild(o)}chatSelect.value=chatId||''}
-async function guardarIndice(){if(!usuarioActual)return;await setDoc(doc(db,'users',usuarioActual.uid,'chatIndex','list'),{chats,updatedAt:serverTimestamp()},{merge:true})}
-async function cargarChatActual(){if(!chatId){historial=[];render();return}try{const s=await getDoc(doc(db,'users',usuarioActual.uid,'chats',chatId));historial=s.exists()&&Array.isArray(s.data().messages)?s.data().messages:[]}catch(e){historial=[]}render()}
-async function guardarChat(){
- if(!usuarioActual)return;
- try{await setDoc(doc(db,'users',usuarioActual.uid,'chats',chatId),{messages:historial.slice(-80),updatedAt:serverTimestamp()},{merge:true})}catch(e){console.error(e)}
-}
-async function authAction(action){
- const u=normalizarUsuario(userName.value),p=userPass.value;
- if(u.length<3){authMsg.textContent='❌ El usuario debe tener al menos 3 caracteres.';return}
- if(p.length<6){authMsg.textContent='❌ La contraseña debe tener al menos 6 caracteres.';return}
- authMsg.textContent='Procesando...';
- try{
-  if(action==='register'){
-   const cred=await createUserWithEmailAndPassword(auth,emailInterno(u),p);
-   await updateProfile(cred.user,{displayName:u});
-  }else{
-   await signInWithEmailAndPassword(auth,emailInterno(u),p);
-  }
- }catch(e){errorFirebase(e)}
-}
-async function activar(user){
- usuarioActual=user;
- nombreActual=user.displayName||user.email.split('@')[0];
- userName.value=nombreActual;
- userName.disabled=true;userPass.value='';
- registerBtn.hidden=true;loginBtn.hidden=true;logoutBtn.hidden=false;
- authMsg.textContent='✅ Sesión iniciada';
- estado.textContent='🟢 '+nombreActual+' · Chats guardados con Firebase';
- await guardarPerfil(user);await cargarChats();entrada.focus();
-}
-async function salir(){await signOut(auth)}
-async function nuevoChat(){if(!usuarioActual)return;const id='chat-'+Date.now();chats.unshift({id,title:'Nuevo chat'});chatId=id;historial=[];renderChatSelect();render();await guardarIndice();await guardarChat()}
-async function cambiarChat(){if(!usuarioActual||!chatSelect.value)return;chatId=chatSelect.value;await cargarChatActual()}
-function comando(t){
- if(t==='/ayuda')return '🐶 COMANDOS\n/ayuda — Ver comandos\n/perfil — Ver cuenta\n/juegos — Ver proyectos\n/ajustes — Ver ajustes\n/limpiar — Borrar chat guardado';
- if(t==='/perfil')return '👤 Usuario: '+nombreActual+'\n💾 Chats: Firebase';
- if(t==='/juegos')return '🎮 PROYECTOS\n• SoyPerritoProProYT-IAOFICIAL\n• Tu futuro juego de Roblox\n• SoyPerritoProProYT-Console';
- if(t==='/ajustes')return '⚙️ Cuenta: Firebase\n💾 Chats: Firestore\n🤖 IA: /api/chat';
- if(t==='/limpiar'){historial=[];guardarChat();render();return '🧹 Chat borrado.'}
- return null;
-}
-async function enviar(){
- const texto=entrada.value.trim();if(!texto)return;
- if(!usuarioActual){mensaje('🔐 Crea una cuenta o inicia sesión primero.','ai');return}
- entrada.value='';mensaje(texto,'user');historial.push({role:'user',content:texto});await guardarChat();
- const cmd=comando(texto);if(cmd){mensaje(cmd,'ai');historial.push({role:'assistant',content:cmd});await guardarChat();return}
- enviarBtn.disabled=true;entrada.disabled=true;estado.textContent='Pensando...';const espera=mensaje('Escribiendo...','ai');
- try{
-  const r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:texto,history:historial.slice(-12)})});
-  const d=await r.json().catch(()=>({}));if(!r.ok)throw new Error(d.error||'No se pudo conectar con la IA.');
-  espera.textContent=d.reply||'La IA no devolvió respuesta.';if(d.reply)historial.push({role:'assistant',content:d.reply});await guardarChat();
-  estado.textContent='🟢 '+nombreActual+' · Chats guardados con Firebase';
- }catch(e){espera.textContent='❌ '+e.message;estado.textContent='⚠️ Error de IA';await guardarChat()}
- finally{enviarBtn.disabled=false;entrada.disabled=false;entrada.focus()}
-}
-async function crearImagen(){
- const p=window.prompt('¿Qué imagen quieres crear?');if(!p)return;
- imagenBtn.disabled=true;mediaResult.textContent='🖼️ Creando imagen...';
- try{const img=await puter.ai.txt2img(p,{model:'gpt-image-2'});mediaResult.innerHTML='';mediaResult.appendChild(img)}
- catch(e){mediaResult.textContent='❌ No se pudo crear la imagen.'}finally{imagenBtn.disabled=false}
-}
-async function crearVideo(){
- const p=window.prompt('¿Qué vídeo quieres crear?');if(!p)return;
- videoBtn.disabled=true;mediaResult.textContent='🎬 Creando vídeo...';
- try{const v=await puter.ai.txt2vid(p,true);mediaResult.innerHTML='';if(v?.nodeType)mediaResult.appendChild(v);else mediaResult.textContent='🎬 Vídeo generado.'}
- catch(e){mediaResult.textContent='❌ No se pudo crear el vídeo.'}finally{videoBtn.disabled=false}
-}
-
-function abrirVideojuego(url,nombre){ const msg=document.getElementById('videojuegosMsg'); msg.textContent='🎮 Abriendo '+nombre+'...'; window.open(url,'_blank','noopener'); }
-function modoVideojuegos(){ const menu=document.getElementById('videojuegosMenu'); menu.hidden=!menu.hidden; }
-function abrirGitHub(){ window.open('https://github.com/','_blank','noopener'); }
-function modoGitHub(){
- const msg=document.getElementById('githubMsg');
- msg.textContent='🐙 Modo GitHub: consultar y trabajar con tus repositorios mediante una conexión autorizada.';
-}
-function crearRepositorioGitHub(){
- const name=document.getElementById('githubRepoName').value.trim();
- const msg=document.getElementById('githubMsg');
- if(!name){msg.textContent='❌ Escribe un nombre de repositorio.';return}
- msg.textContent='🔐 Para crear repositorios automáticamente falta conectar GitHub OAuth de forma segura. No se puede usar directamente la conexión GitHub de ChatGPT desde esta página.';
-}
-async function conectarYouTube(){
- const msg=document.getElementById('youtubeMsg'),btn=document.getElementById('youtubeConnectBtn'),upload=document.getElementById('youtubeUploadBtn');
- if(!window.google?.accounts?.oauth2){msg.textContent='❌ No se pudo cargar Google OAuth.';return}
- btn.disabled=true;msg.textContent='Conectando con Google...';
- try{
-  const client=google.accounts.oauth2.initTokenClient({client_id:YOUTUBE_CLIENT_ID,scope:YOUTUBE_SCOPE,callback:(resp)=>{
-   if(resp.error){msg.textContent='❌ Google no autorizó la conexión.';return}
-   youtubeAccessToken=resp.access_token;upload.disabled=false;msg.textContent='✅ YouTube conectado.'
-  }});
-  client.requestAccessToken({prompt:'consent'});
- }catch(e){msg.textContent='❌ No se pudo conectar YouTube.'}finally{btn.disabled=false}
-}
-async function subirVideoGenerado(){
- const msg=document.getElementById('youtubeMsg'),upload=document.getElementById('youtubeUploadBtn');
- if(!youtubeAccessToken){msg.textContent='❌ Conecta YouTube primero.';return}
- const video=mediaResult.querySelector('video');
- if(!video?.src){msg.textContent='❌ Primero crea un vídeo.';return}
- upload.disabled=true;msg.textContent='⬆️ Subiendo vídeo...';
- try{
-  const vr=await fetch(video.src);if(!vr.ok)throw new Error('No se pudo leer el vídeo generado.');
-  const blob=await vr.blob();
-  const title=(document.getElementById('youtubeTitle').value||'Vídeo de SoyPerritoProProYT').trim();
-  const description=(document.getElementById('youtubeDescription').value||'Vídeo creado con SoyPerritoProProYT.IAOFICIAL').trim();
-  const privacy=document.getElementById('youtubePrivacy').value;
-  const metadata={snippet:{title,description,categoryId:'20'},status:{privacyStatus:privacy}};
-  const boundary='----soyperrito'+Date.now();
-  const body=new Blob(['--'+boundary+'\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n',JSON.stringify(metadata),'\r\n--'+boundary+'\r\nContent-Type: '+(blob.type||'video/mp4')+'\r\n\r\n',blob,'\r\n--'+boundary+'--\r\n']);
-  const r=await fetch('https://www.googleapis.com/upload/youtube/v3/videos?part=snippet,status&uploadType=multipart',{method:'POST',headers:{Authorization:'Bearer '+youtubeAccessToken,'Content-Type':'multipart/related; boundary='+boundary},body});
-  const d=await r.json().catch(()=>({}));if(!r.ok)throw new Error(d.error?.message||'YouTube rechazó la subida.');
-  msg.textContent='✅ Vídeo subido a YouTube como privado para revisión.';
- }catch(e){msg.textContent='❌ '+e.message}finally{upload.disabled=false}
-}
-
-document.getElementById('videojuegosBtn').addEventListener('click',modoVideojuegos);document.getElementById('robloxBtn').addEventListener('click',()=>abrirVideojuego('https://www.roblox.com/','Roblox'));document.getElementById('fortniteBtn').addEventListener('click',()=>abrirVideojuego('https://www.fortnite.com/','Fortnite'));document.getElementById('githubBtn').addEventListener('click',modoGitHub);document.getElementById('githubOpenBtn').addEventListener('click',abrirGitHub);registerBtn.addEventListener('click',()=>authAction('register'));loginBtn.addEventListener('click',()=>authAction('login'));logoutBtn.addEventListener('click',salir);
-imagenBtn.addEventListener('click',crearImagen);videoBtn.addEventListener('click',crearVideo);nuevoChatBtn.addEventListener('click',nuevoChat);chatSelect.addEventListener('change',cambiarChat);document.getElementById('youtubeConnectBtn').addEventListener('click',conectarYouTube);document.getElementById('youtubeUploadBtn').addEventListener('click',subirVideoGenerado);
-form.addEventListener('submit',e=>{e.preventDefault();enviar()});
-onAuthStateChanged(auth,user=>{if(user)activar(user);else{usuarioActual=null;nombreActual='';historial=[];chats=[];chatId=null;userName.disabled=false;registerBtn.hidden=false;loginBtn.hidden=false;logoutBtn.hidden=true;chatSelect.innerHTML='<option value="">💬 Cambiar de chat</option>';estado.textContent='🔐 Crea una cuenta o inicia sesión';render()}});
-render();
-</script>
-</body>
-</html>
+<script src="https://js.puter.com/v2/"></script><script src="https://accounts.google.com/gsi/client" async defer></script><script>
+const $=id=>document.getElementById(id);let usuarioActual=null,nombreActual='',chats=[],chatId='',historial=[],youtubeAccessToken=null;
+const YOUTUBE_CLIENT_ID='954824229147-uf1pv1ch0v052lv0tutaueb1nknc7j19.apps.googleusercontent.com',YOUTUBE_SCOPE='https://www.googleapis.com/auth/youtube.upload';
+function msg(t,r){const e=document.createElement('div');e.className='msg '+r;e.textContent=t;$('chat').appendChild(e);$('chat').scrollTop=$('chat').scrollHeight;return e}
+function render(){ $('chat').innerHTML=''; if(!historial.length){msg('¡Hola! 🐶 Tus chats se guardan automáticamente en tu cuenta.','ai');return} historial.forEach(m=>msg(m.content,m.role==='user'?'user':'ai'))}
+function norm(v){return String(v||'').trim().toLowerCase().replace(/[^a-z0-9_.-]/g,'').slice(0,30)}
+async function api(url,opt={}){const r=await fetch(url,opt),d=await r.json().catch(()=>({}));if(!r.ok)throw Error(d.error||'Error del servidor.');return d}
+async function auth(action){const u=norm($('userName').value),p=$('userPass').value;if(u.length<3)return $('authMsg').textContent='❌ El usuario debe tener al menos 3 caracteres.';if(p.length<6)return $('authMsg').textContent='❌ La contraseña debe tener al menos 6 caracteres.';$('authMsg').textContent='Procesando...';try{const d=await api('/api/auth',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action,username:u,password:p})});await activar(d.username)}catch(e){$('authMsg').textContent='❌ '+e.message}}
+async function activar(u){usuarioActual=u;nombreActual=u;$('userName').value=u;$('userName').disabled=true;$('userPass').value='';$('registerBtn').hidden=true;$('loginBtn').hidden=true;$('logoutBtn').hidden=false;$('authMsg').textContent='✅ Sesión iniciada';$('estado').textContent='🟢 '+u+' · chats guardados';await cargarChats();$('entrada').focus()}
+async function sesion(){try{const d=await api('/api/auth');await activar(d.username)}catch{render()}}
+async function cargarChats(){try{const d=await api('/api/chat-store');chats=Array.isArray(d.chats)?d.chats:[]}catch(e){chats=[];$('authMsg').textContent='⚠️ '+e.message}if(!chats.length){chats=[{id:'chat-'+Date.now(),title:'Nuevo chat',messages:[]}];await guardarChats()}chatId=chats[0].id;selectChats();await cargarActual()}
+function selectChats(){$('chatSelect').innerHTML='';chats.forEach(c=>{const o=document.createElement('option');o.value=c.id;o.textContent='💬 '+c.title;$('chatSelect').appendChild(o)});$('chatSelect').value=chatId}
+async function guardarChats(){if(usuarioActual)await fetch('/api/chat-store',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({chats})})}
+async function cargarActual(){const c=chats.find(x=>x.id===chatId);historial=Array.isArray(c?.messages)?c.messages.slice(-80):[];$('mediaResult').innerHTML='';render()}
+async function guardar(){const c=chats.find(x=>x.id===chatId);if(!c)return;c.messages=historial.slice(-80);const first=historial.find(x=>x.role==='user');if(first&&c.title==='Nuevo chat')c.title=first.content.trim().slice(0,50)||'Nuevo chat';await guardarChats();selectChats()}
+async function nuevo(){if(!usuarioActual)return;const id='chat-'+Date.now();chats.unshift({id,title:'Nuevo chat',messages:[]});chatId=id;historial=[];selectChats();render();await guardarChats()}
+function comando(t){if(t==='/ayuda')return'🐶 COMANDOS\n/ayuda · /perfil · /juegos · /ajustes · /limpiar';if(t==='/perfil')return'👤 Usuario: '+nombreActual+'\n💾 Chats: guardados en tu cuenta';if(t==='/juegos')return'🎮 Roblox · Fortnite · futuros proyectos';if(t==='/ajustes')return'⚙️ Cuenta y chats: sistema propio · IA: /api/chat';if(t==='/limpiar'){historial=[];guardar();render();return'🧹 Chat limpiado.'}}
+async function enviar(){const t=$('entrada').value.trim();if(!t)return;if(!usuarioActual)return msg('🔐 Inicia sesión primero.','ai');$('entrada').value='';historial.push({role:'user',content:t});render();await guardar();const c=comando(t);if(c){historial.push({role:'assistant',content:c});render();await guardar();return}$('enviar').disabled=true;$('entrada').disabled=true;const e=msg('Escribiendo...','ai');try{const d=await api('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:t,history:historial.slice(-12)})});e.textContent=d.reply||'Sin respuesta.';if(d.reply)historial.push({role:'assistant',content:d.reply});await guardar();$('estado').textContent='🟢 '+nombreActual+' · chats guardados'}catch(x){e.textContent='❌ '+x.message}finally{$('enviar').disabled=false;$('entrada').disabled=false;$('entrada').focus()}}
+async function crearImagen(){const p=prompt('¿Qué imagen quieres crear?');if(!p)return;$('imagenBtn').disabled=true;$('mediaResult').textContent='🖼️ Creando...';try{$('mediaResult').innerHTML='';$('mediaResult').appendChild(await puter.ai.txt2img(p,{model:'gpt-image-2'}))}catch{$('mediaResult').textContent='❌ No se pudo crear la imagen.'}finally{$('imagenBtn').disabled=false}}
+async function crearVideo(){const p=prompt('¿Qué vídeo quieres crear?');if(!p)return;$('videoBtn').disabled=true;$('mediaResult').textContent='🎬 Creando vídeo...';try{const v=await puter.ai.txt2vid(p,true);$('mediaResult').innerHTML='';const video=v?.tagName?.toLowerCase()==='video'?v:v?.querySelector?.('video');if(video){video.controls=true;video.playsInline=true;video.autoplay=false;$('mediaResult').appendChild(video);const i=document.createElement('div');i.className='videoInfo';i.textContent='🎬 Vídeo generado por la IA · Pulsa ▶️ para verlo.';$('mediaResult').appendChild(i)}else $('mediaResult').textContent='🎬 La IA generó el vídeo, pero no devolvió un reproductor.'}catch{$('mediaResult').textContent='❌ No se pudo crear el vídeo.'}finally{$('videoBtn').disabled=false}}
+async function conectarYouTube(){if(!google?.accounts?.oauth2)return $('youtubeMsg').textContent='❌ No se pudo cargar Google OAuth.';$('youtubeConnectBtn').disabled=true;$('youtubeMsg').textContent='Conectando con Google...';try{const c=google.accounts.oauth2.initTokenClient({client_id:YOUTUBE_CLIENT_ID,scope:YOUTUBE_SCOPE,callback:r=>{if(r.error)return $('youtubeMsg').textContent='❌ Google no autorizó la conexión.';youtubeAccessToken=r.access_token;$('youtubeUploadBtn').disabled=false;$('youtubeMsg').textContent='✅ YouTube conectado.'}});c.requestAccessToken({prompt:'consent'})}catch{$('youtubeMsg').textContent='❌ No se pudo conectar YouTube.'}finally{$('youtubeConnectBtn').disabled=false}}
+async function subir(){const v=$('mediaResult').querySelector('video');if(!youtubeAccessToken)return $('youtubeMsg').textContent='❌ Conecta YouTube primero.';if(!v?.src)return $('youtubeMsg').textContent='❌ Primero crea un vídeo con la IA.';$('youtubeUploadBtn').disabled=true;$('youtubeMsg').textContent='⬆️ Subiendo...';try{const b=await(await fetch(v.src)).blob(),title=($('youtubeTitle').value||'Vídeo de SoyPerritoProProYT').trim(),description=($('youtubeDescription').value||'Vídeo creado con SoyPerritoProProYT.IAOFICIAL').trim(),privacy=$('youtubePrivacy').value,meta={snippet:{title,description,categoryId:'20'},status:{privacyStatus:privacy}},boundary='----sp'+Date.now(),body=new Blob(['--'+boundary+'\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n',JSON.stringify(meta),'\r\n--'+boundary+'\r\nContent-Type: '+(b.type||'video/mp4')+'\r\n\r\n',b,'\r\n--'+boundary+'--\r\n']);const r=await fetch('https://www.googleapis.com/upload/youtube/v3/videos?part=snippet,status&uploadType=multipart',{method:'POST',headers:{Authorization:'Bearer '+youtubeAccessToken,'Content-Type':'multipart/related; boundary='+boundary},body}),d=await r.json().catch(()=>({}));if(!r.ok)throw Error(d.error?.message||'YouTube rechazó la subida.');$('youtubeMsg').innerHTML='✅ Vídeo subido. <a class="youtubeLink" target="_blank" rel="noopener" href="https://www.youtube.com/watch?v='+encodeURIComponent(d.id||'')+'">▶️ Ver en YouTube</a>'}catch(e){$('youtubeMsg').textContent='❌ '+e.message}finally{$('youtubeUploadBtn').disabled=false}}
+$('registerBtn').onclick=()=>auth('register');$('loginBtn').onclick=()=>auth('login');$('logoutBtn').onclick=async()=>{await fetch('/api/auth',{method:'DELETE'});location.reload()};$('nuevoChatBtn').onclick=nuevo;$('chatSelect').onchange=async e=>{chatId=e.target.value;await cargarActual()};$('imagenBtn').onclick=crearImagen;$('videoBtn').onclick=crearVideo;$('videojuegosBtn').onclick=()=>{$('videojuegosMenu').hidden=!$('videojuegosMenu').hidden};$('robloxBtn').onclick=()=>open('https://www.roblox.com/','_blank');$('fortniteBtn').onclick=()=>open('https://www.fortnite.com/','_blank');$('githubBtn').onclick=()=>{$('githubBtn').textContent='🐙 GitHub'};$('githubOpenBtn').onclick=()=>open('https://github.com/','_blank');$('youtubeConnectBtn').onclick=conectarYouTube;$('youtubeUploadBtn').onclick=subir;$('form').onsubmit=e=>{e.preventDefault();enviar()};render();sesion();
+</script></body></html>
