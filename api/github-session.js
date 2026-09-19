@@ -17,6 +17,6 @@ function cookie(name, value, maxAge) {
 export default async function handler(req, res) {
   const body = typeof req.body === "string" ? JSON.parse(req.body || "{}") : (req.body || {});\n  const session = verifySession(body.session || "");
   if (!session) return res.status(401).json({ error: "Sesión de GitHub no válida o caducada." });
-  res.setHeader("Set-Cookie", cookie("github_token", session.token, 3600));
+  res.setHeader("Set-Cookie", [cookie("github_token", session.token, 3600), cookie("github_permission", session.permission || "read", 3600)]);
   res.json({ ok: true, login: session.login, permission: session.permission || "read" });
 }
