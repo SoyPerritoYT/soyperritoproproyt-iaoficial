@@ -42,6 +42,40 @@
 const $=id=>document.getElementById(id);let usuarioActual=null,nombreActual='',chats=[],chatId='',historial=[],youtubeAccessToken=null,githubConnected=false,githubPermission='read',githubLogin='';
 const YOUTUBE_CLIENT_ID='954824229147-uf1pv1ch0v052lv0tutaueb1nknc7j19.apps.googleusercontent.com',YOUTUBE_SCOPE='https://www.googleapis.com/auth/youtube.upload';
 function msg(t,r){const e=document.createElement('div');e.className='msg '+r;e.textContent=t;$('chat').appendChild(e);return e}
+function loadGithubSession(){
+  const hash=new URLSearchParams(location.hash.replace(/^#/,''));
+  const incoming=hash.get('github_session');
+  const incomingLogin=hash.get('github_login');
+  if(incoming){githubSession=incoming;githubLogin=incomingLogin||'';sessionStorage.setItem('sp_github_session',githubSession);sessionStorage.setItem('sp_github_login',githubLogin);history.replaceState(null,'',location.pathname+location.search);}
+  else {githubSession=sessionStorage.getItem('sp_github_session')||'';githubLogin=sessionStorage.getItem('sp_github_login')||'';}
+  renderGithubStatus();
+}
+function renderGithubStatus(){
+  if(githubSession){
+    $('githubStatus').textContent='🟢 GitHub conectado · 👤 @'+(githubLogin||'SoyPerritoYT');
+    $('githubModePanel').hidden=false;
+    $('githubUserInfo').textContent='👤 @'+(githubLogin||'SoyPerritoYT')+' · ✏️ Puedes leer y modificar archivos de este repositorio.';
+  } else {
+    $('githubStatus').textContent='🔐 GitHub no conectado.';
+    $('githubModePanel').hidden=true;
+  }
+}
+async function githubAction(action){
+  if(!githubSession)return $('githubModeMsg').textContent='🔐 Conecta GitHub primero.';
+  const path=$('githubPath').value.trim();
+  if(!path)return $('githubModeMsg').textContent='📁 Escribe la ruta del archivo.';
+  $('githubReadBtn').disabled=true;$('githubWriteBtn').disabled=true;
+  try{
+    const payload={session:githubSession,action,path};
+    if(action==='write')payload.content=$('githubContent').value;
+    if(action==='write')payload.message='Cambio desde SoyPerritoProProYT.IAOFICIAL';
+    const d=await fetch(GITHUB_ACTION_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)}).then(async r=>{const x=await r.json().catch(()=>({}));if(!r.ok)throw Error(x.error||'Error de GitHub.');return x;});
+    if(action==='read'){$('githubContent').value=d.content||'';$('githubModeMsg').textContent='✅ Archivo leído correctamente.';}
+    else $('githubModeMsg').textContent='✅ Cambios guardados en GitHub.';
+  }catch(e){$('githubModeMsg').textContent='❌ '+e.message}
+  finally{$('githubReadBtn').disabled=false;$('githubWriteBtn').disabled=false}
+}
+function disconnectGithub(){githubSession='';githubLogin='';sessionStorage.removeItem('sp_github_session');sessionStorage.removeItem('sp_github_login');renderGithubStatus();$('githubModeMsg').textContent='🔌 Modo GitHub desconectado.'}
 function render(){const pos=$('chat').scrollTop;$('chat').innerHTML='';if(!historial.length){msg('¡Hola! 🐶 Tus chats se guardan automáticamente en este dispositivo.','ai')}else historial.forEach(m=>msg(m.content,m.role==='user'?'user':'ai'));$('chat').scrollTop=pos;requestAnimationFrame(()=>{$('chat').scrollTop=pos})}
 function norm(v){return String(v||'').trim().toLowerCase().replace(/[^a-z0-9_.-]/g,'').slice(0,30)}
 async function api(url,opt={}){const r=await fetch(url,opt),d=await r.json().catch(()=>({}));if(!r.ok)throw Error(d.error||'Error del servidor.');return d}
