@@ -79,7 +79,7 @@ const videoIdeas=['Un perrito gamer blanco compite en una carrera de karts futur
 async function subir(){const v=$('mediaResult').querySelector('video');if(!youtubeAccessToken)return $('youtubeMsg').textContent='❌ Conecta YouTube primero.';if(!v?.src)return $('youtubeMsg').textContent='❌ Primero crea un vídeo con la IA.';$('youtubeUploadBtn').disabled=true;$('youtubeMsg').textContent='⬆️ Subiendo...';try{const b=await(await fetch(v.src)).blob(),title=($('youtubeTitle').value||'Vídeo de SoyPerritoProProYT').trim(),description=($('youtubeDescription').value||'Vídeo creado con SoyPerritoProProYT.IAOFICIAL').trim(),privacy=$('youtubePrivacy').value,meta={snippet:{title,description,categoryId:'20'},status:{privacyStatus:privacy}},boundary='----sp'+Date.now(),body=new Blob(['--'+boundary+'\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n',JSON.stringify(meta),'\r\n--'+boundary+'\r\nContent-Type: '+(b.type||'video/mp4')+'\r\n\r\n',b,'\r\n--'+boundary+'--\r\n']);const r=await fetch('https://www.googleapis.com/upload/youtube/v3/videos?part=snippet,status&uploadType=multipart',{method:'POST',headers:{Authorization:'Bearer '+youtubeAccessToken,'Content-Type':'multipart/related; boundary='+boundary},body}),d=await r.json().catch(()=>({}));if(!r.ok)throw Error(d.error?.message||'YouTube rechazó la subida.');$('youtubeMsg').innerHTML='✅ Vídeo subido. <a class="youtubeLink" target="_blank" rel="noopener" href="https://www.youtube.com/watch?v='+encodeURIComponent(d.id||'')+'">▶️ Ver en YouTube</a>'}catch(e){$('youtubeMsg').textContent='❌ '+e.message}finally{$('youtubeUploadBtn').disabled=false}}
 
 // ===== MODO GITHUB =====
-let githubToken = sessionStorage.getItem('sp_github_token') || '';
+let githubToken = sessionStorage.getItem('sp_github_token') || '';\nlet githubPermission = sessionStorage.getItem('sp_github_permission') || '';
 
 function b64urlDecode(value){
   const normalized = value.replace(/-/g,'+').replace(/_/g,'/');
@@ -98,7 +98,7 @@ function recibirSesionGitHub(){
     const data = JSON.parse(b64urlDecode(parts[0]));
     if(!data.token || !data.exp || Date.now() > Number(data.exp)) return;
     githubToken = data.token;
-    sessionStorage.setItem('sp_github_token', githubToken);
+    sessionStorage.setItem('sp_github_token', githubToken);\n    if(data.permission) { githubPermission=String(data.permission); sessionStorage.setItem('sp_github_permission', githubPermission); }
     history.replaceState(null,'',location.pathname + location.search);
   }catch{}
 }
