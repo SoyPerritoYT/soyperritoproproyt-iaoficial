@@ -42,11 +42,42 @@
 const $=id=>document.getElementById(id);let usuarioActual=null,nombreActual='',chats=[],chatId='',historial=[],youtubeAccessToken=null,githubConnected=false,githubPermission='read',githubLogin='';
 const YOUTUBE_CLIENT_ID='954824229147-uf1pv1ch0v052lv0tutaueb1nknc7j19.apps.googleusercontent.com',YOUTUBE_SCOPE='https://www.googleapis.com/auth/youtube.upload';
 const GITHUB_AUTH_URL='https://soy-perrito-pro-pro-yt-iaoficial-au.vercel.app';
-const GITHUB_API_URL='https://soy-perrito-pro-pro-yt-iaoficial-au.vercel.app/api/github-repo';
-async function actualizarGitHub(){try{const r=await fetch(GITHUB_AUTH_URL+'/api/github-me',{credentials:'include'});const d=await r.json();githubConnected=!!d.connected;githubPermission=d.permission||'read';githubLogin=d.login||'';const s=$('githubStatus'),b=$('githubBtn'),m=$('githubModeBtn');if(githubConnected){s.textContent='🟢 GitHub: @'+githubLogin+(githubPermission==='write'?' · escritura activa':' · solo lectura');b.textContent='🐙 GitHub conectado';m.disabled=githubPermission!=='write';m.textContent=githubPermission==='write'?'🛠️ Modo GitHub activo':'🛠️ Modo GitHub (solo lectura)'}else{s.textContent='⚪ GitHub no conectado.';b.textContent='🐙 Conectar GitHub';m.disabled=true}}catch{$('githubStatus').textContent='❌ No se pudo comprobar GitHub.'}}
+const GITHUB_API_URL='https://soy-perrito-pro-pro-yt-iaoficial-au.vercel.app/api/github-file';
+function initGithubSession(){
+ const q=new URLSearchParams(location.search);
+ const session=q.get('github_session');
+ const login=q.get('github_login');
+ if(session){githubSession=session;sessionStorage.setItem('sp_github_session',session);history.replaceState({},'',location.pathname)}
+ else githubSession=sessionStorage.getItem('sp_github_session')||'';
+ if(login){githubLogin=login;sessionStorage.setItem('sp_github_login',login)}
+ else githubLogin=sessionStorage.getItem('sp_github_login')||'';
+ actualizarGitHub();
+}
+async function actualizarGitHub(){
+ if(!githubSession){$('githubStatus').textContent='⚪ GitHub no conectado.';$('githubMode').hidden=true;return}
+ try{
+  const r=await fetch(GITHUB_AUTH_URL+'/api/github-me',{headers:{Authorization:'Bearer '+githubSession}});
+  const d=await r.json();
+  if(!d.connected){throw Error('La conexión de GitHub ha caducado.')}
+  githubConnected=true;githubPermission=d.permission||'read';githubLogin=d.login||githubLogin;
+  $('githubStatus').textContent='🟢 GitHub: @'+githubLogin+(githubPermission==='write'?' · escritura activa':' · solo lectura');
+  $('githubMode').hidden=false;
+ }catch(e){
+  githubConnected=false;githubSession='';sessionStorage.removeItem('sp_github_session');$('githubStatus').textContent='❌ '+e.message;
+ }
+}
 function conectarGitHub(){window.location.href=GITHUB_AUTH_URL+'/api/github-auth?action=login&permission=write'}
-async function githubGuardarArchivo(path,content,message){if(!githubConnected||githubPermission!=='write')throw Error('Conecta GitHub con permiso para crear y modificar archivos.');const r=await fetch(GITHUB_API_URL+'?repo='+encodeURIComponent('SoyPerritoYT/soyperritoproproyt-iaoficial'),{method:'PUT',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({path,content,message,branch:'main'})});const d=await r.json().catch(()=>({}));if(!r.ok)throw Error(d.error||'No se pudo guardar en GitHub.');return d}
-function abrirModoGitHub(){if(!githubConnected||githubPermission!=='write')return conectarGitHub();historial.push({role:'assistant',content:'🛠️ Modo GitHub activo para @'+githubLogin+'. Puedo preparar cambios de archivos del repositorio SoyPerritoYT/soyperritoproproyt-iaoficial.'});render();guardar()}
+async function githubLeerArchivo(path){
+ if(!githubSession)throw Error('Conecta GitHub primero.');
+ const r=await fetch(GITHUB_API_URL+'?path='+encodeURIComponent(path),{headers:{Authorization:'Bearer '+githubSession}});
+ const d=await r.json().catch(()=>({}));if(!r.ok)throw Error(d.error||'No se pudo leer el archivo.');return d;
+}
+async function githubGuardarArchivo(path,content,message){
+ if(!githubSession)throw Error('Conecta GitHub primero.');
+ const r=await fetch(GITHUB_API_URL,{method:'POST',headers:{Authorization:'Bearer '+githubSession,'Content-Type':'application/json'},body:JSON.stringify({path,content,message})});
+ const d=await r.json().catch(()=>({}));if(!r.ok)throw Error(d.error||'No se pudo guardar en GitHub.');return d;
+}
+function abrirModoGitHub(){if(!githubConnected||githubPermission!=='write')return conectarGitHub();$('githubMode').hidden=!$('githubMode').hidden;historial.push({role:'assistant',content:'🛠️ Modo GitHub activo para @'+githubLogin+'. Puedes leer y modificar archivos de tu repositorio.'});render();guardar()}
 function msg(t,r){const e=document.createElement('div');e.className='msg '+r;e.textContent=t;$('chat').appendChild(e);return e}
 function render(){const pos=$('chat').scrollTop;$('chat').innerHTML='';if(!historial.length){msg('¡Hola! 🐶 Tus chats se guardan automáticamente en este dispositivo.','ai')}else historial.forEach(m=>msg(m.content,m.role==='user'?'user':'ai'));$('chat').scrollTop=pos;requestAnimationFrame(()=>{$('chat').scrollTop=pos})}
 function norm(v){return String(v||'').trim().toLowerCase().replace(/[^a-z0-9_.-]/g,'').slice(0,30)}
@@ -198,5 +229,5 @@ async function githubSaveFile(){
   finally{$('githubSave').disabled=false}
 }
 $('githubSave').onclick=githubSaveFile;
-githubModeInit();$('mediaClose').onclick=()=>{$('mediaPlayer').hidden=true;$('mediaStage').innerHTML='';$('mediaControls').innerHTML=''};$('youtubeConnectBtn').onclick=conectarYouTube;$('youtubeUploadBtn').onclick=subir;$('form').onsubmit=e=>{e.preventDefault();enviar()};recibirSesionGitHub();render();sesion();actualizarGitHub();
+githubModeInit();$('mediaClose').onclick=()=>{$('mediaPlayer').hidden=true;$('mediaStage').innerHTML='';$('mediaControls').innerHTML=''};$('youtubeConnectBtn').onclick=conectarYouTube;$('youtubeUploadBtn').onclick=subir;$('form').onsubmit=e=>{e.preventDefault();enviar()};recibirSesionGitHub();render();initGithubSession();sesion();actualizarGitHub();
 </script></body></html>
