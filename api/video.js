@@ -36,8 +36,7 @@ export default async function handler(req) {
             parameters: {
               aspectRatio: "9:16",
               resolution: "720p",
-              durationSeconds: 8
-            }
+                          }
           })
         }
       );
