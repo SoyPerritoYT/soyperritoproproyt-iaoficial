@@ -22,17 +22,17 @@
 <button id="githubBtn" type="button">🐙 Modo GitHub</button>
 <button id="githubOpenBtn" type="button">🌐 Abrir GitHub</button>
 <div id="githubMode" hidden style="width:100%;display:grid;gap:8px">
-<div id="githubStatus" class="msginfo">🔐 GitHub no conectado.</div>
-<div style="display:flex;gap:8px;flex-wrap:wrap">
-<input id="githubPath" placeholder="Ruta del archivo, ej. index.html" maxlength="300" style="flex:1;min-width:220px">
-<input id="githubMessage" placeholder="Mensaje del cambio" maxlength="120" style="flex:1;min-width:220px">
-</div>
-<textarea id="githubContent" placeholder="Contenido nuevo del archivo..." rows="10" maxlength="2097152" style="width:100%;padding:10px;border:0;border-radius:10px;background:#333;color:#fff"></textarea>
-<div style="display:flex;gap:8px;flex-wrap:wrap">
-<button id="githubReadBtn" type="button">📖 Leer archivo</button>
-<button id="githubWriteBtn" type="button">💾 Guardar cambios</button>
-</div>
-<div id="githubMsg" class="msginfo"></div>
+  <div id="githubStatus" class="msginfo">🔐 GitHub no conectado.</div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap">
+    <input id="githubPath" placeholder="Ruta del archivo, ej. index.html" maxlength="300" style="flex:1;min-width:220px">
+    <input id="githubMessage" placeholder="Mensaje del cambio" maxlength="120" style="flex:1;min-width:220px">
+  </div>
+  <textarea id="githubContent" placeholder="Contenido del archivo..." rows="10" maxlength="2097152" style="width:100%;padding:10px;border:0;border-radius:10px;background:#333;color:#fff"></textarea>
+  <div style="display:flex;gap:8px;flex-wrap:wrap">
+    <button id="githubReadBtn" type="button">📖 Leer archivo</button>
+    <button id="githubWriteBtn" type="button">💾 Guardar cambios</button>
+  </div>
+  <div id="githubMsg" class="msginfo"></div>
 </div>
 </div>
 <div class="tools"><button id="youtubeConnectBtn">🔗 Conectar YouTube</button><button id="youtubeUploadBtn" disabled>⬆️ Subir vídeo generado</button><input id="youtubeTitle" placeholder="Título del vídeo" maxlength="100"><textarea id="youtubeDescription" placeholder="Descripción" rows="2" maxlength="5000"></textarea><select id="youtubePrivacy"><option value="private">🔒 Privado</option><option value="unlisted">🔗 Oculto</option><option value="public">🌍 Público</option></select><div id="youtubeMsg" class="msginfo"></div></div>
@@ -122,87 +122,49 @@ function mostrarMedia(el,tipo){const stage=$('mediaStage');stage.innerHTML='';$(
 const videoIdeas=['Un perrito gamer blanco compite en una carrera de karts futurista y celebra una victoria inesperada.','Un perrito blanco descubre una habitación secreta llena de máquinas arcade y tiene que superar un reto divertido.','Un perrito gamer intenta derrotar a un enorme robot en una arena digital llena de luces RGB.','Un perrito blanco viaja al espacio en una nave gamer y encuentra un planeta de videojuegos.','Un perrito gamer abre una tienda de videojuegos y todo se convierte en un caos divertido.'];function crearVideo(){const p=$('videoPrompt').value.trim();if(!p)return $('videoGeneratorMsg').textContent='✍️ Escribe una idea o pulsa 🎲 Idea aleatoria.';generarVideoConPrompt(p)}function generarIdeaVideo(){const p=videoIdeas[Math.floor(Math.random()*videoIdeas.length)];$('videoPrompt').value=p;$('videoGeneratorMsg').textContent='🎲 ¡Idea nueva! Puedes editarla antes de generar.'}async function generarVideoConPrompt(p){$('generateVideoBtn').disabled=true;$('randomVideoBtn').disabled=true;$('videoGeneratorMsg').textContent='🎬 Generando vídeo real...';$('mediaResult').textContent='🎬 Wan v3.0 está creando el MP4...';try{const d=await api('/api/video',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:p})});if(!d.url)throw Error(d.error||'No se recibió el vídeo.');const v=document.createElement('video');v.src=d.url;v.controls=true;v.playsInline=true;v.preload='metadata';$('mediaResult').innerHTML='';mostrarMedia(v,'video');const i=document.createElement('div');i.className='videoInfo';i.textContent='🎬 Vídeo real generado · Wan v3.0 Video · 8 s · 9:16';$('mediaResult').appendChild(i);$('videoGeneratorMsg').textContent='✅ ¡Vídeo creado!'}catch(e){$('mediaResult').textContent='❌ No se pudo crear el vídeo.';$('videoGeneratorMsg').textContent='❌ '+(e.message||'Error desconocido.')}finally{$('generateVideoBtn').disabled=false;$('randomVideoBtn').disabled=false}}async function conectarYouTube(){if(!google?.accounts?.oauth2)return $('youtubeMsg').textContent='❌ No se pudo cargar Google OAuth.';$('youtubeConnectBtn').disabled=true;$('youtubeMsg').textContent='Conectando con Google...';try{const c=google.accounts.oauth2.initTokenClient({client_id:YOUTUBE_CLIENT_ID,scope:YOUTUBE_SCOPE,callback:r=>{if(r.error)return $('youtubeMsg').textContent='❌ Google no autorizó la conexión.';youtubeAccessToken=r.access_token;$('youtubeUploadBtn').disabled=false;$('youtubeMsg').textContent='✅ YouTube conectado.'}});c.requestAccessToken({prompt:'consent'})}catch{$('youtubeMsg').textContent='❌ No se pudo conectar YouTube.'}finally{$('youtubeConnectBtn').disabled=false}}
 async function subir(){const v=$('mediaResult').querySelector('video');if(!youtubeAccessToken)return $('youtubeMsg').textContent='❌ Conecta YouTube primero.';if(!v?.src)return $('youtubeMsg').textContent='❌ Primero crea un vídeo con la IA.';$('youtubeUploadBtn').disabled=true;$('youtubeMsg').textContent='⬆️ Subiendo...';try{const b=await(await fetch(v.src)).blob(),title=($('youtubeTitle').value||'Vídeo de SoyPerritoProProYT').trim(),description=($('youtubeDescription').value||'Vídeo creado con SoyPerritoProProYT.IAOFICIAL').trim(),privacy=$('youtubePrivacy').value,meta={snippet:{title,description,categoryId:'20'},status:{privacyStatus:privacy}},boundary='----sp'+Date.now(),body=new Blob(['--'+boundary+'\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n',JSON.stringify(meta),'\r\n--'+boundary+'\r\nContent-Type: '+(b.type||'video/mp4')+'\r\n\r\n',b,'\r\n--'+boundary+'--\r\n']);const r=await fetch('https://www.googleapis.com/upload/youtube/v3/videos?part=snippet,status&uploadType=multipart',{method:'POST',headers:{Authorization:'Bearer '+youtubeAccessToken,'Content-Type':'multipart/related; boundary='+boundary},body}),d=await r.json().catch(()=>({}));if(!r.ok)throw Error(d.error?.message||'YouTube rechazó la subida.');$('youtubeMsg').innerHTML='✅ Vídeo subido. <a class="youtubeLink" target="_blank" rel="noopener" href="https://www.youtube.com/watch?v='+encodeURIComponent(d.id||'')+'">▶️ Ver en YouTube</a>'}catch(e){$('youtubeMsg').textContent='❌ '+e.message}finally{$('youtubeUploadBtn').disabled=false}}
 
-// ===== MODO GITHUB =====
-let githubToken = sessionStorage.getItem('sp_github_token') || '';\nlet githubPermission = sessionStorage.getItem('sp_github_permission') || '';
-
-function b64urlDecode(value){
-  const normalized = value.replace(/-/g,'+').replace(/_/g,'/');
-  const pad = normalized.length % 4 ? '='.repeat(4 - (normalized.length % 4)) : '';
-  const bin = atob(normalized + pad);
-  const bytes = Uint8Array.from(bin, c => c.charCodeAt(0));
-  return new TextDecoder().decode(bytes);
-}
-
-function recibirSesionGitHub(){
-  const raw = location.hash.startsWith('#github_token=') ? decodeURIComponent(location.hash.slice('#github_token='.length)) : '';
-  if(!raw) return;
-  const parts = raw.split('.');
-  if(parts.length !== 2) return;
+const GITHUB_AUTH_URL='https://soy-perrito-pro-pro-yt-iaoficial-au.vercel.app';
+const GITHUB_FILE_URL=GITHUB_AUTH_URL+'/api/github-file';
+let githubSession=sessionStorage.getItem('sp_github_session')||'';
+let githubLogin=sessionStorage.getItem('sp_github_login')||'';
+function githubConnect(){window.location.href=GITHUB_AUTH_URL+'/api/github-auth?action=login&permission=write';}
+async function githubCheck(){
+  const q=new URLSearchParams(location.search);
+  const session=q.get('github_session');
+  const login=q.get('github_login');
+  if(session){githubSession=session;sessionStorage.setItem('sp_github_session',session);history.replaceState({},'',location.pathname);}
+  if(login){githubLogin=login;sessionStorage.setItem('sp_github_login',login);}
+  if(!githubSession){$('githubStatus').textContent='🔐 GitHub no conectado. Pulsa “Modo GitHub” para autorizar.';return;}
   try{
-    const data = JSON.parse(b64urlDecode(parts[0]));
-    if(!data.token || !data.exp || Date.now() > Number(data.exp)) return;
-    githubToken = data.token;
-    sessionStorage.setItem('sp_github_token', githubToken);\n    if(data.permission) { githubPermission=String(data.permission); sessionStorage.setItem('sp_github_permission', githubPermission); }
-    history.replaceState(null,'',location.pathname + location.search);
-  }catch{}
+    const r=await fetch(GITHUB_AUTH_URL+'/api/github-me',{credentials:'include',headers:{Authorization:'Bearer '+githubSession}});
+    const d=await r.json();
+    if(!d.connected)throw Error('La sesión de GitHub ha caducado.');
+    githubLogin=d.login||githubLogin;sessionStorage.setItem('sp_github_login',githubLogin);
+    $('githubStatus').textContent='🟢 GitHub conectado como @'+githubLogin+' · ✏️ escritura activa';
+    $('githubMode').hidden=false;
+  }catch(e){githubSession='';sessionStorage.removeItem('sp_github_session');$('githubMode').hidden=true;$('githubStatus').textContent='❌ '+e.message;}
 }
-
-async function githubRequest(method='GET', body=null){
-  const opt={method,headers:{Authorization:'Bearer '+githubToken}};
-  if(body){opt.headers['Content-Type']='application/json';opt.body=JSON.stringify(body)}
-  return api('/api/github',opt);
-}
-
-async function actualizarEstadoGitHub(){
-  if(!githubToken){
-    $('githubStatus').textContent='🔐 GitHub no conectado. Pulsa “Modo GitHub” para autorizarlo.';
-    return;
-  }
-  try{
-    const d=await githubRequest('GET');
-    $('githubStatus').textContent='✅ GitHub conectado como @'+d.login+' · puedes modificar archivos de este proyecto.';
-  }catch(e){
-    githubToken='';
-    sessionStorage.removeItem('sp_github_token');
-    $('githubStatus').textContent='🔐 La conexión de GitHub ha caducado. Vuelve a autorizarla.';
-  }
-}
-
-function abrirModoGitHub(){
-  $('githubMode').hidden=!$('githubMode').hidden;
-  if(!$('githubMode').hidden){
-    if(!githubToken) open('https://soy-perrito-pro-pro-yt-iaoficial-au.vercel.app/?return_to=main','_self');
-    else actualizarEstadoGitHub();
-  }
-}
-
-async function leerArchivoGitHub(){
-  if(!githubToken) return $('githubMsg').textContent='🔐 Conecta GitHub primero.';
+async function githubApi(action){
   const path=$('githubPath').value.trim();
-  if(!path) return $('githubMsg').textContent='✍️ Escribe la ruta del archivo.';
-  $('githubReadBtn').disabled=true;$('githubMsg').textContent='📖 Leyendo...';
-  try{
-    const d=await githubRequest('POST',{action:'read',path});
-    $('githubContent').value=d.content||'';
-    $('githubMsg').textContent='✅ Archivo leído: '+d.path;
-  }catch(e){$('githubMsg').textContent='❌ '+e.message}
-  finally{$('githubReadBtn').disabled=false}
+  if(!githubSession)return $('githubMsg').textContent='🔐 Conecta GitHub primero.';
+  if(!path)return $('githubMsg').textContent='✍️ Escribe la ruta del archivo.';
+  const r=await fetch(GITHUB_FILE_URL,{method:'POST',credentials:'include',headers:{Authorization:'Bearer '+githubSession,'Content-Type':'application/json'},body:JSON.stringify({action,path,content:$('githubContent').value,message:$('githubMessage').value.trim()||'Actualización desde SoyPerritoProProYT.IAOFICIAL'})});
+  const d=await r.json().catch(()=>({}));if(!r.ok)throw Error(d.error||'Error de GitHub.');return d;
 }
-
-async function guardarArchivoGitHub(){
-  if(!githubToken) return $('githubMsg').textContent='🔐 Conecta GitHub primero.';
-  const path=$('githubPath').value.trim(),content=$('githubContent').value;
-  if(!path) return $('githubMsg').textContent='✍️ Escribe la ruta del archivo.';
-  if(!content && !confirm('El contenido está vacío. ¿Quieres guardar un archivo vacío?')) return;
+async function githubRead(){
+  if(!githubSession)return githubConnect();
+  const path=$('githubPath').value.trim();if(!path)return $('githubMsg').textContent='✍️ Escribe la ruta del archivo.';
+  $('githubReadBtn').disabled=true;$('githubMsg').textContent='📖 Leyendo archivo...';
+  try{const r=await fetch(GITHUB_FILE_URL,{method:'POST',credentials:'include',headers:{Authorization:'Bearer '+githubSession,'Content-Type':'application/json'},body:JSON.stringify({action:'read',path})});const d=await r.json();if(!r.ok)throw Error(d.error||'No se pudo leer.');$('githubContent').value=d.content||'';$('githubMsg').textContent='✅ '+d.path+' leído.';}catch(e){$('githubMsg').textContent='❌ '+e.message;}finally{$('githubReadBtn').disabled=false;}
+}
+async function githubWrite(){
+  if(!githubSession)return githubConnect();
+  const path=$('githubPath').value.trim();if(!path)return $('githubMsg').textContent='✍️ Escribe la ruta del archivo.';
   $('githubWriteBtn').disabled=true;$('githubMsg').textContent='💾 Guardando en GitHub...';
-  try{
-    const d=await githubRequest('POST',{action:'write',path,content,message:$('githubMessage').value.trim()||'Update from SoyPerritoProProYT.IAOFICIAL'});
-    $('githubMsg').textContent='✅ Cambios guardados en GitHub'+(d.commit_sha?' · commit '+d.commit_sha.slice(0,7):'')+'.';
-  }catch(e){$('githubMsg').textContent='❌ '+e.message}
-  finally{$('githubWriteBtn').disabled=false}
+  try{const d=await githubApi('write');$('githubMsg').textContent='✅ Cambios guardados en '+d.path+'.';}catch(e){$('githubMsg').textContent='❌ '+e.message;}finally{$('githubWriteBtn').disabled=false;}
 }
+function abrirModoGitHub(){if(!githubSession)return githubConnect();$('githubMode').hidden=!$('githubMode').hidden;githubCheck();}
 
-$('registerBtn').onclick=()=>auth('register');$('loginBtn').onclick=()=>auth('login');$('logoutBtn').onclick=()=>{localStorage.removeItem('sp_session_v1');location.reload()};$('nuevoChatBtn').onclick=nuevo;$('chatSelect').onchange=async e=>{chatId=e.target.value;await cargarActual()};$('verificaBtn').onclick=verificarArchivo;$('imagenBtn').onclick=crearImagen;$('generateVideoBtn').onclick=crearVideo;$('randomVideoBtn').onclick=generarIdeaVideo;$('videojuegosBtn').onclick=()=>{$('videojuegosMenu').hidden=!$('videojuegosMenu').hidden};$('robloxBtn').onclick=()=>open('https://www.roblox.com/','_blank');$('fortniteBtn').onclick=()=>open('https://www.fortnite.com/','_blank');$('githubBtn').onclick=abrirModoGitHub;$('githubReadBtn').onclick=leerArchivoGitHub;$('githubWriteBtn').onclick=guardarArchivoGitHub;$('githubOpenBtn').onclick=()=>open('https://github.com/','_blank');
+$('registerBtn').onclick=()=>auth('register');$('loginBtn').onclick=()=>auth('login');$('logoutBtn').onclick=()=>{localStorage.removeItem('sp_session_v1');location.reload()};$('nuevoChatBtn').onclick=nuevo;$('chatSelect').onchange=async e=>{chatId=e.target.value;await cargarActual()};$('verificaBtn').onclick=verificarArchivo;$('imagenBtn').onclick=crearImagen;$('generateVideoBtn').onclick=crearVideo;$('randomVideoBtn').onclick=generarIdeaVideo;$('videojuegosBtn').onclick=()=>{$('videojuegosMenu').hidden=!$('videojuegosMenu').hidden};$('robloxBtn').onclick=()=>open('https://www.roblox.com/','_blank');$('fortniteBtn').onclick=()=>open('https://www.fortnite.com/','_blank');$('githubBtn').onclick=abrirModoGitHub;$('githubOpenBtn').onclick=()=>open('https://github.com/SoyPerritoYT/soyperritoproproyt-iaoficial','_blank');$('githubReadBtn').onclick=githubRead;$('githubWriteBtn').onclick=githubWrite;
 async function githubModeInit(){
   const hash=location.hash.startsWith('#github_token=')?decodeURIComponent(location.hash.slice('#github_token='.length)):'';
   if(hash){sessionStorage.setItem('sp_github_session',hash);history.replaceState(null,'',location.pathname+location.search);}
@@ -236,5 +198,5 @@ async function githubSaveFile(){
   finally{$('githubSave').disabled=false}
 }
 $('githubSave').onclick=githubSaveFile;
-githubModeInit();$('mediaClose').onclick=()=>{$('mediaPlayer').hidden=true;$('mediaStage').innerHTML='';$('mediaControls').innerHTML=''};$('youtubeConnectBtn').onclick=conectarYouTube;$('youtubeUploadBtn').onclick=subir;$('form').onsubmit=e=>{e.preventDefault();enviar()};recibirSesionGitHub();render();initGithubSession();sesion();actualizarGitHub();
+githubModeInit();$('mediaClose').onclick=()=>{$('mediaPlayer').hidden=true;$('mediaStage').innerHTML='';$('mediaControls').innerHTML=''};$('youtubeConnectBtn').onclick=conectarYouTube;$('youtubeUploadBtn').onclick=subir;$('form').onsubmit=e=>{e.preventDefault();enviar()};recibirSesionGitHub();render();sesion();githubCheck();
 </script></body></html>
