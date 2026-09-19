@@ -1,6 +1,6 @@
 import crypto from "node:crypto";
 function verifySession(value) {
-  const secret = process.env.GITHUB_CLIENT_SECRET;
+  const secret = process.env.AUTH_GITHUB_SESSION_SECRET;
   if (!secret || !value) return null;
   const parts = value.split(".");
   if (parts.length !== 2) return null;
@@ -15,7 +15,7 @@ function cookie(name, value, maxAge) {
   return name + "=" + encodeURIComponent(value) + "; Max-Age=" + maxAge + "; Path=/; HttpOnly; Secure; SameSite=Lax";
 }
 export default async function handler(req, res) {
-  const session = verifySession(req.query?.session || "");
+  const body = typeof req.body === "string" ? JSON.parse(req.body || "{}") : (req.body || {});\n  const session = verifySession(body.session || "");
   if (!session) return res.status(401).json({ error: "Sesión de GitHub no válida o caducada." });
   res.setHeader("Set-Cookie", cookie("github_token", session.token, 3600));
   res.json({ ok: true, login: session.login, permission: session.permission || "read" });
