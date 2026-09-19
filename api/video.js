@@ -27,14 +27,14 @@ export default async function handler(req) {
       model: "alibaba/wan-v3.0-video",
       prompt,
       aspectRatio: "9:16",
-      duration: 8,
+      duration: 5,
       providerOptions: {
-        alibaba: { pollTimeoutMs: 600000 }
+        alibaba: { pollTimeoutMs: 55000 }
       }
     });
 
     const video = result.videos?.[0]?.uint8Array;
-    if (!video) throw new Error("El modelo no devolvió ningún vídeo.");
+    if (!video) throw new Error("El modelo no devolvió ningún vídeo antes del límite de tiempo.");
 
     const blob = await put("videos/soyperrito-" + Date.now() + ".mp4", video, {
       access: "public",
@@ -43,7 +43,7 @@ export default async function handler(req) {
       addRandomSuffix: true
     });
 
-    return Response.json({ ok: true, url: blob.url, model: "alibaba/wan-v3.0-video" });
+    return Response.json({ ok: true, url: blob.url, model: "alibaba/wan-v3.0-video", duration: 5 });
   } catch (error) {
     console.error(error);
     return Response.json({ error: error?.message || "No se pudo generar el vídeo." }, { status: 500 });
