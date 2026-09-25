@@ -79,7 +79,10 @@ function disconnectGithub(){githubSession='';githubLogin='';sessionStorage.remov
 function render(){const pos=$('chat').scrollTop;$('chat').innerHTML='';if(!historial.length){msg('¡Hola! 🐶 Tus chats se guardan automáticamente en este dispositivo.','ai')}else historial.forEach(m=>msg(m.content,m.role==='user'?'user':'ai'));$('chat').scrollTop=pos;requestAnimationFrame(()=>{$('chat').scrollTop=pos})}
 function norm(v){return String(v||'').trim().toLowerCase().replace(/[^a-z0-9_.-]/g,'').slice(0,30)}
 async function api(url,opt={}){const r=await fetch(url,opt),d=await r.json().catch(()=>({}));if(!r.ok)throw Error(d.error||'Error del servidor.');return d}
-function getAccounts(){try{const raw=localStorage.getItem('sp_accounts_v1');if(!raw)return {};const a=JSON.parse(raw);return a&&typeof a==='object'&&!Array.isArray(a)?a:{}}catch(e){return {}}}
+function safeGet(key,fallback=null){try{return localStorage.getItem(key)??fallback}catch(e){return fallback}}
+function safeSet(key,value){try{localStorage.setItem(key,value);return true}catch(e){return false}}
+function safeRemove(key){try{localStorage.removeItem(key);return true}catch(e){return false}}
+function getAccounts(){try{const raw=safeGet('sp_accounts_v1','');if(!raw)return {};const a=JSON.parse(raw);return a&&typeof a==='object'&&!Array.isArray(a)?a:{}}catch(e){return {}}}
 async function hashPassword(password){const data=new TextEncoder().encode(password);if(globalThis.crypto?.subtle){const hash=await crypto.subtle.digest('SHA-256',data);return Array.from(new Uint8Array(hash)).map(x=>x.toString(16).padStart(2,'0')).join('')}let h=2166136261;for(const b of data){h^=b;h=Math.imul(h,16777619)}return 'fallback-'+(h>>>0).toString(16)}
 function saveAccounts(a){try{localStorage.setItem('sp_accounts_v1',JSON.stringify(a));return true}catch(e){throw Error('El navegador no permite guardar cuentas en este dispositivo. Activa el almacenamiento del sitio e inténtalo de nuevo.')}}
 function chatKey(){return 'sp_chats_'+usuarioActual}
