@@ -84,7 +84,7 @@ function safeSet(key,value){try{localStorage.setItem(key,value);return true}catc
 function safeRemove(key){try{localStorage.removeItem(key);return true}catch(e){return false}}
 function getAccounts(){try{const raw=safeGet('sp_accounts_v1','');if(!raw)return {};const a=JSON.parse(raw);return a&&typeof a==='object'&&!Array.isArray(a)?a:{}}catch(e){return {}}}
 async function hashPassword(password){const data=new TextEncoder().encode(password);if(globalThis.crypto?.subtle){const hash=await crypto.subtle.digest('SHA-256',data);return Array.from(new Uint8Array(hash)).map(x=>x.toString(16).padStart(2,'0')).join('')}let h=2166136261;for(const b of data){h^=b;h=Math.imul(h,16777619)}return 'fallback-'+(h>>>0).toString(16)}
-function saveAccounts(a){try{localStorage.setItem('sp_accounts_v1',JSON.stringify(a));return true}catch(e){throw Error('El navegador no permite guardar cuentas en este dispositivo. Activa el almacenamiento del sitio e inténtalo de nuevo.')}}
+function saveAccounts(a){if(!safeSet('sp_accounts_v1',JSON.stringify(a)))throw Error('El navegador no permite guardar cuentas en este dispositivo. Activa el almacenamiento del sitio e inténtalo de nuevo.')}
 function chatKey(){return 'sp_chats_'+usuarioActual}
 function loadLocalChats(){try{const d=JSON.parse(localStorage.getItem(chatKey())||'[]');return Array.isArray(d)?d:[]}catch{return []}}
 function saveLocalChats(){localStorage.setItem(chatKey(),JSON.stringify(chats.slice(0,30).map(c=>({id:c.id,title:c.title,messages:c.messages.slice(-80)}))))}
@@ -101,12 +101,12 @@ async function auth(action){
   } else if(action==='login'){
    if(!accounts[u]||accounts[u].hash!==hash)return $('authMsg').textContent='❌ Nombre o contraseña incorrectos.';
   } else return;
-  try{localStorage.setItem('sp_session_v1',u)}catch(e){return $('authMsg').textContent='❌ No se pudo guardar la sesión en este dispositivo.'}
+  if(!safeSet('sp_session_v1',u))return $('authMsg').textContent='❌ No se pudo guardar la sesión en este dispositivo.'
   await activar(u);
  }catch(e){$('authMsg').textContent='❌ '+(e?.message||'No se pudo completar la operación.')}
 }
 async function activar(u){usuarioActual=u;nombreActual=u;$('userName').value=u;$('userName').disabled=true;$('userPass').value='';$('registerBtn').hidden=true;$('loginBtn').hidden=true;$('logoutBtn').hidden=false;$('authMsg').textContent='';$('estado').textContent='🟢 '+u+' · chats guardados';await cargarChats();}
-function sesion(){const u=localStorage.getItem('sp_session_v1');if(u&&getAccounts()[u])activar(u);else render()}
+function sesion(){const u=safeGet('sp_session_v1','');if(u&&getAccounts()[u])activar(u);else render()}
 function cargarChats(){
  chats=loadLocalChats();
  if(!chats.length){chats=[{id:'chat-'+Date.now(),title:'Nuevo chat',messages:[]}];saveLocalChats()}
@@ -164,7 +164,7 @@ async function githubWrite(){
 }
 function abrirModoGitHub(){if(!githubSession)return githubConnect();$('githubMode').hidden=!$('githubMode').hidden;githubCheck();}
 
-$('registerBtn').onclick=()=>auth('register');$('loginBtn').onclick=()=>auth('login');$('logoutBtn').onclick=()=>{localStorage.removeItem('sp_session_v1');location.reload()};$('nuevoChatBtn').onclick=nuevo;$('chatSelect').onchange=async e=>{chatId=e.target.value;await cargarActual()};$('verificaBtn').onclick=verificarArchivo;$('imagenBtn').onclick=crearImagen;$('generateVideoBtn').onclick=crearVideo;$('randomVideoBtn').onclick=generarIdeaVideo;$('videojuegosBtn').onclick=()=>{$('videojuegosMenu').hidden=!$('videojuegosMenu').hidden};$('robloxBtn').onclick=()=>open('https://www.roblox.com/','_blank');$('fortniteBtn').onclick=()=>open('https://www.fortnite.com/','_blank');$('githubBtn').onclick=abrirModoGitHub;$('githubOpenBtn').onclick=()=>open('https://github.com/SoyPerritoYT/soyperritoproproyt-iaoficial','_blank');$('githubReadBtn').onclick=githubRead;$('githubWriteBtn').onclick=githubWrite;
+$('registerBtn').onclick=()=>auth('register');$('loginBtn').onclick=()=>auth('login');$('logoutBtn').onclick=()=>{safeRemove('sp_session_v1');location.reload()};$('nuevoChatBtn').onclick=nuevo;$('chatSelect').onchange=async e=>{chatId=e.target.value;await cargarActual()};$('verificaBtn').onclick=verificarArchivo;$('imagenBtn').onclick=crearImagen;$('generateVideoBtn').onclick=crearVideo;$('randomVideoBtn').onclick=generarIdeaVideo;$('videojuegosBtn').onclick=()=>{$('videojuegosMenu').hidden=!$('videojuegosMenu').hidden};$('robloxBtn').onclick=()=>open('https://www.roblox.com/','_blank');$('fortniteBtn').onclick=()=>open('https://www.fortnite.com/','_blank');$('githubBtn').onclick=abrirModoGitHub;$('githubOpenBtn').onclick=()=>open('https://github.com/SoyPerritoYT/soyperritoproproyt-iaoficial','_blank');$('githubReadBtn').onclick=githubRead;$('githubWriteBtn').onclick=githubWrite;
 async function githubModeInit(){
   const hash=location.hash.startsWith('#github_token=')?decodeURIComponent(location.hash.slice('#github_token='.length)):'';
   if(hash){sessionStorage.setItem('sp_github_session',hash);history.replaceState(null,'',location.pathname+location.search);}
