@@ -178,7 +178,6 @@ async function githubWrite(){
 }
 function abrirModoGitHub(){if(!githubSession)return githubConnect();$('githubMode').hidden=!$('githubMode').hidden;githubCheck();}
 
-<script>
 let ultimaOpenAIApp='';
 function abrirModoOpenAIApp(){
   if(!usuarioActual)return msg('🔐 Inicia sesión primero.','ai');
@@ -215,7 +214,6 @@ function descargarOpenAIApp(){
 $('openaiAppBtn').onclick=abrirModoOpenAIApp;
 $('openaiCreateBtn').onclick=crearOpenAIApp;
 $('openaiDownloadBtn').onclick=descargarOpenAIApp;
-</script>
 $('registerBtn').onclick=()=>auth('register');$('loginBtn').onclick=()=>auth('login');$('logoutBtn').onclick=()=>{safeRemove('sp_session_v1');location.reload()};$('nuevoChatBtn').onclick=nuevo;$('chatSelect').onchange=async e=>{chatId=e.target.value;await cargarActual()};$('verificaBtn').onclick=verificarArchivo;$('imagenBtn').onclick=crearImagen;$('generateVideoBtn').onclick=crearVideo;$('randomVideoBtn').onclick=generarIdeaVideo;$('videojuegosBtn').onclick=()=>{$('videojuegosMenu').hidden=!$('videojuegosMenu').hidden};$('robloxBtn').onclick=()=>open('https://www.roblox.com/','_blank');$('fortniteBtn').onclick=()=>open('https://www.fortnite.com/','_blank');$('githubBtn').onclick=abrirModoGitHub;$('githubOpenBtn').onclick=()=>open('https://github.com/SoyPerritoYT/soyperritoproproyt-iaoficial','_blank');$('githubReadBtn').onclick=githubRead;$('githubWriteBtn').onclick=githubWrite;
 async function githubModeInit(){
   const hash=location.hash.startsWith('#github_token=')?decodeURIComponent(location.hash.slice('#github_token='.length)):'';
