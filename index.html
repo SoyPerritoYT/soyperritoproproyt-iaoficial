@@ -46,7 +46,19 @@ button{border:0;border-radius:10px;padding:10px 14px;font-weight:bold;cursor:poi
 <div id="videoGeneratorMsg" class="msginfo"></div>
 </div>
 
-<div class="tools"><button id="imagenBtn">🖼️ Crear imagen</button></div>
+<div class="tools"><button id="imagenBtn">🖼️ Crear imagen</button></div><div class="tools">
+<button id="worldBtn">🌍 Crear mundo de Minecraft</button>
+<div id="worldPanel" class="panel" hidden>
+<select id="worldEdition"><option value="bedrock">🟩 Minecraft Bedrock (.mcworld)</option><option value="java">🟫 Minecraft Java (.zip)</option></select>
+<input id="worldName" maxlength="80" placeholder="Nombre del mundo">
+<input id="worldSeed" maxlength="30" placeholder="Semilla (opcional)">
+<select id="worldMode"><option value="survival">🎮 Supervivencia</option><option value="creative">🧱 Creativo</option></select>
+<textarea id="worldPrompt" rows="4" maxlength="2000" placeholder="Describe tu mundo: por ejemplo, una isla con un castillo y una aldea..."></textarea>
+<button id="worldCreateBtn">✨ Generar mundo</button>
+<div id="worldMsg" class="msginfo"></div>
+</div>
+</div>
+
 <div class="tools">
 <button id="pcBtn">💻 Abrir PC Digital</button>
 <div id="pcPanel" class="pcbox" hidden>
@@ -142,6 +154,7 @@ try{
  $('pcOut').textContent=(d.output||'')+'\nCódigo: '+d.exitCode;
 }catch(e){$('pcOut').textContent='❌ '+e.message}finally{$('pcSendBtn').disabled=false}}
 function refrescarPC(){const f=$('pcFrame');if(f.src)f.src=f.src}
+async function crearMundo(){const prompt=$('worldPrompt').value.trim();if(!prompt)return $('worldMsg').textContent='✍️ Describe el mundo que quieres crear.';$('worldCreateBtn').disabled=true;$('worldMsg').textContent='🌍 Generando mundo...';try{const d=await api('/api/minecraft-world',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({edition:$('worldEdition').value,name:$('worldName').value.trim()||'Mundo SoyPerrito',seed:$('worldSeed').value.trim(),mode:$('worldMode').value,prompt})});if(!d.url)throw Error('El servidor no devolvió el archivo del mundo.');const a=document.createElement('a');a.href=d.url;a.download=d.filename||($('worldEdition').value==='bedrock'?'mundo.mcworld':'mundo.zip');a.textContent='⬇️ Descargar mundo';a.style.display='inline-block';a.style.marginTop='8px';$('worldMsg').innerHTML='✅ Mundo generado: ';$('worldMsg').appendChild(a)}catch(e){$('worldMsg').textContent='❌ '+e.message}finally{$('worldCreateBtn').disabled=false}}
 async function crearImagen(){const p=prompt('¿Qué imagen quieres crear?');if(!p)return;$('imagenBtn').disabled=true;$('mediaResult').textContent='🖼️ Creando...';try{const img=await puter.ai.txt2img(p,{model:'gpt-image-2'});$('mediaResult').innerHTML='';$('mediaResult').appendChild(img)}catch(e){$('mediaResult').textContent='❌ No se pudo crear la imagen.'}finally{$('imagenBtn').disabled=false}}
 
 function abrirOpenAI(){if(!usuarioActual)return msg('🔐 Inicia sesión primero.');$('openaiAppPanel').hidden=!$('openaiAppPanel').hidden}
@@ -159,7 +172,7 @@ $('chatSelect').onchange=()=>{chatId=$('chatSelect').value;cargarActual()};
 $('form').onsubmit=e=>{e.preventDefault();enviar()};
 $('randomVideoBtn').onclick=generarIdea;
 $('generateVideoBtn').onclick=generarVideo;
-$('imagenBtn').onclick=crearImagen;
+$('imagenBtn').onclick=crearImagen;$('worldBtn').onclick=()=>{$('worldPanel').hidden=!$('worldPanel').hidden};$('worldCreateBtn').onclick=crearMundo;
 $('pcBtn').onclick=abrirPC;
 $('pcSendBtn').onclick=ejecutarPC;
 $('pcRefreshBtn').onclick=refrescarPC;
