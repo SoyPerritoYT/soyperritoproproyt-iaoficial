@@ -44,6 +44,43 @@ export default async function handler(req, res) {
       return res.status(200).json({ url });
     }
 
+    if (action === 'natural') {
+      if (typeof command !== 'string' || !command.trim()) {
+        return res.status(400).json({ error: 'Falta la instrucción.' });
+      }
+      const key = process.env.GEMINI_API_KEY;
+      if (!key) return res.status(500).json({ error: 'GEMINI_API_KEY no está configurada en Vercel.' });
+
+      const instruction = command.trim();
+      const system = `Eres el controlador seguro de un PC Linux XFCE. Convierte una instrucción en español en UN SOLO comando shell que use únicamente estas acciones: echo, pwd, ls, cd, mkdir, touch, cat, python3, node, npm, git, xdotool, xterm. No uses sudo, rm, shutdown, reboot, passwd, curl, wget, apt, chmod ni pipes para descargar/ejecutar código. Para abrir una terminal usa xterm. Para acciones gráficas usa xdotool. Devuelve SOLO el comando, sin markdown ni explicaciones.`;
+
+      const rr = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent', {
+        method:'POST',
+        headers:{'Content-Type':'application/json','x-goog-api-key':key},
+        body:JSON.stringify({
+          system_instruction:{parts:[{text:system}]},
+          contents:[{role:'user',parts:[{text:instruction}]}],
+          generationConfig:{maxOutputTokens:300,temperature:0}
+        })
+      });
+      const data=await rr.json().catch(()=>({}));
+      if(!rr.ok) return res.status(rr.status).json({error:data.error?.message||'No se pudo interpretar la instrucción.'});
+      const generated=data.candidates?.[0]?.content?.parts?.map(p=>p.text||'').join('').trim().replace(/^\`+|\`+$/g,'');
+      if(!generated) return res.status(500).json({error:'La IA no devolvió ningún comando.'});
+
+      const allowed = /^(echo |pwd$|ls( |$)|cd |mkdir |touch |cat |python3? |node |npm |git |xdotool |xterm( |$))/;
+      const blocked = /(rm\\s+-rf|mkfs|dd\\s+if=|shutdown|reboot|passwd|sudo|apt|curl|wget|\\|.*sh)/i;
+      if(!allowed.test(generated) || blocked.test(generated)) {
+        return res.status(400).json({error:'La instrucción generó una acción no permitida.'});
+      }
+      const result = await sandbox.runCommand({cmd:'bash',args:['-lc',generated],timeout:30000});
+      return res.status(200).json({
+        command: generated,
+        output: ((await result.stdout()) + (await result.stderr())).slice(-12000),
+        exitCode: result.exitCode
+      });
+    }
+
     if (action === 'command') {
       if (typeof command !== 'string' || !command.trim()) {
         return res.status(400).json({ error: 'Falta el comando.' });
