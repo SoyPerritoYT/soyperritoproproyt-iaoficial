@@ -18,6 +18,11 @@ button{border:0;border-radius:10px;padding:10px 14px;font-weight:bold;cursor:poi
 .media{padding:14px;background:#111113;border-top:1px solid #333}.media video,.media img{display:block;max-width:100%;margin:auto;border-radius:12px}.media video{width:min(100%,760px);max-height:520px;background:#000}
 .panel{width:100%;display:grid;gap:8px}.panel textarea{width:100%;font-family:monospace}.hint{text-align:center;color:#777;font-size:12px;padding:8px}
 @media(max-width:560px){.auth input,.auth button,.tools button,.tools input,.tools textarea,.tools select{width:100%}}
+
+.pcbox{padding:14px;background:#0c0c0f;border-top:1px solid #333}
+.pcbox iframe{display:block;width:100%;height:min(70vh,720px);min-height:420px;border:0;border-radius:12px;background:#000}
+.pcbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}.pcbar input{flex:1;min-width:180px}
+.pcbar input,.pcbar button{padding:10px;border-radius:10px;border:0;background:#333;color:#fff}.pcout{white-space:pre-wrap;color:#aaa;font:12px monospace;margin-top:8px}
 </style>
 </head>
 <body>
@@ -42,6 +47,18 @@ button{border:0;border-radius:10px;padding:10px 14px;font-weight:bold;cursor:poi
 </div>
 
 <div class="tools"><button id="imagenBtn">🖼️ Crear imagen</button></div>
+<div class="tools">
+<button id="pcBtn">💻 Abrir PC Digital</button>
+<div id="pcPanel" class="pcbox" hidden>
+<div class="pcbar">
+<input id="pcInstruction" maxlength="500" placeholder="Escribe qué quieres hacer en el PC...">
+<button id="pcSendBtn">▶️ Ejecutar</button>
+<button id="pcRefreshBtn">🔄 Reiniciar vista</button>
+</div>
+<iframe id="pcFrame" title="PC Digital"></iframe>
+<div id="pcOut" class="pcout"></div>
+</div>
+</div>
 <div id="mediaResult" class="media"></div>
 
 <div class="tools">
@@ -111,6 +128,20 @@ try{const d=await api('/api/gemini',{method:'POST',headers:{'Content-Type':'appl
 const ideas=['Un perrito gamer blanco gana una carrera de karts futurista.','Un perrito descubre una sala secreta llena de máquinas arcade.','Un perrito gamer lucha contra un robot gigante en una arena digital.','Un perrito viaja al espacio en una nave llena de videojuegos.'];
 function generarIdea(){$('videoPrompt').value=ideas[Math.floor(Math.random()*ideas.length)];$('videoGeneratorMsg').textContent='🎲 Idea lista.'}
 async function generarVideo(){const p=$('videoPrompt').value.trim();if(!p)return $('videoGeneratorMsg').textContent='✍️ Escribe una idea.';$('generateVideoBtn').disabled=true;$('videoGeneratorMsg').textContent='🎬 Generando vídeo...';$('mediaResult').textContent='⏳ Creando MP4...';try{const d=await api('/api/video',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:p})});const url=d.url||d.videoUrl||d.video_url;if(!url)throw Error('El servidor no devolvió una URL de vídeo.');ultimoVideoUrl=url;const v=document.createElement('video');v.src=url;v.controls=true;v.playsInline=true;$('mediaResult').innerHTML='';$('mediaResult').appendChild(v);$('youtubeUploadBtn').disabled=!youtubeAccessToken;$('videoGeneratorMsg').textContent='✅ Vídeo creado.'}catch(e){$('mediaResult').textContent='❌ '+e.message;$('videoGeneratorMsg').textContent='❌ No se pudo generar.'}finally{$('generateVideoBtn').disabled=false}}
+
+async function abrirPC(){const panel=$('pcPanel');panel.hidden=false;$('pcBtn').disabled=true;$('pcOut').textContent='💻 Iniciando PC digital...';try{const d=await api('/api/pc',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'open'})});$('pcFrame').src=d.url;$('pcOut').textContent='✅ PC digital lista. Puedes usar el escritorio desde aquí.'}catch(e){$('pcOut').textContent='❌ '+e.message}finally{$('pcBtn').disabled=false}}
+async function ejecutarPC(){const q=$('pcInstruction').value.trim();if(!q)return;
+$('pcSendBtn').disabled=true;$('pcOut').textContent='🤖 Preparando acción...';
+try{
+ const d=await api('/api/gemini',{method:'POST',headers:{'Content-Type':'application/json'},body:{message:''}});
+}catch{}
+try{
+ const command=prompt('Para el PC digital, escribe un comando sencillo (por ejemplo: xterm, ls o pwd):',q);
+ if(!command)return;
+ const d=await api('/api/pc',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'command',command})});
+ $('pcOut').textContent=(d.output||'')+'\nCódigo: '+d.exitCode;
+}catch(e){$('pcOut').textContent='❌ '+e.message}finally{$('pcSendBtn').disabled=false}}
+function refrescarPC(){const f=$('pcFrame');if(f.src)f.src=f.src}
 async function crearImagen(){const p=prompt('¿Qué imagen quieres crear?');if(!p)return;$('imagenBtn').disabled=true;$('mediaResult').textContent='🖼️ Creando...';try{const img=await puter.ai.txt2img(p,{model:'gpt-image-2'});$('mediaResult').innerHTML='';$('mediaResult').appendChild(img)}catch(e){$('mediaResult').textContent='❌ No se pudo crear la imagen.'}finally{$('imagenBtn').disabled=false}}
 
 function abrirOpenAI(){if(!usuarioActual)return msg('🔐 Inicia sesión primero.');$('openaiAppPanel').hidden=!$('openaiAppPanel').hidden}
@@ -129,6 +160,9 @@ $('form').onsubmit=e=>{e.preventDefault();enviar()};
 $('randomVideoBtn').onclick=generarIdea;
 $('generateVideoBtn').onclick=generarVideo;
 $('imagenBtn').onclick=crearImagen;
+$('pcBtn').onclick=abrirPC;
+$('pcSendBtn').onclick=ejecutarPC;
+$('pcRefreshBtn').onclick=refrescarPC;
 $('openaiAppBtn').onclick=abrirOpenAI;
 $('openaiCreateBtn').onclick=crearOpenAI;
 $('openaiDownloadBtn').onclick=descargarOpenAI;
