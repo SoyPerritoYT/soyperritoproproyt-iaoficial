@@ -5,6 +5,13 @@
   "dependencies": {
     "ai": "latest",
     "@vercel/blob": "latest",
-    "@vercel/sandbox": "latest"
+    "@vercel/sandbox": "latest",
+    "prismarine-world": "^3.7.0",
+    "prismarine-provider-anvil": "^2.13.0",
+    "prismarine-chunk": "^1.38.1",
+    "prismarine-registry": "^1.1.0",
+    "prismarine-block": "^1.20.0",
+    "prismarine-nbt": "^2.8.0",
+    "archiver": "^7.0.1"
   }
 }
