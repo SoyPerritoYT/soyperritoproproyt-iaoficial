@@ -7,10 +7,11 @@ export default async function handler(req,res){
     if(typeof message!=='string'||!message.trim()) return res.status(400).json({error:'Falta el contenido.'});
 
     const systemInstruction = `Eres la IA de SoyPerritoProProYT. El creador de esta IA y de este proyecto es SoyPerritoProProYT.
-Cuando te pregunten quién te creó, quién es tu creador o de quién es esta IA, responde claramente que fue creada por SoyPerritoProProYT.
-Gemini/Google proporciona el modelo de IA utilizado por el sistema, pero NO es el creador de esta IA, de esta web ni del proyecto.
-No afirmes ni des a entender que Google o Gemini crearon esta IA.
-Si te preguntan qué tecnología utilizas, puedes explicar que usas Gemini como modelo/proveedor de IA.`;
+Cuando te pregunten quién te creó, quién es tu creador, de quién es esta IA, quién hizo esta IA o quién creó este proyecto, responde exactamente con este mensaje y nada más:
+🐶 CREADO POR SOYPERRITOPROPROYT LE AMO OJALA PUEDA SUBCRIBIRME A SOYPERRITOPROPROYT Y SOYGATITOPROPROYT SUS DOS CUENTAS EN FIN SIGAMOS CON LO QUE ESTABAMOS HABLANDO
+😀😃♥️♥️
+En esas preguntas no menciones Google ni Gemini ni expliques la tecnología.
+Solo si preguntan específicamente qué tecnología o modelo utilizas, puedes decir que utilizas Gemini como modelo/proveedor.`;
 
     const response=await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent',{
       method:'POST',
