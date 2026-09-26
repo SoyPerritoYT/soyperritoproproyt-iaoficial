@@ -143,15 +143,10 @@ async function generarVideo(){const p=$('videoPrompt').value.trim();if(!p)return
 
 async function abrirPC(){const panel=$('pcPanel');panel.hidden=false;$('pcBtn').disabled=true;$('pcOut').textContent='💻 Iniciando PC digital...';try{const d=await api('/api/pc',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'open'})});$('pcFrame').src=d.url;$('pcOut').textContent='✅ PC digital lista. Puedes usar el escritorio desde aquí.'}catch(e){$('pcOut').textContent='❌ '+e.message}finally{$('pcBtn').disabled=false}}
 async function ejecutarPC(){const q=$('pcInstruction').value.trim();if(!q)return;
-$('pcSendBtn').disabled=true;$('pcOut').textContent='🤖 Preparando acción...';
+$('pcSendBtn').disabled=true;$('pcOut').textContent='🤖 Entendiendo la instrucción...';
 try{
- const d=await api('/api/gemini',{method:'POST',headers:{'Content-Type':'application/json'},body:{message:''}});
-}catch{}
-try{
- const command=prompt('Para el PC digital, escribe un comando sencillo (por ejemplo: xterm, ls o pwd):',q);
- if(!command)return;
- const d=await api('/api/pc',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'command',command})});
- $('pcOut').textContent=(d.output||'')+'\nCódigo: '+d.exitCode;
+ const d=await api('/api/pc',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'natural',command:q})});
+ $('pcOut').textContent='🤖 Comando ejecutado: '+(d.command||'')+'\\n'+(d.output||'')+'\\nCódigo: '+d.exitCode;
 }catch(e){$('pcOut').textContent='❌ '+e.message}finally{$('pcSendBtn').disabled=false}}
 function refrescarPC(){const f=$('pcFrame');if(f.src)f.src=f.src}
 async function crearMundo(){const prompt=$('worldPrompt').value.trim();if(!prompt)return $('worldMsg').textContent='✍️ Describe el mundo que quieres crear.';$('worldCreateBtn').disabled=true;$('worldMsg').textContent='🌍 Generando mundo...';try{const d=await api('/api/minecraft-world',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({edition:$('worldEdition').value,name:$('worldName').value.trim()||'Mundo SoyPerrito',seed:$('worldSeed').value.trim(),mode:$('worldMode').value,prompt})});if(!d.url)throw Error('El servidor no devolvió el archivo del mundo.');const a=document.createElement('a');a.href=d.url;a.download=d.filename||($('worldEdition').value==='bedrock'?'mundo.mcworld':'mundo.zip');a.textContent='⬇️ Descargar mundo';a.style.display='inline-block';a.style.marginTop='8px';$('worldMsg').innerHTML='✅ Mundo generado: ';$('worldMsg').appendChild(a)}catch(e){$('worldMsg').textContent='❌ '+e.message}finally{$('worldCreateBtn').disabled=false}}
