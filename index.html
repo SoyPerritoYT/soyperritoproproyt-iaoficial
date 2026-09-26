@@ -1,221 +1,1376 @@
-<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>SoyPerritoProProYT.IAOFICIAL</title>
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SoyPerritoProProYT.IAOFICIAL</title>
+
 <style>
-*{box-sizing:border-box}body{margin:0;background:#101012;color:#fff;font-family:Arial,sans-serif}.app{width:min(820px,100%);min-height:100vh;margin:auto;background:#18181b;display:flex;flex-direction:column}.top{padding:18px;text-align:center;background:#242428;border-bottom:1px solid #333}.top h1{margin:0;font-size:22px}.status{margin-top:6px;color:#aaa;font-size:13px}.auth{padding:12px;background:#202024;display:flex;gap:8px;flex-wrap:wrap;border-bottom:1px solid #333}.auth input{flex:1;min-width:130px;padding:11px;border:0;border-radius:10px;background:#333;color:#fff}.auth button,.tools button,.chatbar button,.form button{border:0;border-radius:10px;padding:10px 14px;font-weight:bold;cursor:pointer}.auth button:disabled,.tools button:disabled{opacity:.5}.msginfo{width:100%;font-size:12px;color:#aaa;white-space:pre-wrap}.chatbar{display:flex;gap:8px;padding:10px;background:#202024;border-bottom:1px solid #333}.chatbar select{flex:1;min-width:0;padding:10px;border:0;border-radius:10px;background:#333;color:#fff}.chat{flex:1;min-height:280px;padding:16px;overflow:auto}.msg{max-width:85%;padding:11px 14px;margin:8px 0;border-radius:14px;white-space:pre-wrap;line-height:1.4}.user{margin-left:auto;background:#315efb}.ai{margin-right:auto;background:#29292e}.tools{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap;padding:10px 12px;background:#202024;border-top:1px solid #333}.tools input,.tools textarea,.tools select{padding:10px;border:0;border-radius:10px;background:#333;color:#fff}.tools textarea{flex:1;min-width:220px}.menu{width:100%;display:flex;justify-content:flex-end;gap:8px}.media{padding:14px;background:#111113;border-top:1px solid #333}.media img,.media video{display:block;max-width:100%;margin-left:auto;border-radius:12px}.media video{width:min(100%,720px);max-height:430px;background:#000}.videoInfo{text-align:right;color:#aaa;font-size:12px;margin-top:8px}#mediaStage img{max-width:100%;max-height:520px;object-fit:contain}#mediaStage video{width:100%;max-width:760px;max-height:520px;background:#000}#mediaControls button{border:0;border-radius:10px;padding:9px 12px;cursor:pointer}#mediaControls input[type=range]{accent-color:#fff}.youtubeLink{display:inline-block;margin-top:8px;padding:9px 12px;border-radius:10px;background:#fff;color:#111;text-decoration:none;font-weight:bold}.hint{text-align:center;color:#777;font-size:12px;padding:8px}.form{display:flex;gap:8px;padding:12px;background:#242428;border-top:1px solid #333}.form input{flex:1;min-width:0;padding:13px;border:0;border-radius:12px;background:#333;color:#fff}.form button{background:#fff;color:#111}@media(max-width:560px){.auth input,.auth button,.tools button,.tools input,.tools textarea,.tools select,.menu button{width:100%}.tools,.menu{justify-content:stretch}}
-</style></head><body><div class="app">
-<header class="top"><h1>🐶 SoyPerritoProProYT.IAOFICIAL</h1><div class="status" id="estado">🔐 Crea una cuenta o inicia sesión</div></header>
-<div class="auth"><input id="userName" placeholder="Nombre de usuario" maxlength="30" autocomplete="username"><input id="userPass" type="password" placeholder="Contraseña (6+ caracteres)" maxlength="100" autocomplete="current-password"><button id="registerBtn">Crear cuenta</button><button id="loginBtn">Entrar</button><button id="logoutBtn" hidden>Cerrar sesión</button><div id="authMsg" class="msginfo"></div></div>
-<div class="chatbar"><select id="chatSelect" aria-label="Chats"><option>💬 Inicia sesión para ver tus chats</option></select><button id="nuevoChatBtn">➕ Nuevo chat</button></div>
-<main id="chat" class="chat"></main><div class="hint">Comandos: /ayuda · /perfil · /juegos · /ajustes · /limpiar · @verifica</div><input id="archivoVerificar" type="file" hidden accept=".txt,.md,.json,.js,.html,.css,.csv,.xml,.yaml,.yml,.mcfunction,.lua">
-<div class="tools" id="verificaTools"><button id="verificaBtn" type="button">📁 Elegir archivo</button></div>
-<div class="tools" id="videoGenerator"><div style="width:100%;display:flex;gap:8px;flex-wrap:wrap"><textarea id="videoPrompt" placeholder="✍️ Escribe qué vídeo quieres crear..." rows="3" maxlength="2000" style="flex:1;min-width:220px"></textarea><button id="randomVideoBtn" type="button">🎲 Idea aleatoria</button><button id="generateVideoBtn" type="button">🎬 Generar vídeo</button></div><div id="videoGeneratorMsg" class="msginfo"></div></div><div class="tools"><button id="imagenBtn">🖼️ Crear imagen</button></div>
-<div id="mediaResult" class="media" aria-live="polite"></div>
-<div id="mediaPlayer" class="media" hidden>
-  <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px">
-    <strong>📺 Reproductor multimedia</strong>
-    <button id="mediaClose" type="button" style="border:0;border-radius:10px;padding:8px 12px;cursor:pointer">✕</button>
-  </div>
-  <div id="mediaStage" style="display:grid;place-items:center;background:#050506;border-radius:12px;min-height:180px;overflow:hidden"></div>
-  <div id="mediaControls" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px"></div>
-</div>
-<div class="tools" id="openaiAppMode">
-  <button id="openaiAppBtn" type="button">🤖 Modo Crear App OpenAI</button>
-  <div id="openaiAppPanel" hidden style="width:100%;display:grid;gap:8px">
-    <strong>🛠️ Creador de apps con OpenAI</strong>
-    <input id="openaiAppName" placeholder="Nombre de la app" maxlength="80">
-    <textarea id="openaiAppPrompt" placeholder="Describe qué quieres que haga tu app..." rows="4" maxlength="4000"></textarea>
-    <div style="display:flex;gap:8px;flex-wrap:wrap">
-      <button id="openaiCreateBtn" type="button">✨ Crear app</button>
-      <button id="openaiDownloadBtn" type="button" disabled>⬇️ Descargar HTML</button>
-    </div>
-    <textarea id="openaiAppCode" placeholder="Aquí aparecerá el código generado..." rows="14" style="width:100%;font-family:monospace"></textarea>
-    <div id="openaiAppMsg" class="msginfo"></div>
-  </div>
-</div>
-<div class="tools"><button id="videojuegosBtn">🎮 Modo Videojuegos</button><div id="videojuegosMenu" class="menu" hidden><button id="robloxBtn">🟦 Roblox</button><button id="fortniteBtn">🟪 Fortnite</button></div></div>
-<div class="tools">
-<button id="githubBtn" type="button">🐙 Modo GitHub</button>
-<button id="githubOpenBtn" type="button">🌐 Abrir GitHub</button>
-<div id="githubMode" hidden style="width:100%;display:grid;gap:8px">
-  <div id="githubStatus" class="msginfo">🔐 GitHub no conectado.</div>
-  <div style="display:flex;gap:8px;flex-wrap:wrap">
-    <input id="githubPath" placeholder="Ruta del archivo, ej. index.html" maxlength="300" style="flex:1;min-width:220px">
-    <input id="githubMessage" placeholder="Mensaje del cambio" maxlength="120" style="flex:1;min-width:220px">
-  </div>
-  <textarea id="githubContent" placeholder="Contenido del archivo..." rows="10" maxlength="2097152" style="width:100%;padding:10px;border:0;border-radius:10px;background:#333;color:#fff"></textarea>
-  <div style="display:flex;gap:8px;flex-wrap:wrap">
-    <button id="githubReadBtn" type="button">📖 Leer archivo</button>
-    <button id="githubWriteBtn" type="button">💾 Guardar cambios</button>
-  </div>
-  <div id="githubMsg" class="msginfo"></div>
-</div>
-</div>
-<div class="tools"><button id="youtubeConnectBtn">🔗 Conectar YouTube</button><button id="youtubeUploadBtn" disabled>⬆️ Subir vídeo generado</button><input id="youtubeTitle" placeholder="Título del vídeo" maxlength="100"><textarea id="youtubeDescription" placeholder="Descripción" rows="2" maxlength="5000"></textarea><select id="youtubePrivacy"><option value="private">🔒 Privado</option><option value="unlisted">🔗 Oculto</option><option value="public">🌍 Público</option></select><div id="youtubeMsg" class="msginfo"></div></div>
-<form id="form" class="form"><input id="entrada" placeholder="Escribe algo..." maxlength="4000" autocomplete="off"><button id="enviar">Enviar</button></form>
-</div>
-<script src="https://js.puter.com/v2/"></script><script src="https://accounts.google.com/gsi/client" async defer></script><script>
-const $=id=>document.getElementById(id);let usuarioActual=null,nombreActual='',chats=[],chatId='',historial=[],youtubeAccessToken=null,githubConnected=false,githubPermission='read',githubLogin='';
-const YOUTUBE_CLIENT_ID='954824229147-uf1pv1ch0v052lv0tutaueb1nknc7j19.apps.googleusercontent.com',YOUTUBE_SCOPE='https://www.googleapis.com/auth/youtube.upload';
-function msg(t,r){const e=document.createElement('div');e.className='msg '+r;e.textContent=t;$('chat').appendChild(e);return e}
-function render(){const pos=$('chat').scrollTop;$('chat').innerHTML='';if(!historial.length){msg('¡Hola! 🐶 Tus chats se guardan automáticamente en este dispositivo.','ai')}else historial.forEach(m=>msg(m.content,m.role==='user'?'user':'ai'));$('chat').scrollTop=pos;requestAnimationFrame(()=>{$('chat').scrollTop=pos})}
-function norm(v){return String(v||'').trim().toLowerCase().replace(/[^a-z0-9_.-]/g,'').slice(0,30)}
-async function api(url,opt={}){const r=await fetch(url,opt),d=await r.json().catch(()=>({}));if(!r.ok)throw Error(d.error||'Error del servidor.');return d}
-function safeGet(key,fallback=null){try{return localStorage.getItem(key)??fallback}catch(e){return fallback}}
-function safeSet(key,value){try{localStorage.setItem(key,value);return true}catch(e){return false}}
-function safeRemove(key){try{localStorage.removeItem(key);return true}catch(e){return false}}
-function getAccounts(){try{const raw=safeGet('sp_accounts_v1','');if(!raw)return {};const a=JSON.parse(raw);return a&&typeof a==='object'&&!Array.isArray(a)?a:{}}catch(e){return {}}}
-async function hashPassword(password){const data=new TextEncoder().encode(password);if(globalThis.crypto?.subtle){const hash=await crypto.subtle.digest('SHA-256',data);return Array.from(new Uint8Array(hash)).map(x=>x.toString(16).padStart(2,'0')).join('')}let h=2166136261;for(const b of data){h^=b;h=Math.imul(h,16777619)}return 'fallback-'+(h>>>0).toString(16)}
-function saveAccounts(a){if(!safeSet('sp_accounts_v1',JSON.stringify(a)))throw Error('El navegador no permite guardar cuentas en este dispositivo. Activa el almacenamiento del sitio e inténtalo de nuevo.')}
-function chatKey(){return 'sp_chats_'+usuarioActual}
-function loadLocalChats(){try{const d=JSON.parse(localStorage.getItem(chatKey())||'[]');return Array.isArray(d)?d:[]}catch{return []}}
-function saveLocalChats(){localStorage.setItem(chatKey(),JSON.stringify(chats.slice(0,30).map(c=>({id:c.id,title:c.title,messages:c.messages.slice(-80)}))))}
-async function auth(action){
- $('authMsg').textContent='';
- try{
-  const u=norm($('userName').value),p=$('userPass').value;
-  if(u.length<3)return $('authMsg').textContent='❌ El usuario debe tener al menos 3 caracteres.';
-  if(p.length<6)return $('authMsg').textContent='❌ La contraseña debe tener al menos 6 caracteres.';
-  const accounts=getAccounts(),hash=await hashPassword(p);
-  if(action==='register'){
-   if(accounts[u])return $('authMsg').textContent='❌ Ese nombre ya existe.';
-   accounts[u]={hash,createdAt:Date.now()};saveAccounts(accounts);
-  } else if(action==='login'){
-   if(!accounts[u]||accounts[u].hash!==hash)return $('authMsg').textContent='❌ Nombre o contraseña incorrectos.';
-  } else return;
-  if(!safeSet('sp_session_v1',u))return $('authMsg').textContent='❌ No se pudo guardar la sesión en este dispositivo.'
-  await activar(u);
- }catch(e){$('authMsg').textContent='❌ '+(e?.message||'No se pudo completar la operación.')}
-}
-async function activar(u){usuarioActual=u;nombreActual=u;$('userName').value=u;$('userName').disabled=true;$('userPass').value='';$('registerBtn').hidden=true;$('loginBtn').hidden=true;$('logoutBtn').hidden=false;$('authMsg').textContent='';$('estado').textContent='🟢 '+u+' · chats guardados';await cargarChats();}
-async function sesion(){const u=safeGet('sp_session_v1','');if(u&&getAccounts()[u])await activar(u);else{ $('estado').textContent='🔐 Crea una cuenta o inicia sesión'; render(); }}
-function cargarChats(){
- chats=loadLocalChats();
- if(!chats.length){chats=[{id:'chat-'+Date.now(),title:'Nuevo chat',messages:[]}];saveLocalChats()}
- chatId=chats[0].id;selectChats();cargarActual()
-}
-function selectChats(){$('chatSelect').innerHTML='';chats.forEach(c=>{const o=document.createElement('option');o.value=c.id;o.textContent='💬 '+c.title;$('chatSelect').appendChild(o)});$('chatSelect').value=chatId}
-async function cargarActual(){const c=chats.find(x=>x.id===chatId);historial=Array.isArray(c?.messages)?c.messages.slice(-80):[];$('mediaResult').innerHTML='';render()}
-function guardar(){const c=chats.find(x=>x.id===chatId);if(!c)return;c.messages=historial.slice(-80);const first=historial.find(x=>x.role==='user');if(first&&c.title==='Nuevo chat')c.title=first.content.trim().slice(0,50)||'Nuevo chat';saveLocalChats();selectChats()}
-function nuevo(){if(!usuarioActual)return msg('🔐 Inicia sesión primero.','ai');const id='chat-'+Date.now();chats.unshift({id,title:'Nuevo chat',messages:[]});chatId=id;historial=[];selectChats();render();saveLocalChats()}
-function comando(t){if(t==='/ayuda')return'🐶 COMANDOS\n/ayuda · /perfil · /juegos · /ajustes · /limpiar';if(t==='/perfil')return'👤 Usuario: '+nombreActual+'\n💾 Chats: guardados en este dispositivo';if(t==='/juegos')return'🎮 Roblox · Fortnite · futuros proyectos';if(t==='/ajustes')return'⚙️ Cuenta y chats: sistema propio · IA: /api/chat';if(t==='/limpiar'){historial=[];guardar();render();return'🧹 Chat limpiado.'}}
-async function verificarArchivo(){if(!usuarioActual)return msg('🔐 Inicia sesión primero.','ai');const input=$('archivoVerificar');input.value='';input.click();input.onchange=async()=>{const f=input.files?.[0];if(!f)return;if(f.size>523*1024*1024)return msg('❌ El archivo es demasiado grande. Máximo 523 MB.','ai');try{historial.push({role:'user',content:'@verifica este archivo: '+f.name});render();await guardar();const e=msg('🔎 Detectando tipo de '+f.name+'...','ai');const head=await f.slice(0,16).arrayBuffer(),b=new Uint8Array(head);const hex=Array.from(b).map(x=>x.toString(16).padStart(2,'0')).join(' ');let tipo='archivo desconocido';if(b[0]===0x50&&b[1]===0x4b)tipo='ZIP/APK';else if(b[0]===0x25&&b[1]===0x50&&b[2]===0x44&&b[3]===0x46)tipo='PDF';else if(b[0]===0x89&&b[1]===0x50&&b[2]===0x4e&&b[3]===0x47)tipo='PNG';else if(b[0]===0xff&&b[1]===0xd8&&b[2]===0xff)tipo='JPEG';else if(b[0]===0x52&&b[1]===0x49&&b[2]===0x46&&b[3]===0x46)tipo='RIFF (WebP/AVI/WAV)';else if(b[0]===0x7f&&b[1]===0x45&&b[2]===0x4c&&b[3]===0x46)tipo='ELF';else if(b[0]===0x4d&&b[1]===0x5a)tipo='PE/EXE';else tipo='texto u otro formato';const sizeMB=(f.size/1024/1024).toFixed(2);const pedido='Eres el verificador de seguridad de SoyPerritoProProYT.IAOFICIAL. Analiza SOLO los datos que realmente recibas y NO inventes contenido.\n\nARCHIVO: '+f.name+'\nTAMAÑO: '+sizeMB+' MB\nTIPO DETECTADO POR CABECERA: '+tipo+'\nPRIMEROS BYTES (HEX): '+hex+'\n\nREGLAS IMPORTANTES:\n- Si es APK/ZIP/binario, NO afirmes que has inspeccionado AndroidManifest.xml, classes.dex, firma, permisos o el archivo completo si no se han recibido esos datos.\n- Si solo hay metadatos/cabecera, informa claramente: ANÁLISIS PARCIAL.\n- Nunca digas que un archivo es seguro al 100 %.\n- Explica qué se pudo comprobar y qué queda sin comprobar.\n- Si es un APK, indica que la cabecera ZIP es compatible con APK, pero que eso por sí solo no demuestra seguridad.\n- Si es texto/código, puedes analizar el contenido que se envíe y señalar errores o patrones sospechosos.\n\nDevuelve un informe breve con: estado (COMPLETO/PARCIAL), tipo, hallazgos, limitaciones y siguiente comprobación recomendada.';if(tipo==='texto u otro formato'&&f.size<=8*1024*1024){const text=await f.text();const d=await api('/api/gemini',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:pedido+'\n\nCONTENIDO REAL DEL ARCHIVO:\n'+text})});e.textContent=d.reply||'No se pudo obtener un resultado.'}else{const d=await api('/api/gemini',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:pedido})});e.textContent=d.reply||'No se pudo obtener un resultado.'}historial.push({role:'assistant',content:e.textContent});await guardar()}catch(x){msg('❌ No se pudo verificar el archivo: '+x.message,'ai')}}} async function enviar(){const t=$('entrada').value.trim();if(!t)return;if(!usuarioActual)return msg('🔐 Inicia sesión primero.','ai');if(/^@verifica\\b/i.test(t)){await verificarArchivo();$('entrada').value='';return}$('entrada').value='';historial.push({role:'user',content:t});render();await guardar();const c=comando(t);if(c){historial.push({role:'assistant',content:c});render();await guardar();return}$('enviar').disabled=true;$('entrada').disabled=true;const e=msg('Escribiendo...','ai');try{const d=await api('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:t,history:historial.slice(-12)})});e.textContent=d.reply||'Sin respuesta.';if(d.reply)historial.push({role:'assistant',content:d.reply});await guardar();$('estado').textContent='🟢 '+nombreActual+' · chats guardados'}catch(x){e.textContent='❌ '+x.message}finally{$('enviar').disabled=false;$('entrada').disabled=false;}}
-function mostrarMedia(el,tipo){const stage=$('mediaStage');stage.innerHTML='';$('mediaPlayer').hidden=false;if(tipo==='video'){el.controls=true;el.playsInline=true;el.autoplay=false;stage.appendChild(el);crearControlesVideo(el)}else{el.style.cursor='zoom-in';stage.appendChild(el);el.onclick=()=>el.style.maxWidth=el.style.maxWidth==='100%'?'180%':'100%';$('mediaControls').innerHTML='<span style="color:#aaa;font-size:12px">🖼️ Toca la imagen para ampliar/reducir.</span>'}}function crearControlesVideo(v){const c=$('mediaControls');c.innerHTML='';const b=document.createElement('button');b.textContent='▶️ / ⏸️';b.onclick=()=>v.paused?v.play():v.pause();const vol=document.createElement('input');vol.type='range';vol.min=0;vol.max=1;vol.step=.01;vol.value=v.volume;vol.title='Volumen';vol.oninput=()=>v.volume=Number(vol.value);const fs=document.createElement('button');fs.textContent='⛶ Pantalla completa';fs.onclick=()=>v.requestFullscreen?.();c.append(b,vol,fs)}async function crearImagen(){const p=prompt('¿Qué imagen quieres crear?');if(!p)return;$('imagenBtn').disabled=true;$('mediaResult').textContent='🖼️ Creando...';try{const img=await puter.ai.txt2img(p,{model:'gpt-image-2'});$('mediaResult').innerHTML='';$('mediaResult').appendChild(img);mostrarMedia(img,'image')}catch{$('mediaResult').textContent='❌ No se pudo crear la imagen.'}finally{$('imagenBtn').disabled=false}}
-const videoIdeas=['Un perrito gamer blanco compite en una carrera de karts futurista y celebra una victoria inesperada.','Un perrito blanco descubre una habitación secreta llena de máquinas arcade y tiene que superar un reto divertido.','Un perrito gamer intenta derrotar a un enorme robot en una arena digital llena de luces RGB.','Un perrito blanco viaja al espacio en una nave gamer y encuentra un planeta de videojuegos.','Un perrito gamer abre una tienda de videojuegos y todo se convierte en un caos divertido.'];function crearVideo(){const p=$('videoPrompt').value.trim();if(!p)return $('videoGeneratorMsg').textContent='✍️ Escribe una idea o pulsa 🎲 Idea aleatoria.';generarVideoConPrompt(p)}function generarIdeaVideo(){const p=videoIdeas[Math.floor(Math.random()*videoIdeas.length)];$('videoPrompt').value=p;$('videoGeneratorMsg').textContent='🎲 ¡Idea nueva! Puedes editarla antes de generar.'}async function generarVideoConPrompt(p){$('generateVideoBtn').disabled=true;$('randomVideoBtn').disabled=true;$('videoGeneratorMsg').textContent='🎬 Generando vídeo real...';$('mediaResult').textContent='🎬 Wan v3.0 está creando el MP4...';try{const d=await api('/api/video',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:p})});if(!d.url)throw Error(d.error||'No se recibió el vídeo.');const v=document.createElement('video');v.src=d.url;v.controls=true;v.playsInline=true;v.preload='metadata';$('mediaResult').innerHTML='';mostrarMedia(v,'video');const i=document.createElement('div');i.className='videoInfo';i.textContent='🎬 Vídeo real generado · Wan v3.0 Video · 8 s · 9:16';$('mediaResult').appendChild(i);$('videoGeneratorMsg').textContent='✅ ¡Vídeo creado!'}catch(e){$('mediaResult').textContent='❌ No se pudo crear el vídeo.';$('videoGeneratorMsg').textContent='❌ '+(e.message||'Error desconocido.')}finally{$('generateVideoBtn').disabled=false;$('randomVideoBtn').disabled=false}}async function conectarYouTube(){if(!google?.accounts?.oauth2)return $('youtubeMsg').textContent='❌ No se pudo cargar Google OAuth.';$('youtubeConnectBtn').disabled=true;$('youtubeMsg').textContent='Conectando con Google...';try{const c=google.accounts.oauth2.initTokenClient({client_id:YOUTUBE_CLIENT_ID,scope:YOUTUBE_SCOPE,callback:r=>{if(r.error)return $('youtubeMsg').textContent='❌ Google no autorizó la conexión.';youtubeAccessToken=r.access_token;$('youtubeUploadBtn').disabled=false;$('youtubeMsg').textContent='✅ YouTube conectado.'}});c.requestAccessToken({prompt:'consent'})}catch{$('youtubeMsg').textContent='❌ No se pudo conectar YouTube.'}finally{$('youtubeConnectBtn').disabled=false}}
-async function subir(){const v=$('mediaResult').querySelector('video');if(!youtubeAccessToken)return $('youtubeMsg').textContent='❌ Conecta YouTube primero.';if(!v?.src)return $('youtubeMsg').textContent='❌ Primero crea un vídeo con la IA.';$('youtubeUploadBtn').disabled=true;$('youtubeMsg').textContent='⬆️ Subiendo...';try{const b=await(await fetch(v.src)).blob(),title=($('youtubeTitle').value||'Vídeo de SoyPerritoProProYT').trim(),description=($('youtubeDescription').value||'Vídeo creado con SoyPerritoProProYT.IAOFICIAL').trim(),privacy=$('youtubePrivacy').value,meta={snippet:{title,description,categoryId:'20'},status:{privacyStatus:privacy}},boundary='----sp'+Date.now(),body=new Blob(['--'+boundary+'\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n',JSON.stringify(meta),'\r\n--'+boundary+'\r\nContent-Type: '+(b.type||'video/mp4')+'\r\n\r\n',b,'\r\n--'+boundary+'--\r\n']);const r=await fetch('https://www.googleapis.com/upload/youtube/v3/videos?part=snippet,status&uploadType=multipart',{method:'POST',headers:{Authorization:'Bearer '+youtubeAccessToken,'Content-Type':'multipart/related; boundary='+boundary},body}),d=await r.json().catch(()=>({}));if(!r.ok)throw Error(d.error?.message||'YouTube rechazó la subida.');$('youtubeMsg').innerHTML='✅ Vídeo subido. <a class="youtubeLink" target="_blank" rel="noopener" href="https://www.youtube.com/watch?v='+encodeURIComponent(d.id||'')+'">▶️ Ver en YouTube</a>'}catch(e){$('youtubeMsg').textContent='❌ '+e.message}finally{$('youtubeUploadBtn').disabled=false}}
+*{box-sizing:border-box}
 
-const GITHUB_AUTH_URL='https://soy-perrito-pro-pro-yt-iaoficial-au.vercel.app';
-const GITHUB_FILE_URL=GITHUB_AUTH_URL+'/api/github-file';
-let githubSession=sessionStorage.getItem('sp_github_session')||'';
-let githubLogin=sessionStorage.getItem('sp_github_login')||'';
-function githubConnect(){window.location.href=GITHUB_AUTH_URL+'/api/github-auth?action=login&permission=write';}
-async function githubCheck(){
-  const q=new URLSearchParams(location.search);
-  const session=q.get('github_session');
-  const login=q.get('github_login');
-  if(session){githubSession=session;sessionStorage.setItem('sp_github_session',session);history.replaceState({},'',location.pathname);}
-  if(login){githubLogin=login;sessionStorage.setItem('sp_github_login',login);}
-  if(!githubSession){$('githubStatus').textContent='🔐 GitHub no conectado. Pulsa “Modo GitHub” para autorizar.';return;}
-  try{
-    const r=await fetch(GITHUB_AUTH_URL+'/api/github-me',{credentials:'include',headers:{Authorization:'Bearer '+githubSession}});
-    const d=await r.json();
-    if(!d.connected)throw Error('La sesión de GitHub ha caducado.');
-    githubLogin=d.login||githubLogin;sessionStorage.setItem('sp_github_login',githubLogin);
-    $('githubStatus').textContent='🟢 GitHub conectado como @'+githubLogin+' · ✏️ escritura activa';
-    $('githubMode').hidden=false;
-  }catch(e){githubSession='';sessionStorage.removeItem('sp_github_session');$('githubMode').hidden=true;$('githubStatus').textContent='❌ '+e.message;}
+body{
+  margin:0;
+  background:#101012;
+  color:#fff;
+  font-family:Arial,sans-serif;
 }
-async function githubApi(action){
-  const path=$('githubPath').value.trim();
-  if(!githubSession)return $('githubMsg').textContent='🔐 Conecta GitHub primero.';
-  if(!path)return $('githubMsg').textContent='✍️ Escribe la ruta del archivo.';
-  const r=await fetch(GITHUB_FILE_URL,{method:'POST',credentials:'include',headers:{Authorization:'Bearer '+githubSession,'Content-Type':'application/json'},body:JSON.stringify({action,path,content:$('githubContent').value,message:$('githubMessage').value.trim()||'Actualización desde SoyPerritoProProYT.IAOFICIAL'})});
-  const d=await r.json().catch(()=>({}));if(!r.ok)throw Error(d.error||'Error de GitHub.');return d;
-}
-async function githubRead(){
-  if(!githubSession)return githubConnect();
-  const path=$('githubPath').value.trim();if(!path)return $('githubMsg').textContent='✍️ Escribe la ruta del archivo.';
-  $('githubReadBtn').disabled=true;$('githubMsg').textContent='📖 Leyendo archivo...';
-  try{const r=await fetch(GITHUB_FILE_URL,{method:'POST',credentials:'include',headers:{Authorization:'Bearer '+githubSession,'Content-Type':'application/json'},body:JSON.stringify({action:'read',path})});const d=await r.json();if(!r.ok)throw Error(d.error||'No se pudo leer.');$('githubContent').value=d.content||'';$('githubMsg').textContent='✅ '+d.path+' leído.';}catch(e){$('githubMsg').textContent='❌ '+e.message;}finally{$('githubReadBtn').disabled=false;}
-}
-async function githubWrite(){
-  if(!githubSession)return githubConnect();
-  const path=$('githubPath').value.trim();if(!path)return $('githubMsg').textContent='✍️ Escribe la ruta del archivo.';
-  $('githubWriteBtn').disabled=true;$('githubMsg').textContent='💾 Guardando en GitHub...';
-  try{const d=await githubApi('write');$('githubMsg').textContent='✅ Cambios guardados en '+d.path+'.';}catch(e){$('githubMsg').textContent='❌ '+e.message;}finally{$('githubWriteBtn').disabled=false;}
-}
-function abrirModoGitHub(){if(!githubSession)return githubConnect();$('githubMode').hidden=!$('githubMode').hidden;githubCheck();}
 
-let ultimaOpenAIApp='';
-function abrirModoOpenAIApp(){
-  if(!usuarioActual)return msg('🔐 Inicia sesión primero.','ai');
-  $('openaiAppPanel').hidden=!$('openaiAppPanel').hidden;
+.app{
+  width:min(820px,100%);
+  min-height:100vh;
+  margin:auto;
+  background:#18181b;
+  display:flex;
+  flex-direction:column;
 }
-async function crearOpenAIApp(){
-  if(!usuarioActual)return $('openaiAppMsg').textContent='🔐 Inicia sesión primero.';
-  const name=$('openaiAppName').value.trim()||'Mi App OpenAI';
-  const prompt=$('openaiAppPrompt').value.trim();
-  if(!prompt)return $('openaiAppMsg').textContent='✍️ Describe qué quieres que haga la app.';
-  $('openaiCreateBtn').disabled=true;$('openaiDownloadBtn').disabled=true;
-  $('openaiAppMsg').textContent='🤖 OpenAI está creando el código...';
-  try{
-    const d=await api('/api/create-openai-app',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({name,prompt})
-    });
-    ultimaOpenAIApp=d.code||'';
-    $('openaiAppCode').value=ultimaOpenAIApp;
-    $('openaiDownloadBtn').disabled=!ultimaOpenAIApp;
-    $('openaiAppMsg').textContent='✅ App creada. Revisa el código antes de usarlo.';
-  }catch(e){$('openaiAppMsg').textContent='❌ '+(e.message||'No se pudo crear la app.');}
-  finally{$('openaiCreateBtn').disabled=false;}
+
+.top{
+  padding:18px;
+  text-align:center;
+  background:#242428;
+  border-bottom:1px solid #333;
 }
-function descargarOpenAIApp(){
-  const code=$('openaiAppCode').value;
-  if(!code)return;
-  const name=(($('openaiAppName').value.trim()||'mi-app-openai').replace(/[^a-z0-9_-]/gi,'-').toLowerCase());
-  const blob=new Blob([code],{type:'text/html;charset=utf-8'});
-  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name+'.html';a.click();
-  setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+
+.top h1{
+  margin:0;
+  font-size:22px;
 }
-$('openaiAppBtn').onclick=abrirModoOpenAIApp;
-$('openaiCreateBtn').onclick=crearOpenAIApp;
-$('openaiDownloadBtn').onclick=descargarOpenAIApp;
-$('registerBtn').onclick=()=>auth('register');$('loginBtn').onclick=()=>auth('login');$('logoutBtn').onclick=()=>{safeRemove('sp_session_v1');location.reload()};$('nuevoChatBtn').onclick=nuevo;$('chatSelect').onchange=async e=>{chatId=e.target.value;await cargarActual()};$('verificaBtn').onclick=verificarArchivo;$('imagenBtn').onclick=crearImagen;$('generateVideoBtn').onclick=crearVideo;$('randomVideoBtn').onclick=generarIdeaVideo;$('videojuegosBtn').onclick=()=>{$('videojuegosMenu').hidden=!$('videojuegosMenu').hidden};$('robloxBtn').onclick=()=>open('https://www.roblox.com/','_blank');$('fortniteBtn').onclick=()=>open('https://www.fortnite.com/','_blank');$('githubBtn').onclick=abrirModoGitHub;$('githubOpenBtn').onclick=()=>open('https://github.com/SoyPerritoYT/soyperritoproproyt-iaoficial','_blank');$('githubReadBtn').onclick=githubRead;$('githubWriteBtn').onclick=githubWrite;
-async function githubModeInit(){
-  const hash=location.hash.startsWith('#github_token=')?decodeURIComponent(location.hash.slice('#github_token='.length)):'';
-  if(hash){sessionStorage.setItem('sp_github_session',hash);history.replaceState(null,'',location.pathname+location.search);}
-  const token=sessionStorage.getItem('sp_github_session');
-  if(!token){$('githubMode').hidden=true;return;}
-  try{
-    const r=await fetch('https://soy-perrito-pro-pro-yt-iaoficial-au.vercel.app/api/github-session',{headers:{Authorization:'Bearer '+token}});
-    const d=await r.json();
-    if(!r.ok) throw Error(d.error||'Sesión de GitHub no válida.');
-    $('githubMode').hidden=false;
-    $('githubModeStatus').textContent='🐙 GitHub conectado: @'+d.login+(d.permission==='write'?' · ✏️ escritura':' · 👀 solo lectura');
-    $('githubModeMsg').textContent=d.permission==='write'?'✅ Modo GitHub activado. Puedes modificar archivos de tu repo.':'👀 Conexión de solo lectura.';
-  }catch(e){
-    sessionStorage.removeItem('sp_github_session');
-    $('githubMode').hidden=true;
-    $('githubModeMsg').textContent='❌ '+e.message;
+
+.status{
+  margin-top:6px;
+  color:#aaa;
+  font-size:13px;
+}
+
+.auth{
+  padding:12px;
+  background:#202024;
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  border-bottom:1px solid #333;
+}
+
+.auth input{
+  flex:1;
+  min-width:130px;
+  padding:11px;
+  border:0;
+  border-radius:10px;
+  background:#333;
+  color:#fff;
+}
+
+button{
+  border:0;
+  border-radius:10px;
+  padding:10px 14px;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+button:disabled{
+  opacity:.5;
+  cursor:not-allowed;
+}
+
+.msginfo{
+  width:100%;
+  font-size:12px;
+  color:#aaa;
+  white-space:pre-wrap;
+}
+
+.chatbar{
+  display:flex;
+  gap:8px;
+  padding:10px;
+  background:#202024;
+  border-bottom:1px solid #333;
+}
+
+.chatbar select{
+  flex:1;
+  min-width:0;
+  padding:10px;
+  border:0;
+  border-radius:10px;
+  background:#333;
+  color:#fff;
+}
+
+.chat{
+  flex:1;
+  min-height:280px;
+  padding:16px;
+  overflow:auto;
+}
+
+.msg{
+  max-width:85%;
+  padding:11px 14px;
+  margin:8px 0;
+  border-radius:14px;
+  white-space:pre-wrap;
+  line-height:1.4;
+}
+
+.user{
+  margin-left:auto;
+  background:#315efb;
+}
+
+.ai{
+  margin-right:auto;
+  background:#29292e;
+}
+
+.tools{
+  display:flex;
+  justify-content:flex-end;
+  gap:8px;
+  flex-wrap:wrap;
+  padding:10px 12px;
+  background:#202024;
+  border-top:1px solid #333;
+}
+
+.tools input,
+.tools textarea,
+.tools select{
+  padding:10px;
+  border:0;
+  border-radius:10px;
+  background:#333;
+  color:#fff;
+}
+
+.tools textarea{
+  flex:1;
+  min-width:220px;
+}
+
+.menu{
+  width:100%;
+  display:flex;
+  justify-content:flex-end;
+  gap:8px;
+}
+
+.media{
+  padding:14px;
+  background:#111113;
+  border-top:1px solid #333;
+}
+
+.media img,
+.media video{
+  display:block;
+  max-width:100%;
+  margin-left:auto;
+  border-radius:12px;
+}
+
+.media video{
+  width:min(100%,720px);
+  max-height:430px;
+  background:#000;
+}
+
+#mediaStage img{
+  max-width:100%;
+  max-height:520px;
+  object-fit:contain;
+}
+
+#mediaStage video{
+  width:100%;
+  max-width:760px;
+  max-height:520px;
+  background:#000;
+}
+
+#mediaControls button{
+  border:0;
+  border-radius:10px;
+  padding:9px 12px;
+  cursor:pointer;
+}
+
+.videoInfo{
+  text-align:right;
+  color:#aaa;
+  font-size:12px;
+  margin-top:8px;
+}
+
+.hint{
+  text-align:center;
+  color:#777;
+  font-size:12px;
+  padding:8px;
+}
+
+.form{
+  display:flex;
+  gap:8px;
+  padding:12px;
+  background:#242428;
+  border-top:1px solid #333;
+}
+
+.form input{
+  flex:1;
+  min-width:0;
+  padding:13px;
+  border:0;
+  border-radius:12px;
+  background:#333;
+  color:#fff;
+}
+
+.form button{
+  background:#fff;
+  color:#111;
+}
+
+#openaiAppCode,
+#githubContent{
+  width:100%;
+  font-family:monospace;
+}
+
+@media(max-width:560px){
+  .auth input,
+  .auth button,
+  .tools button,
+  .tools input,
+  .tools textarea,
+  .tools select,
+  .menu button{
+    width:100%;
+  }
+
+  .tools,
+  .menu{
+    justify-content:stretch;
   }
 }
-async function githubSaveFile(){
-  const token=sessionStorage.getItem('sp_github_session');
-  if(!token)return $('githubModeMsg').textContent='🔐 Conecta GitHub primero.';
-  const path=$('githubPath').value.trim(), content=$('githubContent').value, message=$('githubCommit').value.trim()||'Actualización desde SoyPerritoProProYT.IAOFICIAL';
-  if(!path)return $('githubModeMsg').textContent='✍️ Escribe la ruta del archivo.';
-  $('githubSave').disabled=true;$('githubModeMsg').textContent='⏳ Guardando en GitHub...';
-  try{
-    const r=await fetch('https://soy-perrito-pro-pro-yt-iaoficial-au.vercel.app/api/github-file',{method:'PUT',headers:{'Content-Type':'application/json',Authorization:'Bearer '+token},body:JSON.stringify({path,content,message})});
-    const d=await r.json();
-    if(!r.ok)throw Error(d.error||'GitHub rechazó el cambio.');
-    $('githubModeMsg').textContent='✅ '+d.path+' actualizado correctamente en GitHub.';
-  }catch(e){$('githubModeMsg').textContent='❌ '+e.message}
-  finally{$('githubSave').disabled=false}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+<header class="top">
+  <h1>🐶 SoyPerritoProProYT.IAOFICIAL</h1>
+  <div class="status" id="estado">
+    🔐 Crea una cuenta o inicia sesión
+  </div>
+</header>
+
+<!-- CUENTAS -->
+<div class="auth">
+
+  <input
+    id="userName"
+    placeholder="Nombre de usuario"
+    maxlength="30"
+    autocomplete="username"
+  >
+
+  <input
+    id="userPass"
+    type="password"
+    placeholder="Contraseña (6+ caracteres)"
+    maxlength="100"
+    autocomplete="current-password"
+  >
+
+  <button id="registerBtn">Crear cuenta</button>
+  <button id="loginBtn">Entrar</button>
+  <button id="logoutBtn" hidden>Cerrar sesión</button>
+
+  <div id="authMsg" class="msginfo"></div>
+
+</div>
+
+<!-- CHATS -->
+<div class="chatbar">
+
+  <select id="chatSelect" aria-label="Chats">
+    <option>💬 Inicia sesión para ver tus chats</option>
+  </select>
+
+  <button id="nuevoChatBtn">
+    ➕ Nuevo chat
+  </button>
+
+</div>
+
+<main id="chat" class="chat"></main>
+
+<div class="hint">
+  Comandos: /ayuda · /perfil · /juegos · /ajustes · /limpiar · @verifica
+</div>
+
+<!-- VERIFICADOR -->
+<input
+  id="archivoVerificar"
+  type="file"
+  hidden
+  accept=".txt,.md,.json,.js,.html,.css,.csv,.xml,.yaml,.yml,.mcfunction,.lua"
+>
+
+<div class="tools">
+  <button id="verificaBtn" type="button">
+    📁 Elegir archivo
+  </button>
+</div>
+
+<!-- VÍDEOS -->
+<div class="tools">
+
+  <div style="width:100%;display:flex;gap:8px;flex-wrap:wrap">
+
+    <textarea
+      id="videoPrompt"
+      placeholder="✍️ Escribe qué vídeo quieres crear..."
+      rows="3"
+      maxlength="2000"
+      style="flex:1;min-width:220px"
+    ></textarea>
+
+    <button id="randomVideoBtn" type="button">
+      🎲 Idea aleatoria
+    </button>
+
+    <button id="generateVideoBtn" type="button">
+      🎬 Generar vídeo
+    </button>
+
+  </div>
+
+  <div id="videoGeneratorMsg" class="msginfo"></div>
+
+</div>
+
+<!-- IMÁGENES -->
+<div class="tools">
+  <button id="imagenBtn" type="button">
+    🖼️ Crear imagen
+  </button>
+</div>
+
+<div id="mediaResult" class="media" aria-live="polite"></div>
+
+<!-- REPRODUCTOR -->
+<div id="mediaPlayer" class="media" hidden>
+
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px">
+
+    <strong>📺 Reproductor multimedia</strong>
+
+    <button
+      id="mediaClose"
+      type="button"
+      style="border:0;border-radius:10px;padding:8px 12px;cursor:pointer"
+    >
+      ✕
+    </button>
+
+  </div>
+
+  <div
+    id="mediaStage"
+    style="display:grid;place-items:center;background:#050506;border-radius:12px;min-height:180px;overflow:hidden"
+  ></div>
+
+  <div
+    id="mediaControls"
+    style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px"
+  ></div>
+
+</div>
+
+<!-- CREAR APP OPENAI -->
+<div class="tools" id="openaiAppMode">
+
+  <button id="openaiAppBtn" type="button">
+    🤖 Modo Crear App OpenAI
+  </button>
+
+  <div
+    id="openaiAppPanel"
+    hidden
+    style="width:100%;display:grid;gap:8px"
+  >
+
+    <strong>🛠️ Creador de apps con OpenAI</strong>
+
+    <input
+      id="openaiAppName"
+      placeholder="Nombre de la app"
+      maxlength="80"
+    >
+
+    <textarea
+      id="openaiAppPrompt"
+      placeholder="Describe qué quieres que haga tu app..."
+      rows="4"
+      maxlength="4000"
+    ></textarea>
+
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+
+      <button id="openaiCreateBtn" type="button">
+        ✨ Crear app
+      </button>
+
+      <button
+        id="openaiDownloadBtn"
+        type="button"
+        disabled
+      >
+        ⬇️ Descargar HTML
+      </button>
+
+    </div>
+
+    <textarea
+      id="openaiAppCode"
+      placeholder="Aquí aparecerá el código generado..."
+      rows="14"
+    ></textarea>
+
+    <div id="openaiAppMsg" class="msginfo"></div>
+
+  </div>
+
+</div>
+
+<!-- JUEGOS -->
+<div class="tools">
+
+  <button id="videojuegosBtn" type="button">
+    🎮 Modo Videojuegos
+  </button>
+
+  <div id="videojuegosMenu" class="menu" hidden>
+
+    <button id="robloxBtn" type="button">
+      🟦 Roblox
+    </button>
+
+    <button id="fortniteBtn" type="button">
+      🟪 Fortnite
+    </button>
+
+  </div>
+
+</div>
+
+<!-- GITHUB -->
+<div class="tools">
+
+  <button id="githubBtn" type="button">
+    🐙 Modo GitHub
+  </button>
+
+  <button id="githubOpenBtn" type="button">
+    🌐 Abrir GitHub
+  </button>
+
+  <div
+    id="githubMode"
+    hidden
+    style="width:100%;display:grid;gap:8px"
+  >
+
+    <div id="githubStatus" class="msginfo">
+      🔐 GitHub no conectado.
+    </div>
+
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+
+      <input
+        id="githubPath"
+        placeholder="Ruta del archivo, ej. index.html"
+        maxlength="300"
+        style="flex:1;min-width:220px"
+      >
+
+      <input
+        id="githubMessage"
+        placeholder="Mensaje del cambio"
+        maxlength="120"
+        style="flex:1;min-width:220px"
+      >
+
+    </div>
+
+    <textarea
+      id="githubContent"
+      placeholder="Contenido del archivo..."
+      rows="10"
+      maxlength="2097152"
+    ></textarea>
+
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+
+      <button id="githubReadBtn" type="button">
+        📖 Leer archivo
+      </button>
+
+      <button id="githubWriteBtn" type="button">
+        💾 Guardar cambios
+      </button>
+
+    </div>
+
+    <div id="githubMsg" class="msginfo"></div>
+
+  </div>
+
+</div>
+
+<!-- YOUTUBE -->
+<div class="tools">
+
+  <button id="youtubeConnectBtn" type="button">
+    🔗 Conectar YouTube
+  </button>
+
+  <button
+    id="youtubeUploadBtn"
+    type="button"
+    disabled
+  >
+    ⬆️ Subir vídeo generado
+  </button>
+
+  <input
+    id="youtubeTitle"
+    placeholder="Título del vídeo"
+    maxlength="100"
+  >
+
+  <textarea
+    id="youtubeDescription"
+    placeholder="Descripción"
+    rows="2"
+    maxlength="5000"
+  ></textarea>
+
+  <select id="youtubePrivacy">
+    <option value="private">🔒 Privado</option>
+    <option value="unlisted">🔗 Oculto</option>
+    <option value="public">🌍 Público</option>
+  </select>
+
+  <div id="youtubeMsg" class="msginfo"></div>
+
+</div>
+
+<!-- CHAT -->
+<form id="form" class="form">
+
+  <input
+    id="entrada"
+    placeholder="Escribe algo..."
+    maxlength="4000"
+    autocomplete="off"
+  >
+
+  <button id="enviar" type="submit">
+    Enviar
+  </button>
+
+</form>
+
+</div>
+
+<script src="https://js.puter.com/v2/"></script>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+
+<script>
+'use strict';
+
+/* =========================
+   VARIABLES
+========================= */
+
+const $ = id => document.getElementById(id);
+
+let usuarioActual = null;
+let nombreActual = '';
+let chats = [];
+let chatId = '';
+let historial = [];
+
+let youtubeAccessToken = null;
+
+let ultimaOpenAIApp = '';
+
+const YOUTUBE_CLIENT_ID =
+  '954824229147-uf1pv1ch0v052lv0tutaueb1nknc7j19.apps.googleusercontent.com';
+
+const YOUTUBE_SCOPE =
+  'https://www.googleapis.com/auth/youtube.upload';
+
+
+/* =========================
+   UTILIDADES
+========================= */
+
+function msg(text, role = 'ai') {
+
+  const element = document.createElement('div');
+
+  element.className = 'msg ' + role;
+
+  element.textContent = text;
+
+  $('chat').appendChild(element);
+
+  $('chat').scrollTop = $('chat').scrollHeight;
+
+  return element;
 }
-if($('githubSave')) $('githubSave').onclick=githubSaveFile;
-githubModeInit();$('mediaClose').onclick=()=>{$('mediaPlayer').hidden=true;$('mediaStage').innerHTML='';$('mediaControls').innerHTML=''};$('youtubeConnectBtn').onclick=conectarYouTube;$('youtubeUploadBtn').onclick=subir;$('form').onsubmit=e=>{e.preventDefault();enviar()};render();sesion();async function initGitHub(){const q=new URLSearchParams(location.search);const session=q.get('github_session');if(session){try{const d=await api('/api/github-session?session='+encodeURIComponent(session));githubConnected=true;githubLogin=d.login;$('githubBtn').textContent='🐙 GitHub: @'+d.login;$('githubMode').hidden=false;$('githubModeMsg').textContent='✅ GitHub conectado como @'+d.login;if(history.replaceState)history.replaceState({},'',location.pathname)}catch(e){}}else{try{const d=await api('/api/github-me');if(d.connected){githubConnected=true;githubLogin=d.login;$('githubBtn').textContent='🐙 GitHub: @'+d.login;$('githubMode').hidden=false}}catch{}}}
-async function githubRead(){if(!githubConnected)return;$('githubModeMsg').textContent='📖 Leyendo...';try{const d=await api('/api/github-file?path='+encodeURIComponent($('githubPath').value.trim()||'index.html'));$('githubContent').value=d.content||'';$('githubModeMsg').textContent='✅ Archivo leído.'}catch(e){$('githubModeMsg').textContent='❌ '+e.message}}
-async function githubWrite(){if(!githubConnected)return;const p=$('githubPath').value.trim();if(!p)return $('githubModeMsg').textContent='❌ Escribe una ruta.';$('githubModeMsg').textContent='💾 Guardando...';try{const d=await api('/api/github-file',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({path:p,content:$('githubContent').value})});$('githubModeMsg').textContent='✅ Guardado en GitHub: '+d.path}catch(e){$('githubModeMsg').textContent='❌ '+e.message}}
-$('githubReadBtn').onclick=githubRead;$('githubWriteBtn').onclick=githubWrite;initGitHub();githubCheck();
-</script></body></html>
+
+
+function render() {
+
+  $('chat').innerHTML = '';
+
+  if (!historial.length) {
+
+    msg(
+      '¡Hola! 🐶 Tus chats se guardan automáticamente en este dispositivo.',
+      'ai'
+    );
+
+  } else {
+
+    historial.forEach(item => {
+
+      msg(
+        item.content,
+        item.role === 'user' ? 'user' : 'ai'
+      );
+
+    });
+
+  }
+
+  $('chat').scrollTop = $('chat').scrollHeight;
+}
+
+
+function norm(value) {
+
+  return String(value || '')
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9_.-]/g, '')
+    .slice(0, 30);
+
+}
+
+
+async function api(url, options = {}) {
+
+  const response = await fetch(url, options);
+
+  const data = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+
+    throw new Error(
+      data.error || 'Error del servidor.'
+    );
+
+  }
+
+  return data;
+}
+
+
+/* =========================
+   LOCAL STORAGE
+========================= */
+
+function safeGet(key, fallback = null) {
+
+  try {
+
+    return localStorage.getItem(key) ?? fallback;
+
+  } catch {
+
+    return fallback;
+
+  }
+
+}
+
+
+function safeSet(key, value) {
+
+  try {
+
+    localStorage.setItem(key, value);
+
+    return true;
+
+  } catch {
+
+    return false;
+
+  }
+
+}
+
+
+function safeRemove(key) {
+
+  try {
+
+    localStorage.removeItem(key);
+
+    return true;
+
+  } catch {
+
+    return false;
+
+  }
+
+}
+
+
+/* =========================
+   CUENTAS
+========================= */
+
+function getAccounts() {
+
+  try {
+
+    const raw = safeGet('sp_accounts_v1', '');
+
+    if (!raw) return {};
+
+    const accounts = JSON.parse(raw);
+
+    return (
+      accounts &&
+      typeof accounts === 'object' &&
+      !Array.isArray(accounts)
+    )
+      ? accounts
+      : {};
+
+  } catch {
+
+    return {};
+
+  }
+
+}
+
+
+async function hashPassword(password) {
+
+  const data =
+    new TextEncoder().encode(password);
+
+  if (globalThis.crypto?.subtle) {
+
+    const hash =
+      await crypto.subtle.digest(
+        'SHA-256',
+        data
+      );
+
+    return Array.from(
+      new Uint8Array(hash)
+    )
+      .map(
+        x => x.toString(16).padStart(2, '0')
+      )
+      .join('');
+
+  }
+
+  let hash = 2166136261;
+
+  for (const byte of data) {
+
+    hash ^= byte;
+
+    hash = Math.imul(
+      hash,
+      16777619
+    );
+
+  }
+
+  return 'fallback-' +
+    (hash >>> 0).toString(16);
+
+}
+
+
+function saveAccounts(accounts) {
+
+  if (
+    !safeSet(
+      'sp_accounts_v1',
+      JSON.stringify(accounts)
+    )
+  ) {
+
+    throw new Error(
+      'El navegador no permite guardar cuentas en este dispositivo.'
+    );
+
+  }
+
+}
+
+
+async function auth(action) {
+
+  $('authMsg').textContent = '';
+
+  try {
+
+    const username =
+      norm($('userName').value);
+
+    const password =
+      $('userPass').value;
+
+    if (username.length < 3) {
+
+      $('authMsg').textContent =
+        '❌ El usuario debe tener al menos 3 caracteres.';
+
+      return;
+
+    }
+
+    if (password.length < 6) {
+
+      $('authMsg').textContent =
+        '❌ La contraseña debe tener al menos 6 caracteres.';
+
+      return;
+
+    }
+
+    const accounts = getAccounts();
+
+    const hash =
+      await hashPassword(password);
+
+    if (action === 'register') {
+
+      if (accounts[username]) {
+
+        $('authMsg').textContent =
+          '❌ Ese nombre ya existe.';
+
+        return;
+
+      }
+
+      accounts[username] = {
+        hash,
+        createdAt: Date.now()
+      };
+
+      saveAccounts(accounts);
+
+    } else if (action === 'login') {
+
+      if (
+        !accounts[username] ||
+        accounts[username].hash !== hash
+      ) {
+
+        $('authMsg').textContent =
+          '❌ Nombre o contraseña incorrectos.';
+
+        return;
+
+      }
+
+    }
+
+    if (
+      !safeSet(
+        'sp_session_v1',
+        username
+      )
+    ) {
+
+      $('authMsg').textContent =
+        '❌ No se pudo guardar la sesión.';
+
+      return;
+
+    }
+
+    await activar(username);
+
+  } catch (error) {
+
+    $('authMsg').textContent =
+      '❌ ' +
+      (
+        error?.message ||
+        'No se pudo completar la operación.'
+      );
+
+  }
+
+}
+
+
+async function activar(username) {
+
+  usuarioActual = username;
+
+  nombreActual = username;
+
+  $('userName').value = username;
+
+  $('userName').disabled = true;
+
+  $('userPass').value = '';
+
+  $('registerBtn').hidden = true;
+
+  $('loginBtn').hidden = true;
+
+  $('logoutBtn').hidden = false;
+
+  $('estado').textContent =
+    '🟢 ' +
+    username +
+    ' · chats guardados';
+
+  await cargarChats();
+
+}
+
+
+function cerrarSesion() {
+
+  safeRemove('sp_session_v1');
+
+  usuarioActual = null;
+
+  nombreActual = '';
+
+  chats = [];
+
+  chatId = '';
+
+  historial = [];
+
+  $('userName').disabled = false;
+
+  $('userName').value = '';
+
+  $('userPass').value = '';
+
+  $('registerBtn').hidden = false;
+
+  $('loginBtn').hidden = false;
+
+  $('logoutBtn').hidden = true;
+
+  $('authMsg').textContent = '';
+
+  $('estado').textContent =
+    '🔐 Crea una cuenta o inicia sesión';
+
+  $('chatSelect').innerHTML =
+    '<option>💬 Inicia sesión para ver tus chats</option>';
+
+  render();
+
+}
+
+
+/* =========================
+   CHATS
+========================= */
+
+function chatKey() {
+
+  return 'sp_chats_' +
+    usuarioActual;
+
+}
+
+
+function loadLocalChats() {
+
+  try {
+
+    const data =
+      JSON.parse(
+        safeGet(chatKey(), '[]')
+      );
+
+    return Array.isArray(data)
+      ? data
+      : [];
+
+  } catch {
+
+    return [];
+
+  }
+
+}
+
+
+function saveLocalChats() {
+
+  safeSet(
+    chatKey(),
+    JSON.stringify(
+      chats
+        .slice(0, 30)
+        .map(chat => ({
+          id: chat.id,
+          title: chat.title,
+          messages:
+            chat.messages.slice(-80)
+        }))
+    )
+  );
+
+}
+
+
+async function cargarChats() {
+
+  chats = loadLocalChats();
+
+  if (!chats.length) {
+
+    chats = [
+      {
+        id: 'chat-' + Date.now(),
+        title: 'Nuevo chat',
+        messages: []
+      }
+    ];
+
+    saveLocalChats();
+
+  }
+
+  chatId = chats[0].id;
+
+  selectChats();
+
+  await cargarActual();
+
+}
+
+
+function selectChats() {
+
+  $('chatSelect').innerHTML = '';
+
+  chats.forEach(chat => {
+
+    const option =
+      document.createElement('option');
+
+    option.value = chat.id;
+
+    option.textContent =
+      '💬 ' + chat.title;
+
+    $('chatSelect')
+      .appendChild(option);
+
+  });
+
+  $('chatSelect').value = chatId;
+
+}
+
+
+async function cargarActual() {
+
+  const chat =
+    chats.find(
+      item => item.id === chatId
+    );
+
+  historial =
+    Array.isArray(chat?.messages)
+      ? chat.messages.slice(-80)
+      : [];
+
+  $('mediaResult').innerHTML = '';
+
+  render();
+
+}
+
+
+function guardar() {
+
+  const chat =
+    chats.find(
+      item => item.id === chatId
+    );
+
+  if (!chat) return;
+
+  chat.messages =
+    historial.slice(-80);
+
+  const firstUserMessage =
+    historial.find(
+      item => item.role === 'user'
+    );
+
+  if (
+    firstUserMessage &&
+    chat.title === 'Nuevo chat'
+  ) {
+
+    chat.title =
+      firstUserMessage.content
+        .trim()
+        .slice(0, 50) ||
+      'Nuevo chat';
+
+  }
+
+  saveLocalChats();
+
+  selectChats();
+
+}
+
+
+function nuevo() {
+
+  if (!usuarioActual) {
+
+    msg(
+      '🔐 Inicia sesión primero.',
+      'ai'
+    );
+
+    return;
+
+  }
+
+  const id =
+    'chat-' + Date.now();
+
+  chats.unshift({
+    id,
+    title: 'Nuevo chat',
+    messages: []
+  });
+
+  chatId = id;
+
+  historial = [];
+
+  saveLocalChats();
+
+  selectChats();
+
+  render();
+
+}
+
+
+function comando(text) {
+
+  if (text === '/ayuda') {
+
+    return (
+      '🐶 COMANDOS\n' +
+      '/ayuda · /perfil · /juegos · /ajustes · /limpiar'
+    );
+
+  }
+
+  if (text === '/perfil') {
+
+    return (
+      '👤 Usuario: ' +
+      nombreActual +
+      '\n💾 Chats: guardados en este dispositivo'
+    );
+
+  }
+
+  if (text === '/juegos') {
+
+    return (
+      '🎮 Roblox · Fortnite · futuros proyectos'
+    );
+
+  }
+
+  if (text === '/ajustes') {
+
+    return (
+      '⚙️ Cuenta y chats: sistema propio · IA: /api/chat'
+    );
+
+  }
+
+  if (text === '/limpiar') {
+
+    historial = [];
+
+    guardar();
+
+    render();
+
+    return '🧹 Chat limpiado.';
+
+  }
+
+}
+
+
+/* =========================
+   CHAT IA
+========================= */
+
+async function enviar() {
+
+  const text =
+    $('entrada').value.trim();
+
+  if (!text) return;
+
+  if (!usuarioActual) {
+
+    msg(
+      '🔐 Inicia sesión primero.',
+      'ai'
+    );
+
+    return;
+
+  }
+
+  if (/^@verifica\b/i.test(text)) {
+
+    $('entrada').value = '';
+
+    await verificarArchivo();
+
+    return;
+
+  }
+
+  $('entrada').value = '';
+
+  historial.push({
+    role: 'user',
+    content: text
+  });
+
+  render();
+
+  guardar();
+
+  const command =
+    comando(text);
+
+  if (command) {
+
+    historial.push({
+      role: 'assistant',
+      content: command
+    });
+
+    render();
+
+    guardar();
+
+    return;
+
+  }
+
+  $('enviar').disabled = true;
+
+  $('entrada').disabled = true;
+
+  const answer =
+    msg(
+      'Escribiendo...',
+      'ai'
+    );
+
+  try {
+
+    const data =
+      await api(
+        '/api/chat',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type':
+              'application/json'
+          },
+          body: JSON.stringify({
+            message: text,
+            history:
+              historial.slice(-12)
+          })
+        }
+      );
+
+    answer.textContent =
+      data.reply ||
+      'Sin respuesta.';
+
+    if (data.reply) {
+
+      historial.push({
+        role: 'assistant',
+        content: data.reply
+      });
+
+    }
+
+    guardar();
+
+    $('estado').textContent =
+      '🟢 ' +
+      nombreActual +
+      ' · chats guardados';
+
+  } catch (error) {
+
+    answer.textContent =
+      '❌ ' +
+      (
+        error?.message ||
+        'Error al conectar con la IA.'
+      );
+
+  } finally {
