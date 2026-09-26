@@ -6,7 +6,7 @@ const PORT = 6080;
 async function setup(sandbox) {
   const check = await sandbox.runCommand({
     cmd: 'bash',
-    args: ['-lc', 'test -f /tmp/pc-ready && echo ready || echo setup']
+    args: ['-lc', 'test -f /tmp/pc-ready && ss -ltn 2>/dev/null | grep -q \":6080 \\" && echo ready || echo setup']
   });
   if ((await check.stdout()).trim() === 'ready') return;
 
@@ -20,7 +20,7 @@ async function setup(sandbox) {
   await sandbox.runCommand({
     cmd: 'bash',
     args: ['-lc',
-      'mkdir -p /tmp/pc && Xvfb :1 -screen 0 1280x800x24 >/tmp/pc/xvfb.log 2>&1 & sleep 2; DISPLAY=:1 startxfce4 >/tmp/pc/xfce.log 2>&1 & sleep 5; DISPLAY=:1 x11vnc -display :1 -forever -shared -rfbport 5900 -nopw >/tmp/pc/vnc.log 2>&1 & sleep 2; websockify --web=/usr/share/novnc 6080 localhost:5900 >/tmp/pc/websockify.log 2>&1 & touch /tmp/pc-ready'
+      'pkill -f "websockify.*6080" 2>/dev/null || true; pkill -f "x11vnc.*5900" 2>/dev/null || true; pkill -f "Xvfb :1" 2>/dev/null || true; rm -f /tmp/pc-ready; mkdir -p /tmp/pc; Xvfb :1 -screen 0 1280x800x24 >/tmp/pc/xvfb.log 2>&1 & sleep 3; DISPLAY=:1 startxfce4 >/tmp/pc/xfce.log 2>&1 & sleep 7; DISPLAY=:1 x11vnc -display :1 -forever -shared -rfbport 5900 -nopw -listen localhost >/tmp/pc/vnc.log 2>&1 & sleep 3; websockify --web=/usr/share/novnc 6080 localhost:5900 >/tmp/pc/websockify.log 2>&1 & sleep 3; if ss -ltn 2>/dev/null | grep -q ":6080 "; then touch /tmp/pc-ready; else echo "=== Xvfb ==="; tail -50 /tmp/pc/xvfb.log; echo "=== XFCE ==="; tail -50 /tmp/pc/xfce.log; echo "=== VNC ==="; tail -50 /tmp/pc/vnc.log; echo "=== noVNC ==="; tail -50 /tmp/pc/websockify.log; exit 1; fi'
     ]
   });
 }
