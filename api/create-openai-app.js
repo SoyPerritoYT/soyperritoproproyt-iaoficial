@@ -1,7 +1,9 @@
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Método no permitido.' });
-  if (!process.env.OPENAI_API_KEY) {
-    return res.status(500).json({ error: 'Falta configurar OPENAI_API_KEY en Vercel.' });
+
+  const key = process.env.GEMINI_API_KEY;
+  if (!key) {
+    return res.status(500).json({ error: 'Falta configurar GEMINI_API_KEY en Vercel.' });
   }
 
   try {
@@ -10,7 +12,7 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Describe qué quieres que haga la app.' });
     }
 
-    const appName = typeof name === 'string' && name.trim() ? name.trim() : 'Mi App OpenAI';
+    const appName = typeof name === 'string' && name.trim() ? name.trim() : 'Mi App';
     const instructions = `Genera el código completo de una aplicación web llamada "${appName}".
 La aplicación debe estar en un único archivo HTML, con CSS y JavaScript incluidos.
 Debe ser clara, responsive y funcionar en móvil.
@@ -20,34 +22,47 @@ Devuelve SOLO el HTML completo, empezando por <!DOCTYPE html> y terminando por <
 Requisitos del usuario:
 ${prompt.trim()}`;
 
-    const response = await fetch('https://api.openai.com/v1/responses', {
+    const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`
+        'x-goog-api-key': key
       },
       body: JSON.stringify({
-        model: 'gpt-5.6-luna',
-        instructions,
-        input: 'Crea la aplicación solicitada siguiendo exactamente las instrucciones.'
+        system_instruction: {
+          parts: [{ text: instructions }]
+        },
+        contents: [{
+          role: 'user',
+          parts: [{ text: 'Crea la aplicación solicitada siguiendo exactamente las instrucciones.' }]
+        }],
+        generationConfig: {
+          maxOutputTokens: 12000,
+          temperature: 0.2
+        }
       })
     });
 
     const data = await response.json().catch(() => ({}));
     if (!response.ok) {
       return res.status(response.status).json({
-        error: data?.error?.message || 'OpenAI rechazó la petición.'
+        error: data?.error?.message || 'Gemini rechazó la petición.'
       });
     }
 
-    const code = data.output_text || data.output?.flatMap(x => x.content || [])
-      .find(x => x.type === 'output_text')?.text || '';
+    const code = data.candidates?.[0]?.content?.parts
+      ?.map(p => p.text || '')
+      .join('') || '';
 
-    if (!code) return res.status(502).json({ error: 'OpenAI no devolvió código.' });
+    if (!code) return res.status(502).json({ error: 'Gemini no devolvió código.' });
 
-    const cleaned = code.replace(/^\s*\`\`\`(?:html)?\s*/i, '').replace(/\s*\`\`\`\s*$/i, '').trim();
+    const cleaned = code
+      .replace(/^\s*\`\`\`(?:html)?\s*/i, '')
+      .replace(/\s*\`\`\`\s*$/i, '')
+      .trim();
+
     return res.status(200).json({ code: cleaned });
   } catch (error) {
-    return res.status(500).json({ error: 'Error del servidor al crear la app.' });
+    return res.status(500).json({ error: 'Error del servidor al crear la app con Gemini.' });
   }
 }
