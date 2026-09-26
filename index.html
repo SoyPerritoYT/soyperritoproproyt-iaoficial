@@ -179,19 +179,27 @@ async function githubWrite(){
 function abrirModoGitHub(){if(!githubSession)return githubConnect();$('githubMode').hidden=!$('githubMode').hidden;githubCheck();}
 
 let ultimaOpenAIApp='';
+function abrirModoOpenAIApp(){
+  if(!usuarioActual)return msg('🔐 Inicia sesión primero.','ai');
+  $('openaiAppPanel').hidden=!$('openaiAppPanel').hidden;
+}
 async function crearOpenAIApp(){
   if(!usuarioActual)return $('openaiAppMsg').textContent='🔐 Inicia sesión primero.';
   const name=$('openaiAppName').value.trim()||'Mi App OpenAI';
   const prompt=$('openaiAppPrompt').value.trim();
   if(!prompt)return $('openaiAppMsg').textContent='✍️ Describe qué quieres que haga la app.';
   $('openaiCreateBtn').disabled=true;$('openaiDownloadBtn').disabled=true;
-  $('openaiAppMsg').textContent='🤖 Creando app...';
+  $('openaiAppMsg').textContent='🤖 OpenAI está creando el código...';
   try{
-    const d=await api('/api/create-openai-app',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,prompt})});
+    const d=await api('/api/create-openai-app',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({name,prompt})
+    });
     ultimaOpenAIApp=d.code||'';
     $('openaiAppCode').value=ultimaOpenAIApp;
     $('openaiDownloadBtn').disabled=!ultimaOpenAIApp;
-    $('openaiAppMsg').textContent='✅ App creada.';
+    $('openaiAppMsg').textContent='✅ App creada. Revisa el código antes de usarlo.';
   }catch(e){$('openaiAppMsg').textContent='❌ '+(e.message||'No se pudo crear la app.');}
   finally{$('openaiCreateBtn').disabled=false;}
 }
