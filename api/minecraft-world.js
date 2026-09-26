@@ -44,10 +44,10 @@ function blockFor(x, y, z, mode, registry, Block, prompt) {
     ? 'stone'
     : 'grass_block';
 
-  if (y === 0) return new Block(registry.blocksByName.bedrock.id, registry.biomesByName.plains.id, 0);
-  if (y < 4) return new Block(registry.blocksByName.stone.id, registry.biomesByName.plains.id, 0);
-  if (y === 4) return new Block(registry.blocksByName[surface].id, registry.biomesByName.plains.id, 0);
-  if (y > 4 && y < 64) return new Block(registry.blocksByName.air.id, registry.biomesByName.plains.id, 0);
+  if (y === 0) return new Block(registry.blocksByName.bedrock, registry.biomesByName.plains, 0);
+  if (y < 4) return new Block(registry.blocksByName.stone, registry.biomesByName.plains, 0);
+  if (y === 4) return new Block(registry.blocksByName[surface], registry.biomesByName.plains, 0);
+  if (y > 4 && y < 64) return new Block(registry.blocksByName.air, registry.biomesByName.plains, 0);
 
   return new Block(registry.blocksByName.air.id, registry.biomesByName.plains.id, 0);
 }
@@ -123,8 +123,7 @@ export default async function handler(req, res) {
         LastPlayed: nbt.long(now),
         SizeOnDisk: nbt.long(0n),
         hardcore: nbt.byte(0),
-        initialized: nbt.byte(1),
-        Difficulty: nbt.byte(1)
+        initialized: nbt.byte(1)
       })
     });
 
