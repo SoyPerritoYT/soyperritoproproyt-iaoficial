@@ -147,7 +147,8 @@ export default async function handler(req, res) {
     res.status(200).send(buffer);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: error?.message || 'No se pudo generar el mundo Java.' });
+    const detail = error?.stack || error?.message || String(error);
+    res.status(500).json({ error: detail });
   } finally {
     if (root) await fs.rm(root, { recursive: true, force: true }).catch(() => {});
   }
