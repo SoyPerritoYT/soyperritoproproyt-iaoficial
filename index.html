@@ -106,7 +106,7 @@ function guardar(){const c=chats.find(x=>x.id===chatId);if(!c)return;c.messages=
 function nuevo(){const id='chat-'+Date.now();chats.unshift({id,title:'Nuevo chat',messages:[]});chatId=id;historial=[];guardarChats();selectChats();render()}
 
 async function enviar(){const t=$('entrada').value.trim();if(!t)return;$('entrada').value='';historial.push({role:'user',content:t});render();guardar();$('enviar').disabled=true;$('entrada').disabled=true;const e=msg('Escribiendo...');
-try{const d=await api('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:t,history:historial.slice(-12)})});e.textContent=d.reply||'Sin respuesta.';if(d.reply)historial.push({role:'assistant',content:d.reply});guardar()}catch(x){e.textContent='❌ '+x.message}finally{$('enviar').disabled=false;$('entrada').disabled=false}}
+try{const d=await api('/api/gemini',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:t})});e.textContent=d.reply||'Sin respuesta.';if(d.reply)historial.push({role:'assistant',content:d.reply});guardar()}catch(x){e.textContent='❌ '+x.message}finally{$('enviar').disabled=false;$('entrada').disabled=false}}
 
 const ideas=['Un perrito gamer blanco gana una carrera de karts futurista.','Un perrito descubre una sala secreta llena de máquinas arcade.','Un perrito gamer lucha contra un robot gigante en una arena digital.','Un perrito viaja al espacio en una nave llena de videojuegos.'];
 function generarIdea(){$('videoPrompt').value=ideas[Math.floor(Math.random()*ideas.length)];$('videoGeneratorMsg').textContent='🎲 Idea lista.'}
