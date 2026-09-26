@@ -17,6 +17,20 @@
   <div id="mediaStage" style="display:grid;place-items:center;background:#050506;border-radius:12px;min-height:180px;overflow:hidden"></div>
   <div id="mediaControls" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px"></div>
 </div>
+<div class="tools" id="openaiAppMode">
+  <button id="openaiAppBtn" type="button">🤖 Modo Crear App OpenAI</button>
+  <div id="openaiAppPanel" hidden style="width:100%;display:grid;gap:8px">
+    <strong>🛠️ Creador de apps con OpenAI</strong>
+    <input id="openaiAppName" placeholder="Nombre de la app" maxlength="80">
+    <textarea id="openaiAppPrompt" placeholder="Describe qué quieres que haga tu app..." rows="4" maxlength="4000"></textarea>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button id="openaiCreateBtn" type="button">✨ Crear app</button>
+      <button id="openaiDownloadBtn" type="button" disabled>⬇️ Descargar HTML</button>
+    </div>
+    <textarea id="openaiAppCode" placeholder="Aquí aparecerá el código generado..." rows="14" style="width:100%;font-family:monospace"></textarea>
+    <div id="openaiAppMsg" class="msginfo"></div>
+  </div>
+</div>
 <div class="tools"><button id="videojuegosBtn">🎮 Modo Videojuegos</button><div id="videojuegosMenu" class="menu" hidden><button id="robloxBtn">🟦 Roblox</button><button id="fortniteBtn">🟪 Fortnite</button></div></div>
 <div class="tools">
 <button id="githubBtn" type="button">🐙 Modo GitHub</button>
@@ -106,7 +120,7 @@ async function auth(action){
  }catch(e){$('authMsg').textContent='❌ '+(e?.message||'No se pudo completar la operación.')}
 }
 async function activar(u){usuarioActual=u;nombreActual=u;$('userName').value=u;$('userName').disabled=true;$('userPass').value='';$('registerBtn').hidden=true;$('loginBtn').hidden=true;$('logoutBtn').hidden=false;$('authMsg').textContent='';$('estado').textContent='🟢 '+u+' · chats guardados';await cargarChats();}
-function sesion(){const u=safeGet('sp_session_v1','');if(u&&getAccounts()[u])activar(u);else render()}
+async function sesion(){const u=safeGet('sp_session_v1','');if(u&&getAccounts()[u])await activar(u);else{ $('estado').textContent='🔐 Crea una cuenta o inicia sesión'; render(); }}
 function cargarChats(){
  chats=loadLocalChats();
  if(!chats.length){chats=[{id:'chat-'+Date.now(),title:'Nuevo chat',messages:[]}];saveLocalChats()}
@@ -164,6 +178,44 @@ async function githubWrite(){
 }
 function abrirModoGitHub(){if(!githubSession)return githubConnect();$('githubMode').hidden=!$('githubMode').hidden;githubCheck();}
 
+<script>
+let ultimaOpenAIApp='';
+function abrirModoOpenAIApp(){
+  if(!usuarioActual)return msg('🔐 Inicia sesión primero.','ai');
+  $('openaiAppPanel').hidden=!$('openaiAppPanel').hidden;
+}
+async function crearOpenAIApp(){
+  if(!usuarioActual)return $('openaiAppMsg').textContent='🔐 Inicia sesión primero.';
+  const name=$('openaiAppName').value.trim()||'Mi App OpenAI';
+  const prompt=$('openaiAppPrompt').value.trim();
+  if(!prompt)return $('openaiAppMsg').textContent='✍️ Describe qué quieres que haga la app.';
+  $('openaiCreateBtn').disabled=true;$('openaiDownloadBtn').disabled=true;
+  $('openaiAppMsg').textContent='🤖 OpenAI está creando el código...';
+  try{
+    const d=await api('/api/create-openai-app',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({name,prompt})
+    });
+    ultimaOpenAIApp=d.code||'';
+    $('openaiAppCode').value=ultimaOpenAIApp;
+    $('openaiDownloadBtn').disabled=!ultimaOpenAIApp;
+    $('openaiAppMsg').textContent='✅ App creada. Revisa el código antes de usarlo.';
+  }catch(e){$('openaiAppMsg').textContent='❌ '+(e.message||'No se pudo crear la app.');}
+  finally{$('openaiCreateBtn').disabled=false;}
+}
+function descargarOpenAIApp(){
+  const code=$('openaiAppCode').value;
+  if(!code)return;
+  const name=(($('openaiAppName').value.trim()||'mi-app-openai').replace(/[^a-z0-9_-]/gi,'-').toLowerCase());
+  const blob=new Blob([code],{type:'text/html;charset=utf-8'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name+'.html';a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+}
+$('openaiAppBtn').onclick=abrirModoOpenAIApp;
+$('openaiCreateBtn').onclick=crearOpenAIApp;
+$('openaiDownloadBtn').onclick=descargarOpenAIApp;
+</script>
 $('registerBtn').onclick=()=>auth('register');$('loginBtn').onclick=()=>auth('login');$('logoutBtn').onclick=()=>{safeRemove('sp_session_v1');location.reload()};$('nuevoChatBtn').onclick=nuevo;$('chatSelect').onchange=async e=>{chatId=e.target.value;await cargarActual()};$('verificaBtn').onclick=verificarArchivo;$('imagenBtn').onclick=crearImagen;$('generateVideoBtn').onclick=crearVideo;$('randomVideoBtn').onclick=generarIdeaVideo;$('videojuegosBtn').onclick=()=>{$('videojuegosMenu').hidden=!$('videojuegosMenu').hidden};$('robloxBtn').onclick=()=>open('https://www.roblox.com/','_blank');$('fortniteBtn').onclick=()=>open('https://www.fortnite.com/','_blank');$('githubBtn').onclick=abrirModoGitHub;$('githubOpenBtn').onclick=()=>open('https://github.com/SoyPerritoYT/soyperritoproproyt-iaoficial','_blank');$('githubReadBtn').onclick=githubRead;$('githubWriteBtn').onclick=githubWrite;
 async function githubModeInit(){
   const hash=location.hash.startsWith('#github_token=')?decodeURIComponent(location.hash.slice('#github_token='.length)):'';
