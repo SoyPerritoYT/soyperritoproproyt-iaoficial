@@ -85,10 +85,16 @@ button{border:0;border-radius:10px;padding:10px 14px;font-weight:bold;cursor:poi
 </div>
 
 <div class="tools">
-<button id="youtubeConnectBtn">▶️ Conectar YouTube</button><button id="youtubeUploadBtn" disabled>⬆️ Enviar/subir vídeo a YouTube</button>
+<button id="youtubeConnectBtn">▶️ Conectar YouTube</button><button id="youtubeChannelBtn" disabled>📺 Mi canal</button><button id="youtubeUploadBtn" disabled>⬆️ Enviar/subir vídeo a YouTube</button><button id="youtubeCommentsBtn" disabled>💬 Comentarios</button>
 <input id="youtubeTitle" maxlength="100" placeholder="Título del vídeo">
 <textarea id="youtubeDescription" rows="2" maxlength="5000" placeholder="Descripción"></textarea>
 <select id="youtubePrivacy"><option value="private">🔒 Privado</option><option value="unlisted">🔗 Oculto</option><option value="public">🌍 Público</option></select>
+<div id="youtubeCommentsPanel" class="panel" hidden>
+<input id="youtubeVideoId" maxlength="120" placeholder="ID o URL del vídeo de YouTube">
+<textarea id="youtubeCommentText" rows="3" maxlength="10000" placeholder="Escribe el comentario que quieres publicar..."></textarea>
+<div><button type="button" id="youtubePostCommentBtn">💬 Publicar comentario</button></div>
+<div id="youtubeCommentsList" class="msginfo"></div>
+</div>
 <div id="youtubeMsg" class="msginfo"></div>
 </div>
 
@@ -102,7 +108,7 @@ button{border:0;border-radius:10px;padding:10px 14px;font-weight:bold;cursor:poi
 const $=id=>document.getElementById(id);
 let usuarioActual=null,nombreActual='',chats=[],chatId='',historial=[],ultimaOpenAIApp='',ultimoVideoUrl='',youtubeAccessToken=null,youtubeClient=null;
 const YOUTUBE_CLIENT_ID='954824229147-uf1pv1ch0v052lv0tutaueb1nknc7j19.apps.googleusercontent.com';
-const YOUTUBE_SCOPE='https://www.googleapis.com/auth/youtube.upload';
+const YOUTUBE_SCOPE='https://www.googleapis.com/auth/youtube.force-ssl';
 
 function safeGet(k,f=''){try{return localStorage.getItem(k)??f}catch{return f}}
 function safeSet(k,v){try{localStorage.setItem(k,v);return true}catch{return false}}
@@ -156,7 +162,17 @@ function abrirOpenAI(){if(!usuarioActual)return msg('🔐 Inicia sesión primero
 async function crearOpenAI(){if(!usuarioActual)return $('openaiAppMsg').textContent='🔐 Inicia sesión primero.';const name=$('openaiAppName').value.trim()||'Mi App OpenAI',prompt=$('openaiAppPrompt').value.trim();if(!prompt)return $('openaiAppMsg').textContent='✍️ Describe la aplicación.';$('openaiCreateBtn').disabled=true;$('openaiDownloadBtn').disabled=true;$('openaiAppMsg').textContent='🤖 OpenAI está creando el código...';try{const d=await api('/api/create-openai-app',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,prompt})});ultimaOpenAIApp=d.code||'';$('openaiAppCode').value=ultimaOpenAIApp;$('openaiDownloadBtn').disabled=!ultimaOpenAIApp;$('openaiAppMsg').textContent='✅ Aplicación creada.'}catch(e){$('openaiAppMsg').textContent='❌ '+e.message}finally{$('openaiCreateBtn').disabled=false}}
 function descargarOpenAI(){const code=$('openaiAppCode').value;if(!code)return;const n=(($('openaiAppName').value.trim()||'mi-app-openai').replace(/[^a-z0-9_-]/gi,'-').toLowerCase());const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([code],{type:'text/html;charset=utf-8'}));a.download=n+'.html';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
 
-function conectarYouTube(){if(!usuarioActual)return $('youtubeMsg').textContent='🔐 Inicia sesión primero.';$('youtubeMsg').textContent='▶️ Abriendo autorización de YouTube...';try{youtubeClient=google.accounts.oauth2.initTokenClient({client_id:YOUTUBE_CLIENT_ID,scope:YOUTUBE_SCOPE,callback:r=>{if(r.error){$('youtubeMsg').textContent='❌ '+r.error;return}youtubeAccessToken=r.access_token;$('youtubeUploadBtn').disabled=!ultimoVideoUrl;$('youtubeMsg').textContent='✅ YouTube conectado. Ahora genera un vídeo y podrás subirlo.'}});youtubeClient.requestAccessToken({prompt:''})}catch(e){$('youtubeMsg').textContent='❌ No se pudo iniciar YouTube: '+e.message}}
+function conectarYouTube(){if(!usuarioActual)return $('youtubeMsg').textContent='🔐 Inicia sesión primero.';$('youtubeMsg').textContent='▶️ Abriendo autorización de YouTube...';try{youtubeClient=google.accounts.oauth2.initTokenClient({client_id:YOUTUBE_CLIENT_ID,scope:YOUTUBE_SCOPE,callback:r=>{if(r.error){$('youtubeMsg').textContent='❌ '+r.error;return}youtubeAccessToken=r.access_token;$('youtubeUploadBtn').disabled=!ultimoVideoUrl;$('youtubeChannelBtn').disabled=false;$('youtubeCommentsBtn').disabled=false;$('youtubeMsg').textContent='✅ YouTube conectado. Puedes gestionar tu canal y comentarios.'}});youtubeClient.requestAccessToken({prompt:''})}catch(e){$('youtubeMsg').textContent='❌ No se pudo iniciar YouTube: '+e.message}}
+function extraerVideoId(v){const s=String(v||'').trim();if(/^[A-Za-z0-9_-]{6,}$/.test(s)&&!s.includes('/'))return s;try{const u=new URL(s);if(u.hostname.includes('youtu.be'))return u.pathname.slice(1).split('/')[0];if(u.hostname.includes('youtube.com'))return u.searchParams.get('v')||u.pathname.split('/').filter(Boolean).pop()||''}catch{}return ''}
+
+async function consultarCanal(){if(!youtubeAccessToken)return $('youtubeMsg').textContent='🔐 Conecta YouTube primero.';$('youtubeMsg').textContent='📺 Consultando tu canal...';try{const r=await fetch('https://www.googleapis.com/youtube/v3/channels?part=snippet,statistics&mine=true',{headers:{Authorization:'Bearer '+youtubeAccessToken}});const d=await r.json();if(!r.ok)throw Error(d?.error?.message||'No se pudo consultar el canal.');const ch=d.items?.[0];if(!ch)throw Error('No se encontró el canal autorizado.');$('youtubeMsg').textContent='📺 '+ch.snippet.title+' · 👥 '+(ch.statistics?.subscriberCount??'?')+' suscriptores · 👁️ '+(ch.statistics?.viewCount??'?')+' visualizaciones · 🎥 '+(ch.statistics?.videoCount??'?')+' vídeos.'}catch(e){$('youtubeMsg').textContent='❌ '+e.message}}
+
+function abrirComentarios(){if(!youtubeAccessToken)return $('youtubeMsg').textContent='🔐 Conecta YouTube primero.';$('youtubeCommentsPanel').hidden=!$('youtubeCommentsPanel').hidden}
+
+async function publicarComentario(){if(!youtubeAccessToken)return $('youtubeMsg').textContent='🔐 Conecta YouTube primero.';const videoId=extraerVideoId($('youtubeVideoId').value),text=$('youtubeCommentText').value.trim();if(!videoId)return $('youtubeMsg').textContent='🎥 Introduce el ID o URL de un vídeo.';if(!text)return $('youtubeMsg').textContent='✍️ Escribe un comentario.';$('youtubePostCommentBtn').disabled=true;$('youtubeMsg').textContent='💬 Publicando comentario...';try{const body={snippet:{channelId:'',videoId,topLevelComment:{snippet:{textOriginal:text}}}};const vr=await fetch('https://www.googleapis.com/youtube/v3/videos?part=snippet&id='+encodeURIComponent(videoId),{headers:{Authorization:'Bearer '+youtubeAccessToken}});const vd=await vr.json();const channelId=vd.items?.[0]?.snippet?.channelId;if(!channelId)throw Error('No se encontró el vídeo.');body.snippet.channelId=channelId;const r=await fetch('https://www.googleapis.com/youtube/v3/commentThreads?part=snippet',{method:'POST',headers:{Authorization:'Bearer '+youtubeAccessToken,'Content-Type':'application/json'},body:JSON.stringify(body)});const d=await r.json();if(!r.ok)throw Error(d?.error?.message||'YouTube rechazó el comentario.');$('youtubeCommentText').value='';$('youtubeMsg').textContent='✅ Comentario publicado correctamente.'}catch(e){$('youtubeMsg').textContent='❌ '+e.message}finally{$('youtubePostCommentBtn').disabled=false}}
+
+async function cargarComentarios(){if(!youtubeAccessToken)return $('youtubeMsg').textContent='🔐 Conecta YouTube primero.';const videoId=extraerVideoId($('youtubeVideoId').value);if(!videoId)return $('youtubeCommentsList').textContent='🎥 Introduce primero un ID o URL de vídeo.';$('youtubeCommentsList').textContent='⏳ Cargando comentarios...';try{const r=await fetch('https://www.googleapis.com/youtube/v3/commentThreads?part=snippet&videoId='+encodeURIComponent(videoId)+'&maxResults=20&textFormat=plainText',{headers:{Authorization:'Bearer '+youtubeAccessToken}});const d=await r.json();if(!r.ok)throw Error(d?.error?.message||'No se pudieron cargar los comentarios.');const items=d.items||[];$('youtubeCommentsList').textContent=items.length?items.map(x=>'💬 '+(x.snippet?.topLevelComment?.snippet?.authorDisplayName||'Usuario')+': '+(x.snippet?.topLevelComment?.snippet?.textDisplay||'')).join('\\n\\n'):'No hay comentarios visibles.'}catch(e){$('youtubeCommentsList').textContent='❌ '+e.message}}
+
 async function subirYouTube(){if(!youtubeAccessToken)return $('youtubeMsg').textContent='🔐 Conecta YouTube primero.';if(!ultimoVideoUrl)return $('youtubeMsg').textContent='🎬 Genera primero un vídeo.';$('youtubeUploadBtn').disabled=true;$('youtubeMsg').textContent='⬆️ Preparando vídeo...';try{const media=await fetch(ultimoVideoUrl);if(!media.ok)throw Error('No se pudo descargar el vídeo generado.');const blob=await media.blob();const metadata={snippet:{title:$('youtubeTitle').value.trim()||'Vídeo de SoyPerritoProProYT',description:$('youtubeDescription').value.trim()||'Creado con SoyPerritoProProYT.IAOFICIAL'},status:{privacyStatus:$('youtubePrivacy').value}};const init=await fetch('https://www.googleapis.com/upload/youtube/v3/videos?part=snippet,status&uploadType=resumable',{method:'POST',headers:{Authorization:'Bearer '+youtubeAccessToken,'Content-Type':'application/json','X-Upload-Content-Type':blob.type||'video/mp4','X-Upload-Content-Length':String(blob.size)},body:JSON.stringify(metadata)});if(!init.ok)throw Error((await init.text())||'YouTube rechazó la preparación de la subida.');const location=init.headers.get('Location');if(!location)throw Error('YouTube no devolvió la URL de subida.');$('youtubeMsg').textContent='⬆️ Subiendo vídeo a YouTube...';const upload=await fetch(location,{method:'PUT',headers:{Authorization:'Bearer '+youtubeAccessToken,'Content-Type':blob.type||'video/mp4'},body:blob});const result=await upload.json().catch(()=>({}));if(!upload.ok)throw Error(result?.error?.message||'YouTube rechazó la subida.');$('youtubeMsg').textContent='✅ Vídeo subido. ID: '+(result.id||'desconocido')}catch(e){$('youtubeMsg').textContent='❌ '+e.message}finally{$('youtubeUploadBtn').disabled=!youtubeAccessToken||!ultimoVideoUrl}}
 
 $('registerBtn').onclick=()=>auth('register');
@@ -175,6 +191,9 @@ $('openaiAppBtn').onclick=abrirOpenAI;
 $('openaiCreateBtn').onclick=crearOpenAI;
 $('openaiDownloadBtn').onclick=descargarOpenAI;
 $('youtubeConnectBtn').onclick=conectarYouTube;
+$('youtubeChannelBtn').onclick=consultarCanal;
+$('youtubeCommentsBtn').onclick=()=>{abrirComentarios();cargarComentarios()};
+$('youtubePostCommentBtn').onclick=publicarComentario;
 $('youtubeUploadBtn').onclick=subirYouTube;
 
 (function iniciar(){const u=safeGet('sp_session_v1','');if(u&&accounts()[u])activar(u);else{usuarioActual=null;nombreActual='Invitado';cargarChats();$('estado').textContent='💬 Modo invitado · puedes hablar sin cuenta'}})();
