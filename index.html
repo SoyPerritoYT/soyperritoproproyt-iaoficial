@@ -90,8 +90,8 @@ button{border:0;border-radius:10px;padding:10px 14px;font-weight:bold;cursor:poi
 <textarea id="youtubeDescription" rows="2" maxlength="5000" placeholder="Descripción"></textarea>
 <select id="youtubePrivacy"><option value="private">🔒 Privado</option><option value="unlisted">🔗 Oculto</option><option value="public">🌍 Público</option></select>
 <div id="youtubeCommentsPanel" class="panel" hidden>
-<input id="youtubeVideoId" maxlength="120" placeholder="ID o URL del vídeo de YouTube">
-<textarea id="youtubeCommentText" rows="3" maxlength="10000" placeholder="Escribe el comentario que quieres publicar..."></textarea>
+<input id="youtubeVideoId" maxlength="120" placeholder="🔗 Pega la URL del vídeo de YouTube">
+<textarea id="youtubeCommentText" rows="3" maxlength="10000" placeholder="💬 Escribe lo que quieres que diga la IA en ese vídeo..."></textarea>
 <div><button type="button" id="youtubePostCommentBtn">💬 Publicar comentario</button></div>
 <div id="youtubeCommentsList" class="msginfo"></div>
 </div>
@@ -193,6 +193,7 @@ $('openaiDownloadBtn').onclick=descargarOpenAI;
 $('youtubeConnectBtn').onclick=conectarYouTube;
 $('youtubeChannelBtn').onclick=consultarCanal;
 $('youtubeCommentsBtn').onclick=()=>{abrirComentarios();cargarComentarios()};
+$('youtubeVideoId').addEventListener('input',()=>{const v=$('youtubeVideoId').value.trim();if(v&&extraerVideoId(v))$('youtubeMsg').textContent='✅ Vídeo detectado. Escribe el comentario y pulsa Publicar.'});
 $('youtubePostCommentBtn').onclick=publicarComentario;
 $('youtubeUploadBtn').onclick=subirYouTube;
 
