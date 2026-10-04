@@ -22,9 +22,9 @@ export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).json({ error: "Método no permitido." });
 
   const secret = process.env.SPYT_API_SECRET;
-  const geminiKey = process.env.GEMINI_API_KEY;
+  const spytApiKey = process.env.SPYT_API_KEY;
   if (!secret) return res.status(500).json({ error: "Falta SPYT_API_SECRET en Vercel." });
-  if (!geminiKey) return res.status(500).json({ error: "Falta GEMINI_API_KEY en Vercel." });
+  if (!spytApiKey) return res.status(500).json({ error: "Falta SPYT_API_KEY en Vercel." });
 
   const suppliedKey = req.headers["x-api-key"] || req.headers.authorization?.replace(/^Bearer\s+/i, "");
   if (!validApiKey(suppliedKey, secret)) {
@@ -57,7 +57,7 @@ No afirmes que eres un modelo de Google; tu nombre de producto es SoyPerrito 1.0
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "x-goog-api-key": geminiKey
+          "x-goog-api-key": spytApiKey
         },
         body: JSON.stringify({
           system_instruction: { parts: [{ text: systemInstruction }] },
