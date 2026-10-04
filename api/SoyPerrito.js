@@ -1,10 +1,10 @@
 import crypto from "node:crypto";
 
 const MODELS = {
-  "soyperrito-1.0-flash": "gemini-3.8-flash",
-  "soyperrito-1.0-flash-lite": "gemini-3.5-flash-lite",
-  "soyperrito-1.0-fast": "gemini-3.6-flash",
-  "soyperrito-1.0-pro": "gemini-3.1-pro-preview"
+  "soyperrito-1.0-flash": ["gemini-3.8-flash", "gemini-3.7-flash", "gemini-3.6-flash"],
+  "soyperrito-1.0-flash-lite": ["gemini-3.5-flash-lite", "gemini-3.1-flash-lite"],
+  "soyperrito-1.0-fast": ["gemini-3.6-flash", "gemini-3.5-flash"],
+  "soyperrito-1.0-pro": ["gemini-3.1-pro-preview"]
 };
 
 function validApiKey(value, secret) {
@@ -37,8 +37,8 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: "Falta el contenido." });
     }
 
-    const modelId = MODELS[model];
-    if (!modelId) {
+    const modelIds = MODELS[model];
+    if (!modelIds) {
       return res.status(400).json({
         error: "Modelo no disponible.",
         availableModels: Object.keys(MODELS)
@@ -51,36 +51,51 @@ Sé útil, clara y segura.
 No afirmes que eres un modelo de Google; tu nombre de producto es SoyPerrito 1.0.
 `;
 
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${modelId}:generateContent`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-goog-api-key": spytApiKey
-        },
-        body: JSON.stringify({
-          system_instruction: { parts: [{ text: systemInstruction }] },
-          contents: [{ role: "user", parts: [{ text: message }] }],
-          generationConfig: { maxOutputTokens: 1200 }
-        })
-      }
-    );
+    let lastError = "El modelo no pudo responder.";
 
-    const data = await response.json().catch(() => ({}));
-    if (!response.ok) {
-      return res.status(response.status).json({
-        error: data.error?.message || "El modelo no pudo responder."
-      });
+    for (const modelId of modelIds) {
+      try {
+        const response = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/${modelId}:generateContent`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "x-goog-api-key": spytApiKey
+            },
+            body: JSON.stringify({
+              system_instruction: { parts: [{ text: systemInstruction }] },
+              contents: [{ role: "user", parts: [{ text: message }] }],
+              generationConfig: { maxOutputTokens: 1200 }
+            })
+          }
+        );
+
+        const data = await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+          lastError = data.error?.message || `El modelo respondió con HTTP ${response.status}.`;
+          continue;
+        }
+
+        const reply = data.candidates?.[0]?.content?.parts?.map(p => p.text || "").join("") || "";
+        if (reply) {
+          return res.status(200).json({
+            reply,
+            model,
+            providerModel: modelId
+          });
+        }
+
+        lastError = "El modelo no devolvió texto.";
+      } catch (e) {
+        lastError = e.message || "Error de conexión con el modelo.";
+      }
     }
 
-    const reply = data.candidates?.[0]?.content?.parts?.map(p => p.text || "").join("") || "";
-    if (!reply) return res.status(502).json({ error: "El modelo no devolvió texto." });
-
-    return res.status(200).json({
-      reply,
-      model,
-      providerModel: modelId
+    return res.status(503).json({
+      error: "Todos los modelos de respaldo están temporalmente ocupados o no disponibles. Inténtalo de nuevo en unos segundos.",
+      detail: lastError
     });
   } catch (e) {
     return res.status(500).json({ error: e.message || "Error al contactar con SoyPerrito." });
