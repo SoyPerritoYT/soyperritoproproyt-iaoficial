@@ -23,7 +23,7 @@ button{border:0;border-radius:10px;padding:10px 14px;font-weight:bold;cursor:poi
 .pcbox iframe{display:block;width:100%;height:min(70vh,720px);min-height:420px;border:0;border-radius:12px;background:#000}
 .pcbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}.pcbar input{flex:1;min-width:180px}
 .pcbar input,.pcbar button{padding:10px;border-radius:10px;border:0;background:#333;color:#fff}.pcout{white-space:pre-wrap;color:#aaa;font:12px monospace;margin-top:8px}
-</style>
+.creatorBox{display:block}.creatorBox .panel{margin-top:8px}.creatorActions{display:flex;gap:8px;flex-wrap:wrap}.creatorActions button{background:#333;color:#fff}.creatorActions button:disabled{opacity:.5}.creatorBox textarea{width:100%;margin-bottom:8px;font-family:inherit}.creatorBox #creatorResult{font-family:monospace;min-height:220px}</style>
 </head>
 <body>
 <div class="app">
@@ -98,6 +98,22 @@ button{border:0;border-radius:10px;padding:10px 14px;font-weight:bold;cursor:poi
 <div id="youtubeMsg" class="msginfo"></div>
 </div>
 
+
+<div class="tools creatorBox">
+<button id="createWithPerritoBtn">✨ Crear con SoyPerritoProProYT-IAOFICIAL</button>
+<div id="creatorPanel" class="panel" hidden>
+<textarea id="creatorPrompt" rows="4" maxlength="4000" placeholder="Describe lo que quieres crear..."></textarea>
+<div class="creatorActions">
+<button id="creatorGenerateBtn">🤖 Generar</button>
+<button id="creatorRegenerateBtn" disabled>🔄 Regenerar</button>
+<button id="creatorEditBtn" disabled>✏️ Editar</button>
+<button id="creatorDiscardBtn" disabled>🗑️ Descartar</button>
+</div>
+<textarea id="creatorResult" rows="12" readonly placeholder="Aquí aparecerá tu creación..."></textarea>
+<div id="creatorMsg" class="msginfo"></div>
+</div>
+</div>
+
 <form id="form" class="form"><input id="entrada" maxlength="4000" autocomplete="off" placeholder="Escribe algo..."><button id="enviar">Enviar</button></form>
 </div>
 
@@ -143,6 +159,36 @@ function nuevo(){const id='chat-'+Date.now();chats.unshift({id,title:'Nuevo chat
 async function enviar(){const t=$('entrada').value.trim();if(!t)return;$('entrada').value='';historial.push({role:'user',content:t});render();guardar();$('enviar').disabled=true;$('entrada').disabled=true;const e=msg('Escribiendo...');
 try{const d=await api('/api/gemini',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:t})});e.textContent=d.reply||'Sin respuesta.';if(d.reply)historial.push({role:'assistant',content:d.reply});guardar()}catch(x){e.textContent='❌ '+x.message}finally{$('enviar').disabled=false;$('entrada').disabled=false}}
 
+
+let creatorLastPrompt='';
+function abrirCreador(){
+ $('creatorPanel').hidden=!$('creatorPanel').hidden;
+ if(!$('creatorPanel').hidden)$('creatorPrompt').focus();
+}
+async function generarConPerrito(regenerate=false){
+ const p=$('creatorPrompt').value.trim();
+ if(!p)return $('creatorMsg').textContent='✍️ Describe lo que quieres crear.';
+ creatorLastPrompt=p;
+ $('creatorGenerateBtn').disabled=true;$('creatorRegenerateBtn').disabled=true;$('creatorEditBtn').disabled=true;$('creatorDiscardBtn').disabled=false;
+ $('creatorMsg').textContent=regenerate?'🔄 Regenerando...':'🤖 Creando...';
+ try{
+  const extra=regenerate?'\nGenera una versión diferente a la anterior, mejorando el resultado.':'';
+  const d=await api('/api/gemini',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:'Eres el creador de SoyPerritoProProYT-IAOFICIAL. Crea una solución útil para esta petición. Si se pide código, entrega código completo y funcional. Petición: '+p+extra})});
+  $('creatorResult').value=d.reply||'Sin resultado.';
+  $('creatorMsg').textContent='✅ Creado. Puedes editarlo o regenerarlo.';
+  $('creatorRegenerateBtn').disabled=false;$('creatorEditBtn').disabled=false;
+ }catch(e){$('creatorMsg').textContent='❌ '+e.message;$('creatorDiscardBtn').disabled=true}
+ finally{$('creatorGenerateBtn').disabled=false}
+}
+function editarCreador(){
+ const e=$('creatorResult');e.readOnly=!e.readOnly;$('creatorEditBtn').textContent=e.readOnly?'✏️ Editar':'🔒 Bloquear';
+ if(!e.readOnly)e.focus();
+}
+function descartarCreador(){
+ $('creatorPrompt').value='';$('creatorResult').value='';$('creatorMsg').textContent='🗑️ Creación descartada.';
+ $('creatorRegenerateBtn').disabled=true;$('creatorEditBtn').disabled=true;$('creatorDiscardBtn').disabled=true;
+}
+
 const ideas=['Un perrito gamer blanco gana una carrera de karts futurista.','Un perrito descubre una sala secreta llena de máquinas arcade.','Un perrito gamer lucha contra un robot gigante en una arena digital.','Un perrito viaja al espacio en una nave llena de videojuegos.'];
 function generarIdea(){$('videoPrompt').value=ideas[Math.floor(Math.random()*ideas.length)];$('videoGeneratorMsg').textContent='🎲 Idea lista.'}
 async function generarVideo(){const p=$('videoPrompt').value.trim();if(!p)return $('videoGeneratorMsg').textContent='✍️ Escribe una idea.';$('generateVideoBtn').disabled=true;$('videoGeneratorMsg').textContent='🎬 Generando vídeo...';$('mediaResult').textContent='⏳ Creando MP4...';try{const d=await api('/api/video',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:p})});const url=d.url||d.videoUrl||d.video_url;if(!url)throw Error('El servidor no devolvió una URL de vídeo.');ultimoVideoUrl=url;const v=document.createElement('video');v.src=url;v.controls=true;v.playsInline=true;$('mediaResult').innerHTML='';$('mediaResult').appendChild(v);$('youtubeUploadBtn').disabled=!youtubeAccessToken;$('videoGeneratorMsg').textContent='✅ Vídeo creado.'}catch(e){$('mediaResult').textContent='❌ '+e.message;$('videoGeneratorMsg').textContent='❌ No se pudo generar.'}finally{$('generateVideoBtn').disabled=false}}
@@ -181,6 +227,11 @@ $('logoutBtn').onclick=cerrarSesion;
 $('nuevoChatBtn').onclick=nuevo;
 $('chatSelect').onchange=()=>{chatId=$('chatSelect').value;cargarActual()};
 $('form').onsubmit=e=>{e.preventDefault();enviar()};
+$('createWithPerritoBtn').onclick=abrirCreador;
+$('creatorGenerateBtn').onclick=()=>generarConPerrito(false);
+$('creatorRegenerateBtn').onclick=()=>generarConPerrito(true);
+$('creatorEditBtn').onclick=editarCreador;
+$('creatorDiscardBtn').onclick=descartarCreador;
 $('randomVideoBtn').onclick=generarIdea;
 $('generateVideoBtn').onclick=generarVideo;
 $('imagenBtn').onclick=crearImagen;$('worldBtn').onclick=()=>{$('worldPanel').hidden=!$('worldPanel').hidden};$('worldCreateBtn').onclick=crearMundo;
