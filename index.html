@@ -157,7 +157,7 @@ function guardar(){const c=chats.find(x=>x.id===chatId);if(!c)return;c.messages=
 function nuevo(){const id='chat-'+Date.now();chats.unshift({id,title:'Nuevo chat',messages:[]});chatId=id;historial=[];guardarChats();selectChats();render()}
 
 async function enviar(){const t=$('entrada').value.trim();if(!t)return;$('entrada').value='';historial.push({role:'user',content:t});render();guardar();$('enviar').disabled=true;$('entrada').disabled=true;const e=msg('Escribiendo...');
-try{const d=await api('/api/gemini',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:t})});e.textContent=d.reply||'Sin respuesta.';if(d.reply)historial.push({role:'assistant',content:d.reply});guardar()}catch(x){e.textContent='❌ '+x.message}finally{$('enviar').disabled=false;$('entrada').disabled=false}}
+try{const d=await api('/api/SoyPerrito',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:t})});e.textContent=d.reply||'Sin respuesta.';if(d.reply)historial.push({role:'assistant',content:d.reply});guardar()}catch(x){e.textContent='❌ '+x.message}finally{$('enviar').disabled=false;$('entrada').disabled=false}}
 
 
 let creatorLastPrompt='';
@@ -173,7 +173,7 @@ async function generarConPerrito(regenerate=false){
  $('creatorMsg').textContent=regenerate?'🔄 Regenerando...':'🤖 Creando...';
  try{
   const extra=regenerate?'\nGenera una versión diferente a la anterior, mejorando el resultado.':'';
-  const d=await api('/api/gemini',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:'Eres el creador de SoyPerritoProProYT-IAOFICIAL. Crea una solución útil para esta petición. Si se pide código, entrega código completo y funcional. Petición: '+p+extra})});
+  const d=await api('/api/SoyPerrito',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:'Eres el creador de SoyPerritoProProYT-IAOFICIAL. Crea una solución útil para esta petición. Si se pide código, entrega código completo y funcional. Petición: '+p+extra})});
   $('creatorResult').value=d.reply||'Sin resultado.';
   $('creatorMsg').textContent='✅ Creado. Puedes editarlo o regenerarlo.';
   $('creatorRegenerateBtn').disabled=false;$('creatorEditBtn').disabled=false;
