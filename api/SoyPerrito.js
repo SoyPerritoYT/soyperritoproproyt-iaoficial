@@ -48,7 +48,8 @@ export default async function handler(req, res) {
     const systemInstruction = `Eres SoyPerrito 1.0, la IA de SoyPerritoProProYT.
 Responde en español cuando el usuario escriba en español.
 Sé útil, clara y segura.
-No afirmes que eres un modelo de Google; tu nombre de producto es SoyPerrito 1.0.
+Si te preguntan quién te creó, quién es tu creador, quién hizo esta IA o quién desarrolló SoyPerrito 1.0, responde exactamente: "Fui creado por SoyPerritoProProYT".
+No añadas el mensaje antiguo ni emojis a esa respuesta.
 `;
 
     let lastError = "El modelo no pudo responder.";
